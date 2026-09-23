@@ -1,0 +1,65 @@
+/* ================================================================
+   VISUALIZADOR MODAL — TOKENS
+   Variables --vm-* para los 3 temas.
+   El modal tiene diseño propio que no hereda global.css pero sí
+   adapta colores para WCAG AA en cada tema.
+   ================================================================ */
+
+/* ── Tema oscuro (default) ───────────────────────────────────────────────── */
+:root {
+  --vm-header-bg:        #3730a3;
+  --vm-accent-text:      #ffffff;       /* 14.4:1 ✓ */
+  --vm-badge-label:      #fde047;       /*  9.8:1 ✓ */
+  --vm-badge-value:      #e0e7ff;       /*  8.6:1 ✓ */
+  --vm-close-bg:         #dc2626;
+  --vm-close-hover:      #b91c1c;
+  --vm-border:           #4338ca;
+  --vm-modal-bg:         var(--bg-primary);
+  --vm-render-bg:        var(--bg-secondary);
+  --vm-shadow:           8px 8px 0px rgba(0,0,0,0.5);
+  --vm-btn-shadow:       4px 4px 0px rgba(0,0,0,0.7);
+  --vm-btn-shadow-hover: 6px 6px 0px rgba(0,0,0,0.7);
+  --vm-spinner-track:    rgba(99,102,241,0.25);
+  --vm-spinner-top:      #818cf8;
+  --vm-overlay-bg:       rgba(0,0,0,0.85);
+  --vm-no-preview-color: #a5b4fc;
+  --vm-hint-color:       var(--text-secondary);
+}
+
+/* ── Tema claro ──────────────────────────────────────────────────────────── */
+body.theme-light {
+  --vm-header-bg:        #4338ca;
+  --vm-accent-text:      #ffffff;       /* 8.6:1 ✓ */
+  --vm-badge-label:      #fef08a;       /* 7.1:1 ✓ */
+  --vm-badge-value:      #ffffff;       /* 8.6:1 ✓ */
+  --vm-border:           #312e81;
+  --vm-modal-bg:         #ffffff;
+  --vm-render-bg:        #f1f5f9;
+  --vm-shadow:           8px 8px 0px rgba(49,46,129,0.3);
+  --vm-btn-shadow:       4px 4px 0px #312e81;
+  --vm-btn-shadow-hover: 6px 6px 0px #312e81;
+  --vm-spinner-track:    rgba(67,56,202,0.15);
+  --vm-spinner-top:      #4338ca;
+  --vm-no-preview-color: #4338ca;
+  --vm-hint-color:       #64748b;
+}
+
+/* ── Alto contraste ──────────────────────────────────────────────────────── */
+body.high-contrast {
+  --vm-header-bg:        #000000;
+  --vm-accent-text:      #ffffff;       /* 21:1 ✓ */
+  --vm-badge-label:      #ffff00;       /* 19.1:1 ✓ */
+  --vm-badge-value:      #ffffff;       /* 21:1 ✓ */
+  --vm-close-bg:         #cc0000;
+  --vm-close-hover:      #ff0000;
+  --vm-border:           #ffffff;
+  --vm-modal-bg:         #000000;
+  --vm-render-bg:        #111111;
+  --vm-shadow:           0 0 0 3px #ffffff;
+  --vm-btn-shadow:       4px 4px 0px #ffffff;
+  --vm-btn-shadow-hover: 6px 6px 0px #ffffff;
+  --vm-spinner-top:      #ffff00;
+  --vm-overlay-bg:       rgba(0,0,0,0.95);
+  --vm-no-preview-color: #ffff00;
+  --vm-hint-color:       #aaaaaa;
+}

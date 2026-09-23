@@ -1,0 +1,85 @@
+/* BoundingBoxSelector.css */
+
+.via-mask-root    { display: flex; flex-direction: column; }
+.via-mask-header  { padding: 0.75rem 1.25rem; border-bottom: 1px solid var(--border-color); }
+.via-mask-hint {
+  margin: 0; font-size: 0.82rem; color: var(--text-secondary);
+  display: flex; align-items: center; flex-wrap: wrap; gap: 0.35rem;
+}
+
+/* "Mantén una esquina…" */
+.via-hint-quad-tip {
+  color: var(--primary-text, var(--primary-color));
+  font-weight: 500;
+  font-size: 0.82rem;
+}
+/* Alto contraste: asegurar ratio ≥ 4.5:1 */
+body.high-contrast .via-hint-quad-tip {
+  color: var(--text-primary);
+}
+
+/* Badge "◈ Forma libre" */
+.via-quad-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+  padding: 1px 6px;
+  background: var(--primary-color);
+  color: #fff;
+  border-radius: 4px;
+  font-size: 0.82rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+}
+/* Alto contraste: amarillo de fondo → texto negro obligatorio */
+body.high-contrast .via-quad-badge {
+  color: #000;
+  border: 1px solid #000;
+}
+
+/* Botón "↩ volver a rectángulo" */
+.via-hint-reset-btn {
+  background: none; border: none;
+  color: var(--primary-text, var(--primary-color));
+  font-size: 0.82rem; font-weight: 600;
+  cursor: pointer; padding: 0;
+  text-decoration: underline; text-underline-offset: 2px;
+}
+.via-hint-reset-btn:hover { opacity: 0.75; }
+.via-hint-reset-btn:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px; border-radius: 3px;
+}
+body.high-contrast .via-hint-reset-btn { color: var(--text-primary); }
+
+/* Canvas wrap — Grid stacking */
+.via-canvas-wrap {
+  display: grid; width: 100%;
+  background: #000;
+  touch-action: none; user-select: none; overflow: hidden;
+}
+.via-canvas-bg {
+  grid-area: 1 / 1; display: block;
+  width: 100%; height: auto;
+  pointer-events: none; user-select: none;
+}
+.via-bbox-svg {
+  grid-area: 1 / 1; width: 100%; height: 100%;
+  display: block; cursor: crosshair;
+}
+
+.via-mask-controls {
+  padding: 1rem 1.25rem;
+  display: flex; flex-direction: column; gap: 0.75rem;
+}
+.via-mask-actions {
+  display: flex; gap: 0.5rem;
+  flex-wrap: wrap; justify-content: flex-end;
+}
+
+.via-img-hidden { display: none; pointer-events: none; }
+
+@media (max-width: 480px) {
+  .via-mask-actions           { flex-direction: column; }
+  .via-mask-actions .via-btn  { width: 100%; }
+}

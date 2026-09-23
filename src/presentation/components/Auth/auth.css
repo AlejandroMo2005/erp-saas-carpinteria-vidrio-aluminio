@@ -1,0 +1,47 @@
+/* ================================================================
+   TOKENS DEL MÓDULO AUTH
+   Importar en Login.jsx, Register.jsx, ForgotPassword.jsx:
+     import './auth.css';
+   O en AuthLayout.css si todos los auth comparten ese import.
+   ================================================================ */
+
+
+/* ================================================================
+   TEMA OSCURO (DEFAULT)
+   ================================================================ */
+:root {
+  /* Alerts informativos — ForgotPassword, banner sesión expirada */
+  --info-bg:     #1e3a8a;
+  --info-color:  #bfdbfe;
+  --info-border: #3b82f6;
+
+  /* Links de footer — Login, Register */
+  --link-color: #60a5fa;   /* 4.5:1 sobre --bg-card #1e293b ✓ */
+  --link-hover: #93c5fd;
+}
+
+
+/* ================================================================
+   TEMA CLARO
+   ================================================================ */
+body.theme-light {
+  --info-bg:     #dbeafe;
+  --info-color:  #1e40af;   /* 7.2:1 sobre #dbeafe ✓ */
+  --info-border: #3b82f6;
+
+  --link-color: #2563eb;   /* 5.9:1 sobre blanco ✓ */
+  --link-hover: #1d4ed8;
+}
+
+
+/* ================================================================
+   ALTO CONTRASTE
+   ================================================================ */
+body.high-contrast {
+  --info-bg:     #000000;
+  --info-color:  #ffff00;
+  --info-border: #ffff00;
+
+  --link-color: #ffff00;
+  --link-hover: #ffff66;
+}

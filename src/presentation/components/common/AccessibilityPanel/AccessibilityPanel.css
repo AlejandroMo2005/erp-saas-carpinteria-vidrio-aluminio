@@ -1,0 +1,33 @@
+/* ================================================================
+   ACCESSIBILITY PANEL — ENTRY POINT
+   Sin variables propias: usa 100% globals de global.css
+   ================================================================ */
+@import './AccessibilityPanel.trigger.css';
+@import './AccessibilityPanel.panel.css';
+@import './AccessibilityPanel.toggle.css';
+@import './AccessibilityPanel.controls.css';
+
+/* ================================================================
+   REDUCIR MOVIMIENTO
+   Afecta clases de múltiples parciales — se centraliza aquí.
+   Clase body.reduce-motion (proyecto) + media query (fallback navegador).
+   ================================================================ */
+body.reduce-motion .accessibility-panel,
+body.reduce-motion .toggle-slider,
+body.reduce-motion .toggle-switch,
+body.reduce-motion .accessibility-button,
+body.reduce-motion .panel-overlay {
+  transition-duration: 0.01ms !important;
+  animation-duration:  0.01ms !important;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .accessibility-panel,
+  .toggle-slider,
+  .toggle-switch,
+  .accessibility-button,
+  .panel-overlay {
+    transition-duration: 0.01ms !important;
+    animation-duration:  0.01ms !important;
+  }
+}

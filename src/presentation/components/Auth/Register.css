@@ -1,0 +1,193 @@
+/* ==========================================
+   REGISTER - DISEÑO COMPLETO
+========================================== */
+
+.register-container {
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary-color) 100%);
+  padding: 2rem;
+}
+
+.register-card {
+  background: var(--bg-card);
+  border: 3px solid var(--border-strong);
+  border-radius: 1.5rem;
+  padding: 3rem;
+  width: 100%;
+  max-width: 500px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.4);
+}
+
+.register-header {
+  text-align: center;
+  margin-bottom: 2rem;
+}
+
+.register-header h1 {
+  font-size: 2em;
+  font-weight: 900;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  margin-bottom: 0.5rem;
+}
+
+.register-header p {
+  color: var(--text-secondary);
+  font-size: 1em;
+}
+
+/* ==========================================
+   FORM
+========================================== */
+
+.register-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.register-alert {
+  padding: 1rem;
+  border-radius: 0.5rem;
+  font-weight: 600;
+  text-align: center;
+  background: var(--error-bg);
+  color:      var(--error-color);
+  border:     2px solid var(--error-color);
+  animation: slideIn 0.3s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-10px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+body.reduce-motion .register-alert { animation: none; }
+
+/* ==========================================
+   INPUT GROUPS
+========================================== */
+
+.register-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.register-group label {
+  font-weight: 700;
+  color: var(--text-secondary);
+  font-size: 0.875em;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.register-group input {
+  background: var(--bg-secondary);
+  color:      var(--text-primary);
+  border:     2px solid var(--border-color);
+  padding:    1rem;
+  border-radius: 0.625rem;
+  font-size:  1em;
+  font-family: inherit;
+  transition: all 0.2s ease;
+}
+
+.register-group input:focus {
+  outline:      2px solid var(--primary-color);
+  outline-offset: 2px;
+  border-color: var(--primary-color);
+}
+
+.register-group input::placeholder {
+  color:   var(--text-secondary);
+  opacity: 0.6;
+}
+
+/* ==========================================
+   BOTÓN REGISTRO
+========================================== */
+
+.register-btn {
+  background: var(--primary-color);
+  color:      #ffffff;
+  border:     none;
+  padding:    1.25rem;
+  border-radius: 0.75rem;
+  font-size:  1.1em;
+  font-weight: 900;
+  text-transform: uppercase;
+  cursor:     pointer;
+  transition: all 0.2s ease;
+  margin-top: 1rem;
+}
+
+.register-btn:hover:not(:disabled) {
+  background: var(--primary-hover);
+  transform: translateY(-2px);
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.register-btn:active:not(:disabled) { transform: translateY(0); }
+
+.register-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* Alto contraste — usa CSS vars en lugar de hardcodes */
+body.high-contrast .register-btn {
+  background: var(--primary-color);    /* #ffff00 */
+  color:      var(--bg-page);          /* #000000 */
+  border:     3px solid var(--bg-page);
+  box-shadow: 0.25rem 0.25rem 0 var(--bg-page);
+}
+
+body.high-contrast .register-btn:hover:not(:disabled) {
+  background: var(--primary-hover);    /* #ffff66 */
+  transform: translate(-2px, -2px);
+  box-shadow: 0.375rem 0.375rem 0 var(--bg-page);
+}
+
+body.high-contrast .register-btn:active:not(:disabled) {
+  transform: translate(2px, 2px);
+  box-shadow: none;
+}
+
+/* ==========================================
+   FOOTER
+========================================== */
+
+.register-footer {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 2px solid var(--border-color);
+  text-align: center;
+}
+
+/* --link-color / --link-hover cubren los 3 temas desde global.css.
+   Elimina los bloques body:not(.theme-light) / body.theme-light / HC. */
+.register-footer a {
+  color: var(--link-color);
+  text-decoration: none;
+  font-weight: 600;
+  font-size: 0.875em;
+  transition: color 0.2s ease;
+}
+
+.register-footer a:hover { color: var(--link-hover); text-decoration: underline; }
+
+body.high-contrast .register-footer a { font-weight: 900; }
+
+/* ==========================================
+   RESPONSIVE
+========================================== */
+
+@media (max-width: 768px) {
+  .register-container { padding: 1rem; }
+  .register-card      { padding: 2rem; }
+  .register-header h1 { font-size: 1.5em; }
+}

@@ -1,0 +1,43 @@
+/* ================================================================
+   USUARIOS — Tooltip del gráfico de barras
+   ================================================================ */
+
+.usu-tooltip {
+  background: var(--bg-primary);
+  border: 2px solid var(--border-strong);
+  border-radius: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  box-shadow: var(--shadow-md);
+}
+
+body.high-contrast .usu-tooltip {
+  border-color: var(--primary-color);
+  background: var(--bg-primary);
+  box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+.usu-tooltip__label {
+  color: var(--text-primary);
+  font-size: 0.8125em;
+  font-weight: 700;
+}
+
+body.high-contrast .usu-tooltip__label { color: var(--primary-color); }
+
+.usu-tooltip__value {
+  font-size: 1em;
+  font-weight: 900;
+}
+
+body.high-contrast .usu-tooltip__value { color: var(--primary-color) !important; }
+
+.usu-tooltip__pedidos {
+  color: var(--text-secondary);
+  font-size: 0.75em;
+  font-weight: 600;
+}
+
+body.high-contrast .usu-tooltip__pedidos { color: var(--primary-color); }

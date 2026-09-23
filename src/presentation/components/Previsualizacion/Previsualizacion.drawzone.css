@@ -1,0 +1,76 @@
+/* ================================================================
+   PREVISUALIZACION — DRAW ZONE + RESULTADO IA
+   ================================================================ */
+
+/* ── Zona de render ──────────────────────────────────────────────────────── */
+.draw-zone {
+  background: var(--bg-tertiary);
+  min-height: 17.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 0.75rem;
+  border: 2px solid var(--border-color);
+  padding: 1.25rem;
+  flex: 1;
+}
+
+.msg-err {
+  color: var(--text-primary);
+  font-size: 0.85em;
+  text-align: center;
+  padding: 1rem;
+}
+
+/* ── Resultado IA ────────────────────────────────────────────────────────── */
+.ia-draw-resultado {
+  position: relative;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.ia-draw-resultado-img {
+  width: 100%;
+  max-height: 400px;
+  object-fit: contain;
+  border-radius: 0.5rem;
+  border: 2px solid var(--border-color);
+}
+
+.ia-draw-resultado-badge {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.5rem;
+  background: var(--primary-color);
+  color: var(--prev-btn-ia-color);
+  font-size: 0.75em;
+  font-weight: 700;
+  padding: 0.2em 0.6em;
+  border-radius: 20px;
+}
+
+.ia-draw-resultado-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.ia-draw-btn-small {
+  padding: 0.4rem 0.9rem;
+  background: var(--prev-btn-ia-bg);
+  color: var(--prev-btn-ia-color);
+  border: 2px solid var(--prev-btn-ia-border);
+  border-radius: 6px;
+  font-size: 0.82em;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s;
+  min-height: 44px;
+}
+
+.ia-draw-btn-small:hover         { background: var(--prev-btn-ia-hover); border-color: var(--prev-btn-ia-hover); }
+.ia-draw-btn-small:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }

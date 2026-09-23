@@ -1,0 +1,22 @@
+/* ================================================================
+   FACTURACIÓN — Área de contenido y visibilidad de paneles
+   ================================================================ */
+
+.fact-content {
+  background: var(--bg-secondary);
+  border-radius: 0.75rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  min-height: 60vh;
+  box-sizing: border-box;
+}
+
+@media (max-width: 768px) {
+  .fact-content { padding: 1rem; }
+}
+
+/* CLS fix: paneles ocultos con CSS en lugar de desmontar/montar */
+.fact-panel          { display: none; }
+.fact-panel--visible { display: block; }
+
+body.high-contrast .fact-content { background: var(--bg-primary); border: 2px solid var(--border-strong); }

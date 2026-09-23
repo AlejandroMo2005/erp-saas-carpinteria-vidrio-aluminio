@@ -1,0 +1,72 @@
+/* ================================================================
+   PRODUCTOS — Grid de tarjetas de material
+   ================================================================ */
+
+.prod-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.prod-card {
+  background: var(--bg-secondary);
+  border: 2px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  text-align: left;
+}
+
+.prod-card:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+}
+
+.prod-card--active {
+  background: var(--bg-primary);
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px var(--primary-glow, rgba(67, 56, 202, 0.2));
+}
+
+.prod-card:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+body.high-contrast .prod-card         { border: 2px solid var(--border-strong); }
+body.high-contrast .prod-card--active { border: 3px solid var(--primary-color); }
+
+.prod-card__icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  background: var(--primary-color);
+  border-radius: 0.625rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  color: #fff;
+}
+
+body.high-contrast .prod-card__icon { color: var(--bg-page); }
+
+.prod-card__nombre {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  flex: 1;
+}
+
+@media (max-width: 480px) {
+  .prod-card        { padding: 0.875rem 1rem; }
+  .prod-card__icon  { width: 2rem; height: 2rem; }
+  .prod-card__nombre { font-size: 0.875rem; }
+}

@@ -1,0 +1,67 @@
+/* ================================================================
+   DASHBOARD — Layout, header, contenedor principal, error banner
+   ================================================================ */
+
+.db-page {
+  min-height: 100vh;
+  background: var(--bg-page);
+  padding: 2rem 2rem 3rem;
+  color: var(--text-primary);
+  contain: layout paint;
+}
+
+.db-header {
+  margin-bottom: 1.75rem;
+  text-align: center;
+  min-height: 80px;
+}
+
+.db-title {
+  font-size: 2.8em;
+  font-weight: 900;
+  color: var(--text-primary);
+  text-transform: uppercase;
+  letter-spacing: -0.02em;
+  line-height: 1.1;
+  min-height: 1.2em;
+}
+
+.db-subtitle {
+  font-size: 0.875em;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+  font-weight: 600;
+}
+
+.db-error-banner {
+  padding: 0.75rem 1rem;
+  margin-bottom: 1rem;
+  background: var(--error-bg);
+  border: 1px solid var(--error-color);
+  border-radius: 0.5rem;
+  color: var(--error-color);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.db-vista-container {
+  animation: db-fadeIn 0.2s ease;
+  min-height: 420px;
+}
+
+@keyframes db-fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+body.reduce-motion .db-vista-container { animation: none; }
+
+/* Alto contraste */
+body.high-contrast .db-title    { color: var(--primary-color); }
+body.high-contrast .db-subtitle { color: var(--text-primary);  }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .db-page  { padding: 1rem 1rem 2rem; }
+  .db-title { font-size: 2em; }
+}

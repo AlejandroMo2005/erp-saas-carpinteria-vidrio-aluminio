@@ -1,0 +1,127 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   NOTIFICACIONES — PREVISUALIZACION
+   Variables --npv-* propias para colores vivid de toast (fondo sólido +
+   texto blanco). NO usan --success-bg / --error-bg globales porque esos
+   son tints sutiles para badges; aquí se necesita alto contraste 4.5:1+.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+:root {
+  /* Colores vivid — se mantienen custom (distinto propósito que globals) */
+  --npv-success-bg:    #10b981;
+  --npv-success-color: #ffffff;
+  --npv-error-bg:      #cc0000;
+  --npv-error-color:   #ffffff;
+  --npv-warning-bg:    #d97706;
+  --npv-warning-color: #ffffff;
+  /* info ya usa la global — sin fallback: global.css lo garantiza */
+  --npv-info-bg:       var(--primary-color);
+  --npv-info-color:    #ffffff;
+
+  /* Layout — reusa shadow global */
+  --npv-shadow:        var(--shadow-lg);
+  --npv-bottom:        1.5rem;
+  --npv-right:         1.5rem;
+  --npv-max-width:     22rem;
+  --npv-border-radius: 0.75rem;
+  --npv-font-size:     0.875rem;
+  --npv-padding:       0.875rem 1rem;
+  --npv-gap:           0.5rem;
+  --npv-anim-duration: 0.22s;
+}
+
+/* ELIMINADO: [data-theme='dark'] nunca dispara — el proyecto usa
+   clases en body (.theme-light / .high-contrast). El tema oscuro
+   es :root por defecto y ya usa --shadow-lg con rgba(0,0,0,0.5). */
+
+/* ── CONTENEDOR ── */
+.npv-toast-container {
+  position:       fixed;
+  bottom:         var(--npv-bottom);
+  right:          var(--npv-right);
+  z-index:        9999;
+  display:        flex;
+  flex-direction: column;
+  gap:            var(--npv-gap);
+  pointer-events: none;
+  max-width:      var(--npv-max-width);
+  width:          calc(100% - 2rem);
+}
+
+/* ── TOAST BASE ── */
+.npv-toast {
+  display:        flex;
+  align-items:    flex-start;
+  gap:            0.5rem;
+  padding:        var(--npv-padding);
+  border-radius:  var(--npv-border-radius);
+  font-size:      var(--npv-font-size);
+  font-weight:    600;
+  box-shadow:     var(--npv-shadow);
+  pointer-events: all;
+  animation:      npv-slide-in var(--npv-anim-duration) ease;
+  line-height:    1.4;
+}
+
+/* ── VARIANTES ── */
+.npv-toast--success { background: var(--npv-success-bg); color: var(--npv-success-color); }
+.npv-toast--error   { background: var(--npv-error-bg);   color: var(--npv-error-color);   }
+.npv-toast--warning { background: var(--npv-warning-bg); color: var(--npv-warning-color); }
+.npv-toast--info    { background: var(--npv-info-bg);    color: var(--npv-info-color);    }
+
+/* ── PARTES ── */
+.npv-toast__icono {
+  font-size:   1rem;
+  font-weight: 900;
+  flex-shrink: 0;
+  margin-top:  0.05rem;
+}
+
+.npv-toast__msg { flex: 1; }
+
+.npv-toast__close {
+  background:  transparent;
+  border:      none;
+  color:       rgba(255, 255, 255, 0.75);
+  cursor:      pointer;
+  font-size:   1.2rem;
+  padding:     0 0.2rem;
+  line-height: 1;
+  flex-shrink: 0;
+  transition:  color 0.15s ease;
+}
+
+.npv-toast__close:hover         { color: #ffffff; }
+.npv-toast__close:focus-visible {
+  outline:        2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 2px;
+  border-radius:  2px;
+}
+
+/* ── ANIMACIÓN ── */
+@keyframes npv-slide-in {
+  from { opacity: 0; transform: translateX(1rem); }
+  to   { opacity: 1; transform: translateX(0);    }
+}
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  .npv-toast-container {
+    bottom:    1rem;
+    right:     0.75rem;
+    left:      0.75rem;
+    width:     auto;
+    max-width: none;
+  }
+}
+
+/* ── REDUCE MOTION ── */
+body.reduce-motion .npv-toast { animation: none; }
+
+/* media query como respaldo para navegadores sin la clase */
+@media (prefers-reduced-motion: reduce) {
+  .npv-toast { animation: none; }
+}
+
+/* ── ALTO CONTRASTE ── */
+body.high-contrast .npv-toast          { border: 2px solid #ffffff; }
+body.high-contrast .npv-toast__close   { color: #ffffff; }

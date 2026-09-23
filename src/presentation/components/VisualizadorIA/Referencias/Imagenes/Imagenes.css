@@ -1,0 +1,120 @@
+/* ─── Card ────────────────────────────────────────────────────── */
+.ref-card {
+  position: relative;
+  border: 1px solid var(--border-color);
+  border-radius: 0.5625rem;
+  overflow: hidden;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  flex-direction: column;
+  transition: box-shadow 0.15s, transform 0.15s, opacity 0.15s;
+}
+.ref-card:hover { box-shadow: var(--shadow-md); transform: translateY(-2px); }
+.ref-card--off  { opacity: 0.55; }
+body.reduce-motion .ref-card { transition: none; }
+
+.ref-card-img-area {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  overflow: hidden;
+  background: var(--bg-secondary);
+  flex-shrink: 0;
+}
+
+/* ─── LazyImage ───────────────────────────────────────────────── */
+.ref-img-wrap { width: 100%; height: 100%; position: relative; }
+.ref-img {
+  width: 100%; height: 100%;
+  object-fit: cover; display: block;
+  opacity: 0; transition: opacity 0.35s ease;
+}
+.ref-img-wrap--loaded .ref-img      { opacity: 1; }
+.ref-img-wrap--loaded .ref-img-skeleton { display: none; }
+body.reduce-motion .ref-img { transition: none; }
+
+.ref-img-skeleton {
+  position: absolute; inset: 0;
+  background: linear-gradient(90deg, var(--bg-secondary) 0%, var(--bg-secondary) 25%, var(--bg-tertiary) 50%, var(--bg-secondary) 75%, var(--bg-secondary) 100%);
+  background-size: 200% 100%;
+  animation: ref-shimmer 1.5s ease-in-out infinite;
+}
+.ref-img-fallback {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  gap: 0.375rem; color: var(--text-secondary);
+  font-size: 0.75rem; background: var(--bg-secondary);
+}
+.ref-img-fallback span:first-child { font-size: 1.625rem; }
+
+/* ─── Badge ───────────────────────────────────────────────────── */
+.ref-badge {
+  position: absolute; top: 0.4375rem; right: 0.4375rem;
+  padding: 0.15rem 0.475rem; border-radius: 0.3125rem;
+  font-size: 0.65rem; font-weight: 800;
+  text-transform: uppercase; letter-spacing: 0.06em; pointer-events: none;
+}
+.ref-badge--off { background: var(--error-bg); color: var(--error-color); }
+
+/* ─── Info ────────────────────────────────────────────────────── */
+.ref-card-info {
+  padding: 0.5625rem 0.6875rem; flex: 1;
+  display: flex; flex-direction: column; gap: 0.3125rem; min-height: 0;
+}
+.ref-card-desc {
+  font-size: 0.72rem; color: var(--text-secondary);
+  line-height: 1.45;
+  display: -webkit-box; -webkit-box-orient: vertical;
+  overflow: hidden; word-break: break-word;
+}
+.ref-card-no-desc { font-style: italic; opacity: 0.6; }
+.ref-card-footer {
+  display: flex; align-items: center;
+  justify-content: space-between;
+  margin-top: auto; padding-top: 0.25rem;
+}
+.ref-card-peso  { font-size: 0.68rem; color: var(--primary-text); font-weight: 700; }
+.ref-card-fecha { font-size: 0.68rem; color: var(--text-secondary); opacity: 0.75; }
+
+/* ─── Acciones ────────────────────────────────────────────────── */
+.ref-card-actions {
+  display: flex; gap: 0.3125rem;
+  padding: 0.4375rem 0.5625rem;
+  border-top: 1px solid var(--border-color);
+  justify-content: flex-end; background: var(--bg-secondary);
+}
+.ref-icon-btn {
+  width: 1.875rem; height: 1.875rem;
+  border-radius: 0.375rem; border: 1px solid var(--border-color);
+  background: var(--bg-card); color: var(--text-secondary);
+  cursor: pointer; display: flex; align-items: center;
+  justify-content: center; font-size: 0.8125rem; line-height: 1;
+  transition: background 0.15s, border-color 0.15s, color 0.15s;
+  font-family: inherit; padding: 0;
+}
+.ref-icon-btn:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 1px; }
+.ref-icon-btn--edit:hover    { background: var(--bg-tertiary); border-color: var(--border-strong); }
+.ref-icon-btn--del:hover     { background: var(--error-bg); border-color: var(--error-color); }
+.ref-icon-btn--confirm {
+  background: var(--error-bg); border-color: var(--error-color); color: var(--error-color);
+  font-size: 0.65rem; font-weight: 800; width: auto; padding: 0 0.5rem;
+}
+
+/* ─── Skeletons ───────────────────────────────────────────────── */
+.ref-card-skeleton {
+  border-radius: 0.5625rem; aspect-ratio: 4 / 3;
+  background: linear-gradient(90deg, var(--bg-secondary) 0%, var(--bg-secondary) 25%, var(--bg-tertiary) 50%, var(--bg-secondary) 75%, var(--bg-secondary) 100%);
+  background-size: 200% 100%;
+  animation: ref-shimmer 1.5s ease-in-out infinite;
+}
+
+@keyframes ref-shimmer {
+  0%   { background-position:  200% center; }
+  100% { background-position: -200% center; }
+}
+body.reduce-motion .ref-img-skeleton,
+body.reduce-motion .ref-card-skeleton { animation: none; background: var(--bg-secondary); }
+
+/* ─── Alto contraste ──────────────────────────────────────────── */
+body.high-contrast .ref-card { border-width: 2px; }

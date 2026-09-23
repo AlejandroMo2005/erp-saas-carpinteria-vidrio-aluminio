@@ -1,0 +1,128 @@
+/* ================================================================
+   DASHBOARD — Tarjetas KPI, skeleton y shimmer
+   ================================================================ */
+
+.db-kpi-row {
+  display: flex;
+  gap: 0.875rem;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  min-height: 110px;
+}
+
+.db-kpi {
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 1.125rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 0.875rem;
+  flex: 1 1 180px;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.15s ease;
+  text-align: left;
+  box-shadow: var(--shadow-sm);
+  will-change: transform;
+}
+
+.db-kpi:hover {
+  border-color: var(--border-strong);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-md);
+}
+
+.db-kpi--active {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--primary-glow, rgba(67, 56, 202, 0.15)), var(--shadow-md);
+}
+
+.db-kpi:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.db-kpi__icon {
+  width: 2.5rem;
+  height: 2.5rem;
+  border-radius: 0.625rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 0.2s ease, border-color 0.2s ease;
+}
+
+.db-kpi__body  { flex: 1; min-width: 0; }
+
+.db-kpi__value {
+  font-size: 2.25rem;
+  font-weight: 900;
+  color: var(--text-primary);
+  line-height: 1;
+  font-variant-numeric: tabular-nums;
+}
+
+.db-kpi__label {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 800;
+}
+
+/* ─── Skeleton ─────────────────────────────────────────────────── */
+
+.db-kpi--skeleton {
+  cursor: default;
+  pointer-events: none;
+}
+
+.db-kpi__value--skeleton,
+.db-kpi__label--skeleton {
+  visibility: hidden;
+  position: relative;
+}
+
+.db-kpi__value--skeleton::after,
+.db-kpi__label--skeleton::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 4px;
+  visibility: visible;
+  background: linear-gradient(
+    90deg,
+    var(--skeleton-base,  rgba(148,163,184,0.15)) 25%,
+    var(--skeleton-shine, rgba(148,163,184,0.35)) 50%,
+    var(--skeleton-base,  rgba(148,163,184,0.15)) 75%
+  );
+  background-size: 200% 100%;
+  animation: db-shimmer 1.4s ease-in-out infinite;
+}
+
+.db-kpi__label--skeleton::after { animation-delay: 0.1s; }
+
+@keyframes db-shimmer {
+  0%   { background-position: -200% center; }
+  100% { background-position:  200% center; }
+}
+
+body.reduce-motion .db-kpi__value--skeleton::after,
+body.reduce-motion .db-kpi__label--skeleton::after { animation: none; }
+
+/* Alto contraste */
+body.high-contrast .db-kpi         { border: 3px solid var(--border-color); background: var(--bg-page); }
+body.high-contrast .db-kpi:hover   { border-color: var(--primary-color); box-shadow: 0.375rem 0.375rem 0 var(--primary-color); }
+body.high-contrast .db-kpi--active { border: 3px solid var(--primary-color); box-shadow: 0.375rem 0.375rem 0 var(--primary-color); }
+body.high-contrast .db-kpi__value  { color: var(--text-primary); }
+body.high-contrast .db-kpi__label  { color: var(--primary-color); }
+
+/* Responsive */
+@media (max-width: 768px) {
+  .db-kpi-row   { gap: 0.625rem; }
+  .db-kpi       { flex: 1 1 140px; padding: 0.875rem 1rem; }
+  .db-kpi__value { font-size: 1.5em; }
+}

@@ -1,0 +1,74 @@
+/* MascaraPanel.css */
+
+/* ── Resumen configuración ───────────────────────────────────── */
+.via-config-summary {
+  display: flex; align-items: center; flex-wrap: wrap; gap: 0.4rem;
+  font-size: 0.85rem; color: var(--text-secondary);
+  padding: 0.65rem 1rem;
+  background: var(--bg-secondary); border-color: var(--border-color);
+}
+.via-config-summary b { color: var(--text-primary); font-weight: 600; }
+
+/* Fix contraste: el separador · era opacity 0.4 → ilegible en todos los temas */
+.via-summary-sep {
+  margin: 0 0.15rem;
+  color: var(--text-secondary);
+  opacity: 0.65;   /* subido de 0.4 — ratio AA sobre bg-secondary en todos los temas */
+}
+body.high-contrast .via-summary-sep { opacity: 1; }
+
+.via-color-dot--inline {
+  display: inline-block; width: 12px; height: 12px; border-radius: 50%;
+  border: 1px solid rgba(0,0,0,0.15); vertical-align: middle;
+  margin: 0 0.15rem; flex-shrink: 0;
+}
+
+/* ── SAM bar ─────────────────────────────────────────────────── */
+.via-sam-bar {
+  display: flex; align-items: center; gap: 0.75rem;
+  padding: 0.875rem 1.25rem 0; flex-wrap: wrap;
+}
+
+.via-btn--sam {
+  display: inline-flex; align-items: center; gap: 0.5rem;
+  padding: 0.5rem 1rem; border-radius: 0.5rem;
+  border: 1px solid var(--primary-color);
+  background: transparent; color: var(--primary-text);
+  font-size: 0.875rem; font-weight: 600; font-family: inherit;
+  cursor: pointer; transition: background 0.15s;
+  white-space: nowrap; line-height: 1;
+}
+.via-btn--sam:hover:not(:disabled) { background: var(--primary-dark); color: var(--text-primary); }
+.via-btn--sam:disabled              { opacity: 0.6; cursor: not-allowed; }
+.via-btn--sam:focus-visible         { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+body.reduce-motion .via-btn--sam    { transition: none; }
+
+/* Alto contraste: borde visible sobre fondos oscuros/claros */
+body.high-contrast .via-btn--sam {
+  border-width: 2px;
+  color: var(--text-primary);
+}
+
+.via-sam-hint {
+  font-size: 0.8rem; color: var(--text-secondary);
+}
+
+/* Fix contraste: .via-sam-error — añadir borde en HC para delimitar */
+.via-sam-error {
+  width: 100%; font-size: 0.8125rem;
+  color: var(--error-color); background: var(--error-bg);
+  border-radius: 0.4375rem; padding: 0.4rem 0.7rem;
+  margin: 0; line-height: 1.45;
+}
+body.high-contrast .via-sam-error {
+  border: 1.5px solid var(--error-color);
+}
+
+@keyframes via-sam-spin { to { transform: rotate(360deg); } }
+.via-sam-spinner {
+  display: inline-block; width: 0.875rem; height: 0.875rem;
+  border: 2px solid currentColor; border-top-color: transparent;
+  border-radius: 50%; animation: via-sam-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+body.reduce-motion .via-sam-spinner { animation: none; }

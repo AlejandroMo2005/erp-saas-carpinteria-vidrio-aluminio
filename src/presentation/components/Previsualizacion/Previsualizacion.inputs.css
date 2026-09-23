@@ -1,0 +1,44 @@
+/* ================================================================
+   PREVISUALIZACION — INPUTS DE MEDIDA
+   ================================================================ */
+
+.inputs-vertical {
+  display: flex;
+  flex-direction: row;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
+
+.f-group {
+  display: flex;
+  flex-direction: column;
+  text-align: left;
+  flex: 1;
+}
+
+.f-group label {
+  color: var(--prev-label-color);
+  font-size: 0.95em;
+  margin-bottom: 0.25rem;
+  font-weight: 1000;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.f-group input {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  border: 2px solid var(--border-color);
+  padding: 0.65rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 1em;
+  min-height: 44px;
+}
+
+.f-group input:focus                { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+.f-group input[aria-invalid="true"] { border-color: var(--error-color, #fca5a5); }
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .inputs-vertical { flex-direction: column; }
+}

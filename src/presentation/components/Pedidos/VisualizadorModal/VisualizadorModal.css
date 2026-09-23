@@ -1,0 +1,27 @@
+/* ================================================================
+   VISUALIZADOR MODAL — ENTRY POINT
+   ================================================================ */
+@import './VisualizadorModal_.css';
+@import './VisualizadorModal.modal.css';
+@import './VisualizadorModal.header.css';
+@import './VisualizadorModal.render.css';
+
+/* ── Focus visible ───────────────────────────────────────────────────────── */
+.visualizador-modal-content *:focus-visible {
+  outline: 3px solid var(--vm-badge-label);
+  outline-offset: 3px;
+}
+
+/* ── Reduce motion ───────────────────────────────────────────────────────── */
+body.reduce-motion .visualizador-modal-overlay,
+body.reduce-motion .spinner {
+  animation-duration: 0.01ms !important;
+}
+
+body.reduce-motion .modal-close-btn:hover { transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .visualizador-modal-overlay { animation: none; }
+  .spinner                    { animation: none; border-top-color: var(--vm-spinner-top); }
+  .modal-close-btn:hover      { transform: none; }
+}

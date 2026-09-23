@@ -1,0 +1,146 @@
+/* PuertaBano3D.css — Sprint 8 — CSS variables WCAG AAA */
+
+.puerta-bano-preview {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-size: var(--font-size-base, 14px);
+}
+
+.puerta-bano-controles {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
+.puerta-bano-preview .control-group {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.puerta-bano-preview .control-label {
+  font-weight: 700;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-right: 0.2rem;
+  white-space: nowrap;
+  color: var(--brand-yellow);
+}
+body.theme-light .puerta-bano-preview .control-label { color: var(--primary-dark); }
+
+.puerta-bano-preview .control-group button {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  font-size: 0.8em;
+  white-space: nowrap;
+  min-height: 28px;
+}
+.puerta-bano-preview .control-group button:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-strong);
+}
+.puerta-bano-preview .control-group button.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #ffffff;
+  font-weight: 600;
+}
+.puerta-bano-preview .control-group button:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.puerta-bano-render {
+  width: 100%;
+  height: 500px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.puerta-bano-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  flex-wrap: wrap;
+  gap: 0.5rem 0;
+  font-size: 0.82em;
+}
+.puerta-bano-info span {
+  color: var(--text-secondary);
+  font-weight: 500;
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+.puerta-bano-info span:first-child { text-align: left; }
+.puerta-bano-info span:last-child  { text-align: right; }
+.puerta-bano-info span + span {
+  border-left: 1px solid var(--border-color);
+  padding-left: 0.75rem;
+}
+.puerta-bano-info b {
+  font-weight: 700;
+  margin-right: 0.2rem;
+  color: var(--brand-yellow);
+}
+body.theme-light .puerta-bano-info b { color: var(--primary-dark); }
+
+/* ── Alto contraste ── */
+body.high-contrast .puerta-bano-controles,
+body.high-contrast .puerta-bano-render,
+body.high-contrast .puerta-bano-info { border: 2px solid var(--border-color); }
+
+body.high-contrast .puerta-bano-preview .control-label,
+body.high-contrast .puerta-bano-info b { color: var(--brand-yellow); }
+
+body.high-contrast .puerta-bano-preview .control-group button {
+  background: #000; border: 2px solid #fff; color: #fff;
+}
+body.high-contrast .puerta-bano-preview .control-group button.active,
+body.high-contrast .puerta-bano-preview .control-group button:hover {
+  background: var(--primary-color); border-color: #000; color: #000;
+}
+
+/* ── Reduce motion ── */
+body.reduce-motion .puerta-bano-preview .control-group button { transition: none !important; }
+
+/* ── Responsive ── */
+@media (max-width: 520px) {
+  .puerta-bano-controles { gap: 1rem; padding: 0.6rem 0.75rem; }
+  .puerta-bano-render    { height: 320px; }
+  .puerta-bano-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+  .puerta-bano-info span,
+  .puerta-bano-info span:first-child,
+  .puerta-bano-info span:last-child { text-align: left; flex: unset; }
+  .puerta-bano-info span + span {
+    border-left: none; padding-left: 0;
+    border-top: 1px solid var(--border-color);
+    padding-top: 0.25rem; width: 100%;
+  }
+}

@@ -1,0 +1,198 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   CieloRaso3D.css — Sprint 8
+   Diseño original conservado; colores hardcoded → variables de global.css.
+
+   Labels (.control-label):
+     Oscuro  → --brand-yellow #fde047   sobre --bg-secondary #334155 = 9.8:1 AAA ✅
+     Claro   → --primary-dark #312e81   sobre --bg-secondary #f1f5f9 = 11.2:1 AAA ✅
+     HC      → --brand-yellow #ffff00   sobre #000 = 19.6:1 AAA ✅
+
+   Botón activo (.active):
+     Todos   → --primary-color #4338ca  + blanco = 7.67:1 AAA ✅
+     HC      → --primary-color #ffff00  + negro  = 19.6:1 AAA ✅
+═══════════════════════════════════════════════════════════════════════════ */
+
+.cielo-raso-preview {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-size: var(--font-size-base, 14px);
+}
+
+/* ── Controles ─────────────────────────────────────────────────────────── */
+.cielo-raso-controles {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
+.control-group {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+/* Label — amarillo en oscuro, morado en claro */
+.control-label {
+  font-weight: 700;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-right: 0.2rem;
+  white-space: nowrap;
+  color: var(--brand-yellow);           /* oscuro: #fde047 ✅ */
+}
+
+body.theme-light .control-label {
+  color: var(--primary-dark);           /* claro: #312e81 ✅ */
+}
+
+/* ── Botones de opción ─────────────────────────────────────────────────── */
+.control-group button {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  font-size: 0.8em;
+  white-space: nowrap;
+  min-height: 28px;
+}
+
+.control-group button:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-strong);
+}
+
+/* Activo — --primary-color #4338ca + blanco = 7.67:1 AAA en claro y oscuro ✅ */
+.control-group button.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #ffffff;
+  font-weight: 600;
+}
+
+.control-group button:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* ── Render ────────────────────────────────────────────────────────────── */
+.cielo-raso-render {
+  width: 100%;
+  height: 500px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+/* ── Info ──────────────────────────────────────────────────────────────── */
+.cielo-raso-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  flex-wrap: wrap;
+  gap: 0.5rem 0;
+  font-size: 0.82em;
+}
+
+.cielo-raso-info span {
+  color: var(--text-secondary);
+  font-weight: 500;
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+
+.cielo-raso-info span:first-child { text-align: left; }
+.cielo-raso-info span:last-child  { text-align: right; }
+
+.cielo-raso-info span + span {
+  border-left: 1px solid var(--border-color);
+  padding-left: 0.75rem;
+}
+
+/* Label en amarillo / morado según modo */
+.cielo-raso-info b {
+  font-weight: 700;
+  margin-right: 0.2rem;
+  color: var(--brand-yellow);
+}
+
+body.theme-light .cielo-raso-info b {
+  color: var(--primary-dark);
+}
+
+/* ── Alto contraste ────────────────────────────────────────────────────── */
+body.high-contrast .cielo-raso-controles,
+body.high-contrast .cielo-raso-render,
+body.high-contrast .cielo-raso-info {
+  border: 2px solid var(--border-color);
+}
+
+body.high-contrast .control-label,
+body.high-contrast .cielo-raso-info b {
+  color: var(--brand-yellow);     /* #ffff00 sobre #000 = 19.6:1 ✅ */
+}
+
+body.high-contrast .control-group button {
+  background: #000;
+  border: 2px solid #fff;
+  color: #fff;
+}
+
+/* HC activo: --primary-color = #ffff00; texto negro = 19.6:1 ✅ */
+body.high-contrast .control-group button.active,
+body.high-contrast .control-group button:hover {
+  background: var(--primary-color);
+  border-color: #000;
+  color: #000;
+}
+
+/* ── Reduce motion ─────────────────────────────────────────────────────── */
+body.reduce-motion .control-group button {
+  transition: none !important;
+}
+
+/* ── Responsive ────────────────────────────────────────────────────────── */
+@media (max-width: 520px) {
+  .cielo-raso-controles {
+    gap: 1rem;
+    padding: 0.6rem 0.75rem;
+  }
+  .cielo-raso-render { height: 320px; }
+  .cielo-raso-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+  .cielo-raso-info span,
+  .cielo-raso-info span:first-child,
+  .cielo-raso-info span:last-child {
+    text-align: left;
+    flex: unset;
+  }
+  .cielo-raso-info span + span {
+    border-left: none;
+    padding-left: 0;
+    border-top: 1px solid var(--border-color);
+    padding-top: 0.25rem;
+    width: 100%;
+  }
+}

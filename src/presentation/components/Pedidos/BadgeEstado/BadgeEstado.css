@@ -1,0 +1,136 @@
+/* ==========================================
+   BADGE ESTADO — Pedidos
+   Sprint 18 — Refactorización modular
+   ⚠️  Requiere variables de global.css:
+       --badge-*  --btn-entregado-*  --btn-cancelar-*
+========================================== */
+
+/* ── Badge estático ── */
+.status-badge {
+  padding: 0.5rem 0.75rem;
+  border-radius: 0.625rem;
+  font-weight: 900;
+  font-size: 0.82em;
+  text-transform: uppercase;
+  border: 3px solid var(--border-strong);
+  box-shadow: 0.25rem 0.25rem 0 var(--border-strong);
+  flex: 1;
+  text-align: center;
+  min-width: 0;
+  min-height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: none;
+}
+
+.status-badge[data-estado="PENDIENTE"] {
+  background: var(--badge-pendiente-bg);
+  color:      var(--badge-pendiente-text);
+}
+.status-badge[data-estado="ENTREGADO"] {
+  background: var(--badge-entregado-bg);
+  color:      var(--badge-entregado-text);
+}
+.status-badge[data-estado="CANCELADO"] {
+  background: var(--badge-cancelado-bg);
+  color:      var(--badge-cancelado-text);
+}
+
+/* ── Badge clickeable ── */
+.badge-estado-wrapper { position: relative; flex: 1; min-width: 0; }
+
+.status-badge--clickable {
+  width: 100%;
+  cursor: pointer;
+  transition: filter 0.15s ease, transform 0.15s ease;
+  letter-spacing: 0.04em;
+}
+
+.status-badge--clickable:hover:not(:disabled) { filter: brightness(1.2); transform: translate(-1px, -1px); }
+.status-badge--clickable:disabled             { opacity: 0.6; cursor: not-allowed; transform: none; }
+.status-badge--clickable:focus-visible        { outline: 3px solid var(--primary-color); outline-offset: 2px; }
+
+/* ── Backdrop + dropdown ── */
+.badge-backdrop { position: fixed; inset: 0; z-index: 99; }
+
+.menu-estado-dropdown {
+  position: absolute;
+  bottom: calc(100% + 0.5rem);
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border: 3px solid var(--border-strong);
+  border-radius: 0.75rem;
+  box-shadow: 0.375rem 0.375rem 0 var(--border-strong);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 100;
+  min-width: 100%;
+  animation: menu-appear 0.15s ease;
+}
+
+@keyframes menu-appear {
+  from { opacity: 0; transform: translateY(0.5rem); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.btn-estado {
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-weight: 900;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  text-align: left;
+  border: none;
+  border-bottom: 2px solid var(--border-color);
+  cursor: pointer;
+  transition: filter 0.1s ease;
+  min-height: 44px;
+}
+
+.btn-estado:last-child    { border-bottom: none; }
+.btn-estado:hover         { filter: brightness(1.15); }
+.btn-estado:focus-visible { outline: 3px solid var(--primary-color); outline-offset: -3px; }
+
+.btn-estado--entregado {
+  background: var(--btn-entregado-bg);
+  color:      var(--btn-entregado-text);
+}
+.btn-estado--cancelar {
+  background: var(--btn-cancelar-bg);
+  color:      var(--btn-cancelar-text);
+}
+
+/* ── Alto Contraste ─────────────────────────────────────────────────────────
+   Los badges y botones ya responden a las variables, que en body.high-contrast
+   apuntan a los valores invertidos. Solo ajustamos el dropdown y los bordes. */
+body.high-contrast .menu-estado-dropdown {
+  background:   var(--bg-page);
+  border-color: var(--primary-color);
+  box-shadow:   0.375rem 0.375rem 0 var(--primary-color);
+}
+body.high-contrast .btn-estado {
+  border-bottom-color: var(--primary-color);
+}
+/* Badges invertidos (ENTREGADO/CANCELADO) necesitan borde de contorno en HC */
+body.high-contrast .status-badge[data-estado="ENTREGADO"],
+body.high-contrast .status-badge[data-estado="CANCELADO"] {
+  border: 3px solid currentColor;
+}
+body.high-contrast .status-badge[data-estado="PENDIENTE"] {
+  border: 3px solid var(--badge-pendiente-text);
+}
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .badge-estado-wrapper { flex: 1; }
+  .status-badge         { flex: 1; }
+  .menu-estado-dropdown { bottom: auto; top: calc(100% + 0.5rem); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .menu-estado-dropdown                         { animation: none; }
+  .status-badge--clickable:hover:not(:disabled) { transform: none; }
+}

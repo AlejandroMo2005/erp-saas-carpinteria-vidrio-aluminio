@@ -1,0 +1,7 @@
+/* ================================================================
+   PERFIL — ENTRY POINT
+   Sin variables propias: Perfil usa 100% las variables de global.css.
+   ================================================================ */
+@import './Perfil.modal.css';
+@import './Perfil.form.css';
+@import './Perfil.actions.css';

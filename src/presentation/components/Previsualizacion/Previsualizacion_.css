@@ -1,0 +1,31 @@
+/* ================================================================
+   PREVISUALIZACION — TOKENS DE VARIABLES
+   Importar en Previsualizacion.jsx ANTES de los CSS de layout.
+   ================================================================ */
+
+:root {
+  --prev-title-color:   var(--text-primary);
+  --prev-label-color:   var(--text-primary);
+  --prev-btn-ia-bg:     var(--primary-text);
+  --prev-btn-ia-hover:  var(--primary-hover);
+  --prev-btn-ia-color:  var(--bg-primary);
+  --prev-btn-ia-border: var(--primary-color);
+}
+
+body.theme-light {
+  --prev-title-color:   var(--text-primary);
+  --prev-label-color:   var(--primary-color);
+  --prev-btn-ia-bg:     var(--primary-color);
+  --prev-btn-ia-hover:  var(--primary-hover);
+  --prev-btn-ia-color:  #ffffff;
+  --prev-btn-ia-border: var(--primary-color);
+}
+
+body.high-contrast {
+  --prev-title-color:   var(--primary-color);
+  --prev-label-color:   var(--primary-color);
+  --prev-btn-ia-bg:     var(--primary-color);
+  --prev-btn-ia-hover:  var(--primary-hover);
+  --prev-btn-ia-color:  var(--bg-primary);
+  --prev-btn-ia-border: var(--primary-color);
+}

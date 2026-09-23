@@ -1,0 +1,155 @@
+/* ==========================================
+   PEDIDO CARD — Tarjeta individual
+   Sprint 18 — Refactorización modular
+   ⚠️  Requiere variables de global.css:
+       --brand-cyan  --brand-yellow
+   Nota: #ffffff y #000000 sobre fondos de marca
+         se mantienen explícitos — son texto sobre
+         colores saturados y no deben invertirse con el tema.
+========================================== */
+
+.pedido-card {
+  background: linear-gradient(145deg, var(--primary-color), var(--primary-dark));
+  border: 0.3125rem solid var(--text-primary);
+  border-radius: 1.25rem;
+  padding: 1.25rem;
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  contain: layout;
+  min-width: 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.pedido-card:hover { transform: translate(-2px, -2px); box-shadow: 0.75rem 0.75rem 0 rgba(0,0,0,0.3); }
+
+/* ── Información superior ── */
+.card-top-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.75rem;
+  border-bottom: 3px solid var(--brand-yellow);
+  font-size: 0.9em;
+  font-weight: 900;
+  color: var(--brand-yellow);
+  min-height: 2em;
+}
+
+/* #ffffff intencional: texto sobre gradiente oscuro de marca */
+.id-label           { color: var(--brand-yellow); }
+.id-numero          { color: #ffffff; font-weight: 900; }
+.card-top-info time { color: #ffffff; }
+
+.cliente-nombre-estilo {
+  font-size: 1.4em;
+  font-weight: 900;
+  color: #ffffff; /* intencional: sobre gradiente de marca */
+  text-transform: uppercase;
+  letter-spacing: -0.025em;
+  line-height: 1.2;
+  min-height: 1.2em;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* ── Detalles ── */
+.detalles-box {
+  background: var(--bg-primary);
+  padding: 0.875rem;
+  border-radius: 0.75rem;
+  border: 3px solid var(--border-color);
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  box-shadow: 0.25rem 0.25rem 0 rgba(0,0,0,0.15);
+}
+
+.total-linea {
+  font-size: 1.2em;
+  font-weight: 900;
+  text-align: center;
+  padding: 0.5rem 0.75rem;
+  background: var(--brand-yellow);
+  color: #000000; /* intencional: texto negro sobre amarillo de marca */
+  border-radius: 0.5rem;
+  margin-bottom: 0.25rem;
+  min-height: 2.5em;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.detalles-label         { font-size: 0.85em; font-weight: 900; text-transform: uppercase; color: var(--primary-text); letter-spacing: 0.1em; }
+.servicio-detalle-texto { font-size: 0.95em; font-weight: 800; color: var(--text-primary); line-height: 1.4; overflow-wrap: break-word; word-break: break-word; }
+
+/* ── Footer de acciones ── */
+.pedido-footer-actions {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-top: auto;
+  min-height: 48px;
+}
+
+/* ── Botón visualizar 3D ── */
+.btn-visualizar {
+  background-color: var(--brand-cyan);
+  color: #000000; /* intencional: texto negro sobre cyan de marca */
+  border: 3px solid var(--border-strong);
+  border-radius: 0.625rem;
+  width: 3rem;
+  height: 3rem;
+  min-width: 3rem;
+  min-height: 3rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  box-shadow: 0.25rem 0.25rem 0 var(--border-strong);
+  padding: 0;
+  flex-shrink: 0;
+}
+
+.btn-visualizar svg    { width: 1.5rem; height: 1.5rem; fill: currentColor; stroke: currentColor; }
+.btn-visualizar:hover  { transform: translate(-2px,-2px); box-shadow: 0.375rem 0.375rem 0 var(--border-strong); background: var(--brand-yellow); }
+.btn-visualizar:active { transform: translate(2px,2px); box-shadow: 0 0 0 var(--border-strong); }
+.btn-visualizar:focus-visible { outline: 3px solid var(--primary-color); outline-offset: 2px; }
+
+/* ── Alto Contraste ── */
+body.high-contrast .pedido-card             { background: var(--bg-page); border: 3px solid var(--primary-color); box-shadow: 0.375rem 0.375rem 0 var(--primary-color); }
+body.high-contrast .pedido-card:hover       { box-shadow: 0.625rem 0.625rem 0 var(--primary-color); }
+body.high-contrast .id-numero              { color: var(--text-primary); }
+body.high-contrast .card-top-info          { color: var(--primary-color); border-bottom-color: var(--primary-color); }
+body.high-contrast .card-top-info time     { color: var(--text-primary); }
+body.high-contrast .id-label               { color: var(--primary-color); }
+body.high-contrast .cliente-nombre-estilo  { color: var(--primary-color); }
+body.high-contrast .detalles-box           { background: var(--bg-secondary); border-color: var(--primary-color); box-shadow: 0.25rem 0.25rem 0 var(--primary-color); }
+body.high-contrast .total-linea            { background: var(--primary-color); color: var(--bg-page); border: 2px solid var(--bg-page); }
+body.high-contrast .detalles-label         { color: var(--primary-color); }
+body.high-contrast .servicio-detalle-texto { color: var(--text-primary); }
+body.high-contrast .btn-visualizar         { background: var(--bg-page); color: var(--primary-color); border: 3px solid var(--primary-color); box-shadow: 0.25rem 0.25rem 0 var(--primary-color); }
+body.high-contrast .btn-visualizar:hover   { background: var(--bg-secondary); box-shadow: 0.375rem 0.375rem 0 var(--primary-color); }
+
+/* ── Responsive ── */
+@media (max-width: 600px) {
+  .pedido-card           { padding: 1rem; border-radius: 1rem; gap: 0.625rem; }
+  .cliente-nombre-estilo { font-size: 1.2em; }
+  .total-linea           { font-size: 1.1em; }
+  .pedido-footer-actions { flex-wrap: nowrap; align-items: stretch; }
+  .btn-visualizar        { width: 3rem; min-width: 3rem; flex-shrink: 0; }
+}
+
+@media (min-width: 601px) and (max-width: 768px) {
+  .pedido-card { padding: 1.25rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pedido-card    { transition: none; }
+  .btn-visualizar { transition: none; }
+}

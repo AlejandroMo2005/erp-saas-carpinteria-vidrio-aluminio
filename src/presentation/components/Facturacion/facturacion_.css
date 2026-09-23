@@ -1,0 +1,95 @@
+:root {
+  --warning-icon: #f59e0b;
+  --stock-danger: #ef4444;
+  --whatsapp-bg:   #25d366;
+  --whatsapp-text: #000000;
+  --btn-anular-bg:    #991b1b;
+  --btn-anular-hover: #7f1d1d;
+  --btn-anular-text:  #ffffff;
+  --badge-blue-color: #93c5fd;
+  --btn-confirmar-bg:    #1d4ed8;
+  --btn-confirmar-hover: #1e40af;
+  --btn-confirmar-text:  #ffffff;
+  --btn-completed-bg:   #4b5563;
+  --btn-completed-text: #ffffff;
+  --btn-download-bg:    #047857;
+  --btn-download-hover: #065f46;
+  --btn-download-text:  #ffffff;
+  --instruccion-bg:     #1c1208;
+  --instruccion-border: #d97706;
+  --instruccion-color:  #fde68a;
+  --instruccion-tel-bg: #292207;
+  --kbd-bg:    #fbbf24;
+  --kbd-color: #000000;
+  --toast-error-bg:       #b91c1c;
+  --toast-error-border:   #7f1d1d;
+  --toast-success-bg:     #047857;
+  --toast-success-border: #064e3b;
+  --toast-warning-bg:     #b45309;
+  --toast-warning-border: #78350f;
+  --toast-text:           #ffffff;
+}
+
+body.theme-light {
+  --warning-icon: #b45309;
+  --stock-danger: #dc2626;
+  --whatsapp-bg:   #25d366;
+  --whatsapp-text: #000000;
+  --btn-anular-bg:    #991b1b;
+  --btn-anular-hover: #7f1d1d;
+  --btn-anular-text:  #ffffff;
+  --badge-blue-color: #1d4ed8;
+  --btn-confirmar-bg:    #1d4ed8;
+  --btn-confirmar-hover: #1e40af;
+  --btn-confirmar-text:  #ffffff;
+  --btn-completed-bg:   #4b5563;
+  --btn-completed-text: #ffffff;
+  --btn-download-bg:    #047857;
+  --btn-download-hover: #065f46;
+  --btn-download-text:  #ffffff;
+  --instruccion-bg:     #fffbeb;
+  --instruccion-border: #d97706;
+  --instruccion-color:  #92400e;
+  --instruccion-tel-bg: #fef3c7;
+  --kbd-bg:    #92400e;
+  --kbd-color: #fffbeb;
+  --toast-error-bg:       #b91c1c;
+  --toast-error-border:   #7f1d1d;
+  --toast-success-bg:     #047857;
+  --toast-success-border: #064e3b;
+  --toast-warning-bg:     #b45309;
+  --toast-warning-border: #78350f;
+  --toast-text:           #ffffff;
+}
+
+body.high-contrast {
+  --warning-icon: #ffff00;
+  --stock-danger: #ffff00;
+  --whatsapp-bg:   #ffff00;
+  --whatsapp-text: #000000;
+  --btn-anular-bg:    #ffff00;
+  --btn-anular-hover: #ffff66;
+  --btn-anular-text:  #000000;
+  --badge-blue-color: #ffff00;
+  --btn-confirmar-bg:    #ffff00;
+  --btn-confirmar-hover: #ffff66;
+  --btn-confirmar-text:  #000000;
+  --btn-completed-bg:   #1a1a1a;
+  --btn-completed-text: #ffff00;
+  --btn-download-bg:    #ffff00;
+  --btn-download-hover: #ffff66;
+  --btn-download-text:  #000000;
+  --instruccion-bg:     #000000;
+  --instruccion-border: #ffff00;
+  --instruccion-color:  #ffff00;
+  --instruccion-tel-bg: #000000;
+  --kbd-bg:    #ffff00;
+  --kbd-color: #000000;
+  --toast-error-bg:       #ffff00;
+  --toast-error-border:   #ffffff;
+  --toast-success-bg:     #ffff00;
+  --toast-success-border: #ffffff;
+  --toast-warning-bg:     #ffff00;
+  --toast-warning-border: #ffffff;
+  --toast-text:           #000000;
+}

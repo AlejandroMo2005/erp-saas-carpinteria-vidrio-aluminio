@@ -1,0 +1,33 @@
+/* ================================================================
+   NAVBAR — ESTADOS + HIGH CONTRAST + LAYOUT OFFSET
+   ================================================================ */
+
+/* ── Focus visible ───────────────────────────────────────────────────────── */
+.navbar-bottom__item:focus-visible,
+.navbar-top__user-btn:focus-visible,
+.navbar-top__dropdown-item:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* ── High Contrast ───────────────────────────────────────────────────────── */
+body.high-contrast .navbar-top    { border-bottom: 2px solid var(--border-color); }
+body.high-contrast .navbar-bottom { border-top:    2px solid var(--border-color); }
+
+body.high-contrast .navbar-bottom__item.is-active .navbar-bottom__icon {
+  border: 2px solid var(--primary-color);
+  box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+body.high-contrast .navbar-top__user-btn { border: 2px solid var(--border-color); }
+
+body.high-contrast .navbar-top__avatar {
+  color: #000000;
+  border: 2px solid #000000;
+}
+
+/* ── Offset del layout principal ─────────────────────────────────────────── */
+.content-area {
+  padding-top:    52px;   /* altura navbar-top */
+  padding-bottom: 62px;   /* altura navbar-bottom */
+}

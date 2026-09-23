@@ -1,0 +1,171 @@
+/* ─── Lista de grupos ─────────────────────────────────────────── */
+.ref-grupos-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.625rem;
+  min-height: 8rem;
+  contain: layout;
+}
+
+/* ─── Grupo (nivel 1) ─────────────────────────────────────────── */
+.ref-grupo {
+  border: 1px solid var(--border-color);
+  border-radius: 0.75rem;
+  overflow: hidden;
+  background: var(--bg-card);
+  box-shadow: var(--shadow-sm);
+}
+.ref-grupo-hd {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.9375rem 1.25rem;
+  background: var(--bg-primary);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+  font-family: inherit;
+}
+.ref-grupo-hd:hover { background: var(--bg-secondary); }
+.ref-grupo-hd:focus-visible { outline: 2px solid var(--primary-color); outline-offset: -2px; }
+.ref-grupo-tipo { flex: 1; font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); }
+.ref-grupo-end  { display: flex; align-items: center; gap: 0.625rem; }
+.ref-grupo-count {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  padding: 0.2rem 0.55rem;
+  border-radius: 1rem;
+  white-space: nowrap;
+}
+.ref-grupo-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4375rem;
+  padding: 0.75rem;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-page);
+}
+
+/* ─── Variante (nivel 2) ──────────────────────────────────────── */
+.ref-variante {
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  overflow: hidden;
+  background: var(--bg-card);
+}
+.ref-variante-hd {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5625rem 0.875rem;
+  background: var(--bg-secondary);
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+.ref-variante-hd:hover { background: var(--bg-tertiary); }
+.ref-variante-hd:focus-visible { outline: 2px solid var(--primary-color); outline-offset: -2px; }
+.ref-variante-nombre {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+.ref-variante-body {
+  display: flex;
+  flex-direction: column;
+  gap: 0.375rem;
+  padding: 0.5rem;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-page);
+}
+
+/* ─── Sección trabajo (nivel 3) ───────────────────────────────── */
+.ref-seccion {
+  border: 1px solid var(--border-color);
+  border-radius: 0.5625rem;
+  overflow: hidden;
+  background: var(--bg-card);
+  will-change: contents;
+  contain: layout;
+}
+.ref-seccion-hd {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.6875rem 1rem;
+  background: none;
+  border: none;
+  cursor: pointer;
+  text-align: left;
+  transition: background 0.15s;
+  font-family: inherit;
+}
+.ref-seccion-hd:hover { background: var(--bg-secondary); }
+.ref-seccion-hd:focus-visible { outline: 2px solid var(--primary-color); outline-offset: -2px; }
+.ref-seccion-nombre { flex: 1; font-size: 0.9rem; font-weight: 600; color: var(--text-primary); }
+.ref-seccion-end    { display: flex; align-items: center; gap: 0.5rem; }
+.ref-count {
+  font-size: 0.82rem;
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  padding: 0.15rem 0.475rem;
+  border-radius: 1rem;
+  font-weight: 600;
+}
+.ref-seccion-body {
+  padding: 0.875rem;
+  border-top: 1px solid var(--border-color);
+  background: var(--bg-page);
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  contain: content;
+  overflow: hidden;
+}
+
+/* ─── Chevron compartido ──────────────────────────────────────── */
+.ref-chevron { font-size: 1rem; color: var(--text-secondary); display: inline-flex; align-items: center; justify-content: center; line-height: 1; transition: transform 0.2s ease; }
+.ref-chevron--lg   { font-size: 1.25rem; }
+.ref-chevron--open { transform: rotate(90deg); }
+body.reduce-motion .ref-chevron { transition: none; }
+
+/* ─── Toolbar ─────────────────────────────────────────────────── */
+.ref-toolbar { display: flex; justify-content: flex-end; }
+
+/* ─── Grid ────────────────────────────────────────────────────── */
+.ref-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+  gap: 0.8125rem;
+}
+@media (max-width: 480px) { .ref-grid { grid-template-columns: repeat(2, 1fr); gap: 0.625rem; } }
+
+/* ─── Vacío ───────────────────────────────────────────────────── */
+.ref-empty {
+  padding: 1.25rem;
+  text-align: center;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+/* ─── Alto contraste ──────────────────────────────────────────── */
+body.high-contrast .ref-grupo,
+body.high-contrast .ref-variante,
+body.high-contrast .ref-seccion { border-color: var(--border-color); border-width: 2px; }
+body.reduce-motion .ref-grupo-hd,
+body.reduce-motion .ref-variante-hd,
+body.reduce-motion .ref-seccion-hd { transition: none; }

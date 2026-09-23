@@ -1,0 +1,87 @@
+/* ================================================================
+   ACCESSIBILITY PANEL — CONTROLES
+   Botones de tamaño de fuente · botón reset · grupo deshabilitado
+   ================================================================ */
+
+/* ── Botones de tamaño de fuente ─────────────────────────────────────────── */
+.button-group {
+  display: flex;
+  gap: 12px;
+  margin-top: 12px;
+}
+
+.size-button {
+  flex: 1;
+  padding: 14px;
+  background: var(--bg-tertiary);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--text-primary);
+  transition: background 0.2s ease, border-color 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.size-button:hover         { background: var(--bg-secondary); border-color: var(--border-strong); }
+.size-button:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+
+.size-button.active {
+  background: var(--primary-dark);
+  color: #ffffff;
+  border-color: var(--primary-dark);
+}
+
+.size-button        span { font-size: 14px; }
+.size-button.medium span { font-size: 18px; }
+.size-button.large  span { font-size: 22px; }
+
+/* Alto contraste */
+body.high-contrast .size-button               { background: #000000; color: #ffffff; border-color: #ffffff; }
+body.high-contrast .size-button.active        { background: #ffff00; color: #000000; border-color: #ffffff; }
+body.high-contrast .size-button:hover         { background: #333333; }
+body.high-contrast .size-button.active:hover  { background: #ffff66; }
+
+/* ── Botón reset ─────────────────────────────────────────────────────────── */
+.reset-button {
+  width: 100%;
+  padding: 14px;
+  background: var(--bg-primary);
+  border: 2px solid var(--border-color);
+  border-radius: 8px;
+  cursor: pointer;
+  font-size: 15px;
+  font-weight: 600;
+  color: var(--text-primary);
+  transition: background 0.2s ease, border-color 0.2s ease;
+  margin-top: 8px;
+}
+
+.reset-button:hover         { background: var(--bg-tertiary); border-color: var(--border-strong); }
+.reset-button:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+
+/* ── Setting group deshabilitado (Modo Oscuro bloqueado por HC) ──────────── */
+.setting-group--disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.setting-group--disabled .setting-label,
+.setting-group--disabled .toggle-switch {
+  cursor: not-allowed;
+  pointer-events: none;
+}
+
+/* Alto contraste: borde punteado en lugar de opacity (opacity baja contraste) */
+body.high-contrast .setting-group--disabled {
+  border-style: dashed;
+  opacity: 1;
+  border-color: #666666;
+}
+
+body.high-contrast .setting-group--disabled .setting-label,
+body.high-contrast .setting-group--disabled .setting-description {
+  color: #ffffff;
+}

@@ -1,0 +1,30 @@
+/* ================================================================
+   MATERIALES — Grid de tarjetas y estados error/vacío
+   ================================================================ */
+
+.inv-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(20rem, 1fr));
+  gap: 1.875rem;
+}
+
+.inv-error,
+.inv-empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1rem;
+  padding: 4rem 1rem;
+  color: var(--text-secondary);
+  font-size: 1rem;
+  font-weight: 600;
+  text-align: center;
+}
+
+/* --error-color varía por tema — ya no hardcode #cc0000 */
+.inv-error { color: var(--error-color); }
+
+@media (max-width: 768px) {
+  .inv-grid { grid-template-columns: 1fr; }
+}

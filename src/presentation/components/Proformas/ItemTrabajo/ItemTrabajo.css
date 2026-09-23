@@ -1,0 +1,123 @@
+/* ItemTrabajo.css */
+
+.item-work-card {
+  margin-bottom: 1.875rem;
+  border: 0.25rem solid var(--border-color);
+  border-radius: 1.25rem;
+  background: var(--bg-card);
+  box-shadow: 0.5rem 0.5rem 0 var(--border-color);
+}
+
+.item-card-header {
+  padding: 0.75rem 1.5625rem;
+  background: var(--primary-color);
+  color: #ffffff;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-radius: 0.875rem 0.875rem 0 0;
+}
+
+/* Alto contraste: fondo amarillo → texto negro */
+body.high-contrast .item-card-header { background: #ffff00; border: 3px solid #000000; }
+
+.item-number {
+  color: #ffffff;
+  font-size: 1.1em;
+  font-weight: 900;
+  margin: 0;
+}
+body.high-contrast .item-number { color: #000000; }
+
+/* FIX: error-bg es un rojo claro — para el botón eliminar se necesita rojo oscuro */
+.delete-item-btn {
+  background: #dc2626;
+  color: #ffffff;
+  border: 2px solid rgba(0, 0, 0, 0.3);
+  border-radius: 0.5rem;
+  font-weight: 950;
+  padding: 0.5rem 0.9375rem;
+  cursor: pointer;
+  box-shadow: 0.1875rem 0.1875rem 0 rgba(0, 0, 0, 0.25);
+  font-size: 0.85em;
+  transition: transform 0.12s, box-shadow 0.12s;
+}
+.delete-item-btn:hover {
+  transform: translate(-2px, -2px);
+  box-shadow: 0.3125rem 0.3125rem 0 rgba(0, 0, 0, 0.3);
+}
+body.high-contrast .delete-item-btn {
+  background: #cc0000;
+  color: #ffffff;
+  border: 2px solid #ffffff;
+}
+body.reduce-motion .delete-item-btn { transition: none; }
+
+.item-card-body {
+  padding: 1.5625rem;
+  background: var(--bg-secondary);
+  border-radius: 0 0 1rem 1rem;
+}
+
+/* ── Filas ─────────────────────────────────────────────────── */
+.form-row {
+  display: flex;
+  gap: 1.25rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.25rem;
+}
+.form-row:last-child { margin-bottom: 0; }
+
+.secondary-row {
+  border-top: 3px dashed var(--border-color);
+  padding-top: 1.25rem;
+  align-items: center;
+}
+
+/* ── Select con preview de color ───────────────────────────── */
+.select-with-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  border: 3px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 0 0.75rem;
+  height: 3.25rem;
+  background: var(--bg-primary);
+}
+
+.select-with-preview select {
+  border: none;
+  background: transparent;
+  padding: 0;
+  box-shadow: none;
+  color: var(--text-primary);
+}
+
+.select-with-preview select:focus {
+  transform: none;
+  box-shadow: none;
+}
+
+/* Bolita de color — dinámica desde BD */
+.color-circle-preview {
+  width: 1.625rem;
+  height: 1.625rem;
+  border-radius: 50%;
+  border: 2px solid transparent;
+  flex-shrink: 0;
+  transition: background-color 0.2s ease, border-color 0.2s ease;
+}
+/* Colores claros: borde gris para distinguirse del fondo blanco */
+.color-circle-preview--claro { border-color: #9ca3af; }
+/* Alto contraste: borde forzado independiente del color del producto */
+body.high-contrast .color-circle-preview {
+  border: 3px solid #ffffff !important;
+  outline: 2px solid #000000;
+}
+body.reduce-motion .color-circle-preview { transition: none; }
+
+/* ── Flex helpers ───────────────────────────────────────────── */
+.field-flex-1 { flex: 1; min-width: 5rem; }
+.field-flex-3 { flex: 3; min-width: 12.5rem; }
+.field-flex-4 { flex: 4; min-width: 15.625rem; }

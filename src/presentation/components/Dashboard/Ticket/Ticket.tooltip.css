@@ -1,0 +1,36 @@
+/* ================================================================
+   TICKET — Tooltip del gráfico de líneas
+   ================================================================ */
+
+.tkt-tooltip {
+  background: var(--bg-primary);
+  border: 2px solid var(--border-strong);
+  border-radius: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  box-shadow: var(--shadow-md);
+}
+
+body.high-contrast .tkt-tooltip {
+  border-color: var(--primary-color);
+  background: var(--bg-primary);
+  box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+.tkt-tooltip__label {
+  color: var(--text-secondary);
+  font-size: 0.6875em;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+body.high-contrast .tkt-tooltip__label { color: var(--primary-color); }
+
+.tkt-tooltip__value {
+  font-size: 0.8125em;
+  font-weight: 900;
+}
+
+body.high-contrast .tkt-tooltip__value { color: var(--primary-color) !important; }

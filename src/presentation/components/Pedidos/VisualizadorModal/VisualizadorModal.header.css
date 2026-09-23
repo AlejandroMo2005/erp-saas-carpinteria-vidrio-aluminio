@@ -1,0 +1,108 @@
+/* ================================================================
+   VISUALIZADOR MODAL — HEADER
+   ================================================================ */
+
+.modal-header {
+  background: var(--vm-header-bg);
+  padding: 1rem 2rem 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  flex-shrink: 0;
+}
+
+.modal-header-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;   /* centra el título y el grid */
+}
+
+/* ── Título ──────────────────────────────────────────────────────────────── */
+.render-title {
+  margin: 0 0 0.75rem 0;
+  font-size: 1.7rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
+  text-align: center;
+  width: 100%;
+  color: var(--vm-accent-text);
+  line-height: 1.2;
+}
+
+/* ── Grid de datos ───────────────────────────────────────────────────────── */
+.header-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr 1fr;
+  grid-template-rows: auto auto;
+  row-gap: 0.4rem;
+  width: 100%;
+  align-items: start;
+}
+
+.header-left   { text-align: left; }
+.header-center { text-align: left; }
+.header-right  { text-align: right; }
+
+.header-sub-left   { grid-column: 1 / 2; text-align: left; }
+.header-sub-center { grid-column: 2 / 4; text-align: left; }
+.header-sub-center .badge-value { display: inline; white-space: normal; }
+
+/* ── Badges ──────────────────────────────────────────────────────────────── */
+.badge-label {
+  color: var(--vm-badge-label);
+  font-weight: 900;
+  font-size: 0.85rem;
+  text-transform: uppercase;
+  margin-right: 0.4rem;
+}
+
+.badge-value {
+  color: var(--vm-badge-value);
+  font-weight: 900;
+  font-size: 1rem;
+  display: inline-block;
+  min-height: 1.2em;
+}
+
+/* ── Botón cerrar ────────────────────────────────────────────────────────── */
+.modal-close-btn {
+  background: var(--vm-close-bg);
+  border: 3px solid var(--vm-border);
+  color: #ffffff;
+  width: 46px;
+  height: 46px;
+  min-width: 46px;
+  min-height: 46px;
+  border-radius: 12px;
+  font-size: 1.4rem;
+  font-weight: 900;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: var(--vm-btn-shadow);
+  transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  flex-shrink: 0;
+  margin-left: 1rem;
+  align-self: flex-start;
+}
+
+.modal-close-btn:hover  {
+  transform: translate(-2px, -2px);
+  box-shadow: var(--vm-btn-shadow-hover);
+  background: var(--vm-close-hover);
+}
+.modal-close-btn:active { transform: translate(2px, 2px); box-shadow: none; }
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .modal-header         { padding: 1rem; flex-direction: column; gap: 0.75rem; position: relative; }
+  .render-title         { font-size: 1.3rem; }
+  .header-grid          { grid-template-columns: 1fr 1fr; }
+  .header-right         { text-align: left; }
+  .header-sub-left      { grid-column: 1 / 2; }
+  .header-sub-center    { grid-column: 1 / 3; }
+  .modal-close-btn      { position: absolute; top: 1rem; right: 1rem; width: 40px; height: 40px; min-width: 40px; min-height: 40px; }
+}

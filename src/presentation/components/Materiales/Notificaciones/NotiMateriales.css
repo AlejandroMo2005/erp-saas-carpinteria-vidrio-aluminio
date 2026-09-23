@@ -1,0 +1,138 @@
+/* ================================================================
+   NOTIFICACIONES — Materiales
+   Variables locales del módulo de toasts.
+   Se pueden ajustar aquí sin tocar global.css.
+   ================================================================ */
+
+:root {
+  /* Colores de toast — usan vars globales donde existen */
+  --nm-success-bg:    var(--toast-success-bg, #10b981);
+  --nm-success-color: var(--toast-text, #ffffff);
+  --nm-error-bg:      var(--toast-error-bg, #b91c1c);
+  --nm-error-color:   var(--toast-text, #ffffff);
+  --nm-info-bg:       var(--primary-color);
+  --nm-info-color:    var(--toast-text, #ffffff);
+
+  /* Sombra */
+  --nm-shadow: 0 4px 16px rgba(0, 0, 0, 0.18);
+
+  /* Posición */
+  --nm-bottom: 1.5rem;
+  --nm-right:  1.5rem;
+
+  /* Tamaños */
+  --nm-max-width:     22rem;
+  --nm-border-radius: 0.75rem;
+  --nm-font-size:     0.9rem;
+  --nm-padding:       0.875rem 1rem;
+  --nm-gap:           0.625rem;
+
+  /* Animación */
+  --nm-anim-duration: 0.25s;
+}
+
+/* HC — overrides de vars locales */
+body.high-contrast {
+  --nm-success-bg:    var(--toast-success-bg);   /* #ffff00 */
+  --nm-success-color: var(--toast-text);          /* #000000 */
+  --nm-error-bg:      var(--toast-error-bg);      /* #ffff00 */
+  --nm-error-color:   var(--toast-text);          /* #000000 */
+  --nm-info-bg:       var(--primary-color);       /* #ffff00 */
+  --nm-info-color:    var(--bg-page);             /* #000000 */
+  --nm-shadow:        var(--shadow-md);
+}
+
+/* ── Contenedor ──────────────────────────────────────────────── */
+
+.nm-toast-container {
+  position: fixed;
+  bottom:   var(--nm-bottom);
+  right:    var(--nm-right);
+  z-index:  9999;
+  display:  flex;
+  flex-direction: column;
+  gap:      var(--nm-gap);
+  pointer-events: none;
+  max-width: var(--nm-max-width);
+  width: calc(100% - 2rem);
+}
+
+/* ── Toast base ──────────────────────────────────────────────── */
+
+.nm-toast {
+  display:     flex;
+  align-items: center;
+  gap:         var(--nm-gap);
+  padding:     var(--nm-padding);
+  border-radius: var(--nm-border-radius);
+  font-size:   var(--nm-font-size);
+  font-weight: 600;
+  box-shadow:  var(--nm-shadow);
+  pointer-events: all;
+  animation:   nm-slide-in var(--nm-anim-duration) ease;
+}
+
+/* ── Variantes ───────────────────────────────────────────────── */
+
+.nm-toast--success { background: var(--nm-success-bg); color: var(--nm-success-color); }
+.nm-toast--error   { background: var(--nm-error-bg);   color: var(--nm-error-color);   }
+.nm-toast--info    { background: var(--nm-info-bg);     color: var(--nm-info-color);    }
+
+/* ── Partes internas ─────────────────────────────────────────── */
+
+.nm-toast__icono {
+  font-size: 1rem;
+  font-weight: 900;
+  flex-shrink: 0;
+}
+
+.nm-toast__msg {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.nm-toast__close {
+  background:  transparent;
+  border:      none;
+  color:       rgba(255, 255, 255, 0.75);
+  cursor:      pointer;
+  font-size:   1.2rem;
+  padding:     0 0.25rem;
+  line-height: 1;
+  flex-shrink: 0;
+  transition:  color 0.15s ease;
+}
+
+.nm-toast__close:hover        { color: #ffffff; }
+.nm-toast__close:focus-visible {
+  outline:        2px solid rgba(255, 255, 255, 0.8);
+  outline-offset: 2px;
+  border-radius:  2px;
+}
+
+body.high-contrast .nm-toast         { border: 2px solid var(--border-strong); }
+body.high-contrast .nm-toast__close  { color: var(--nm-info-color); }
+
+/* ── Animación ───────────────────────────────────────────────── */
+
+@keyframes nm-slide-in {
+  from { opacity: 0; transform: translateX(1rem); }
+  to   { opacity: 1; transform: translateX(0);    }
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+
+@media (max-width: 768px) {
+  .nm-toast-container {
+    bottom: 1rem;
+    right:  0.75rem;
+    left:   0.75rem;
+    width:  auto;
+    max-width: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .nm-toast             { animation: none; }
+  .nm-toast__close      { transition: none; }
+}

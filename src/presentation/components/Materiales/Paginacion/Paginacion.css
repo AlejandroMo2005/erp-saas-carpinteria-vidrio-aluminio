@@ -1,0 +1,75 @@
+/* ================================================================
+   PAGINACIÓN — Materiales
+   ================================================================ */
+
+.paginacion {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  margin-top: 2.5rem;
+  flex-wrap: wrap;
+}
+
+.pag-btn {
+  min-width: 2.5rem;
+  height: 2.5rem;
+  padding: 0 0.75rem;
+  border: 2px solid var(--border-color);
+  border-radius: 0.5rem;
+  background: var(--bg-card);
+  color: var(--text-primary);
+  font-weight: 700;
+  font-size: 0.9375rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+}
+
+.pag-btn:hover:not(:disabled) {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+.pag-btn:focus-visible {
+  outline: 3px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.pag-btn:disabled { opacity: 0.4; cursor: not-allowed; }
+
+/* #ffffff intencional: blanco sobre color de marca en dark/light.
+   HC lo sobreescribe a var(--bg-page) = #000 sobre #ffff00. */
+.pag-btn--active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #ffffff;
+}
+
+.pag-elipsis {
+  padding: 0 0.25rem;
+  color: var(--text-secondary);
+  font-weight: 700;
+  line-height: 2.5rem;
+}
+
+body.high-contrast .pag-btn {
+  background: var(--bg-page);
+  color: var(--text-primary);
+  border-color: var(--border-strong);
+}
+
+body.high-contrast .pag-btn:hover:not(:disabled) {
+  border-color: var(--primary-color);
+  color: var(--primary-color);
+}
+
+body.high-contrast .pag-btn--active {
+  background: var(--primary-color);
+  color: var(--bg-page);
+  border-color: var(--bg-page);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .pag-btn { transition: none; }
+}

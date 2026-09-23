@@ -1,0 +1,107 @@
+/* ================================================================
+   ACCESSIBILITY PANEL — TOGGLE SWITCH
+   Track + slider (knob) · dark · light · high-contrast
+   ================================================================ */
+
+.toggle-switch {
+  position: relative;
+  width: 48px;
+  height: 14px;
+  min-height: unset;
+  min-width: unset;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 9999px;
+  overflow: visible;
+  cursor: pointer;
+  transition: background 0.25s ease, border-color 0.25s ease;
+  flex-shrink: 0;
+}
+
+.toggle-switch:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.toggle-switch.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+}
+
+.toggle-slider {
+  position: absolute;
+  top: 50%;
+  left: 2px;
+  transform: translateY(-50%);
+  width: 20px;
+  height: 20px;
+  background: #ffffff;
+  border-radius: 50%;
+  transition: left 0.25s ease, transform 0.25s ease;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.35), 0 0 0 1px rgba(0, 0, 0, 0.08);
+  border: none;
+  pointer-events: none;
+}
+
+.toggle-switch.active .toggle-slider {
+  left: calc(100% - 22px);
+  /* transform: translateY(-50%) se hereda — no cambia, sin salto */
+}
+
+/* ── Modo oscuro (default — va PRIMERO para que high-contrast lo pise) ───── */
+body:not(.theme-light):not(.high-contrast) .toggle-switch {
+  background: #1e293b;
+  border-color: #475569;
+}
+body:not(.theme-light):not(.high-contrast) .toggle-switch.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+}
+body:not(.theme-light):not(.high-contrast) .toggle-slider {
+  background: #f8fafc;
+  border: none;
+  border-radius: 50%;
+  box-shadow: 0 1px 5px rgba(0, 0, 0, 0.55);
+}
+
+/* ── Modo claro ──────────────────────────────────────────────────────────── */
+body.theme-light .toggle-switch         { background: #e2e8f0; border-color: #cbd5e1; }
+body.theme-light .toggle-switch.active  { background: var(--primary-color); border-color: var(--primary-color); }
+body.theme-light .toggle-slider         { background: #ffffff; border: none; border-radius: 50%; box-shadow: 0 1px 4px rgba(0, 0, 0, 0.25); }
+
+/* ── Alto contraste — viene DESPUÉS: misma especificidad, gana por orden ── */
+body.high-contrast .toggle-switch {
+  background: #000000;
+  border: 2px solid #ffff00;
+  border-radius: 9999px;
+  height: 14px;
+  min-height: unset;
+  min-width: unset;
+}
+
+body.high-contrast .toggle-switch.active {
+  background: #ffff00;
+  border-color: #000000;
+}
+
+body.high-contrast .toggle-slider {
+  background: #ffffff;
+  border: 2px solid #000000;
+  border-radius: 50%;
+  box-shadow: none;
+  width: 20px;
+  height: 20px;
+}
+
+body.high-contrast .toggle-switch.active .toggle-slider {
+  background: #000000;
+  border: 2px solid #ffffff;
+  border-radius: 50%;
+}
+
+/* ── Toggle deshabilitado — sin knob blanco engañoso ────────────────────── */
+.toggle-switch:disabled .toggle-slider,
+.toggle-switch[aria-disabled="true"] .toggle-slider {
+  background: var(--bg-tertiary);
+  box-shadow: none;
+}

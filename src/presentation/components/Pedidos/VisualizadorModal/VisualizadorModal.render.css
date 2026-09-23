@@ -1,0 +1,82 @@
+/* ================================================================
+   VISUALIZADOR MODAL — RENDER AREA + CANVAS + ESTADOS
+   🐛 Fix Sprint 18 — Context Lost:
+      - overflow:clip en .modal-render-area (no crea scroll container)
+      - .canvas-wrapper NO fuerza dimensiones en hijos del PreviewComponent:
+        el componente maneja su propio toolbar interno (NIVELES, MATERIAL…)
+   ================================================================ */
+
+/* ── Área de render ──────────────────────────────────────────────────────── */
+.modal-render-area {
+  flex: 1;
+  min-height: 0;                 /* necesario para que flex no desborde */
+  background: var(--vm-render-bg);
+  padding: 0;                    /* el PreviewComponent gestiona su padding interno */
+  display: flex;
+  flex-direction: column;
+  overflow: clip;                /* clip: no crea scroll container (fix R3F) */
+  position: relative;
+}
+
+/* ── Canvas wrapper ──────────────────────────────────────────────────────────
+   Envuelve el PreviewComponent completo (toolbar + canvas).
+   IMPORTANTE: NO aplicar height/width a hijos directos — el PreviewComponent
+   tiene su propio layout interno con toolbar arriba y canvas abajo.
+   Solo se garantiza que el wrapper llene el espacio disponible.              */
+.canvas-wrapper {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  overflow: hidden;
+}
+
+/* ── Loading ─────────────────────────────────────────────────────────────── */
+.loading-message {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+}
+
+.spinner {
+  width: 60px;
+  height: 60px;
+  border: 6px solid var(--vm-spinner-track);
+  border-top-color: var(--vm-spinner-top);
+  border-radius: 50%;
+  animation: vm-spin 0.8s linear infinite;
+  margin-bottom: 1.5rem;
+}
+
+@keyframes vm-spin { to { transform: rotate(360deg); } }
+
+.loading-message p {
+  color: var(--vm-spinner-top);
+  font-size: 1.2rem;
+  font-weight: 700;
+}
+
+/* ── Sin preview ─────────────────────────────────────────────────────────── */
+.no-preview-message {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem;
+  text-align: center;
+}
+
+.no-preview-message h3    { color: var(--vm-no-preview-color); font-size: 1.5rem; font-weight: 900; margin-bottom: 1rem; }
+.no-preview-message p     { color: var(--vm-no-preview-color); font-size: 1rem; margin: 0.5rem 0; }
+.no-preview-message .hint { color: var(--vm-hint-color); font-size: 0.9rem; font-style: italic; margin-top: 1rem; }
+
+/* ── Responsive ──────────────────────────────────────────────────────────── */
+@media (max-width: 768px) {
+  .modal-render-area { padding: 0; }
+}

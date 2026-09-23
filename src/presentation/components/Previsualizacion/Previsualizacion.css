@@ -1,0 +1,19 @@
+/* ================================================================
+   PREVISUALIZACION — ENTRY POINT
+   Solo importa los parciales en orden. No escribir reglas aquí.
+   ================================================================ */
+@import './Previsualizacion_.css';
+@import './Previsualizacion.page.css';
+@import './Previsualizacion.selector.css';
+@import './Previsualizacion.inputs.css';
+@import './Previsualizacion.colors.css';
+@import './Previsualizacion.drawzone.css';
+
+/* ================================================================
+   REDUCE MOTION — afecta clases de varios parciales
+   Se mantiene aquí para no fragmentar la regla global de motion.
+   ================================================================ */
+body.reduce-motion .dot-btn,
+body.reduce-motion .ia-trigger-btn,
+body.reduce-motion .ia-draw-btn-small { transition: none; }
+body.reduce-motion .dot-btn:hover     { transform: none; }

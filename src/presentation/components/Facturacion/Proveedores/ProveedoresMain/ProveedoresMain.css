@@ -1,0 +1,326 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   PROVEEDORES MAIN — ProveedoresMain.css
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.prov-main {
+  display: flex; flex-direction: column; gap: 1.25rem;
+}
+
+/* ─── Tabs ──────────────────────────────────────────────────────────────── */
+
+.prov-tabs {
+  display: flex; align-items: center; gap: 0.375rem;
+  padding: 0.375rem;
+  background: var(--bg-secondary);
+  border-radius: 0.625rem;
+  border: 1.5px solid var(--border-color);
+  flex-wrap: wrap;
+}
+
+.prov-tab {
+  display: flex; align-items: center; gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  background: transparent;
+  border: 1.5px solid transparent;
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s ease;
+  white-space: nowrap;
+}
+
+.prov-tab:hover       { background: var(--bg-tertiary); border-color: var(--border-color); }
+/* #ffffff sobre --primary-color → válido en dark (#4338ca) y light (#4338ca) */
+.prov-tab--active     { background: var(--primary-color); border-color: var(--primary-color); color: #ffffff; }
+
+/* Badge de alertas — reutiliza --btn-cancelar-bg/text de global.css.
+   Antes: background #b91c1c · color #ffffff hardcodeados. */
+.prov-tab__badge {
+  background: var(--btn-cancelar-bg);
+  color:      var(--btn-cancelar-text);
+  font-size: 0.875rem;
+  font-weight: 800;
+  border-radius: 999px;
+  padding: 0.1rem 0.5rem;
+  min-width: 1.375rem;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.prov-refresh {
+  margin-left: auto;
+  display: flex; align-items: center; justify-content: center;
+  width: 2rem; height: 2rem;
+  background: transparent;
+  border: 1.5px solid var(--border-color);
+  border-radius: 0.375rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.prov-refresh:hover { border-color: var(--primary-color); color: var(--primary-color); }
+
+/* HC tabs */
+body.high-contrast .prov-tabs        { background: var(--bg-primary); border-color: var(--border-strong); }
+body.high-contrast .prov-tab         { color: var(--primary-color); }
+body.high-contrast .prov-tab:hover   { background: var(--bg-secondary); border-color: var(--primary-color); }
+/* var(--bg-page) = #000000 en HC — texto negro sobre amarillo */
+body.high-contrast .prov-tab--active { background: var(--primary-color); border-color: var(--border-strong); color: var(--bg-page); }
+body.high-contrast .prov-tab__badge  { background: var(--primary-color); color: var(--bg-page); border: 1px solid var(--border-strong); }
+body.high-contrast .prov-refresh     { color: var(--primary-color); border-color: var(--border-strong); }
+
+/* ─── Secciones / Paneles ───────────────────────────────────────────────── */
+
+.prov-section[hidden] { display: none; }
+.prov-section         { display: block; }
+
+.prov-section__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+
+.prov-section__header--center { justify-content: center; }
+
+.prov-section__title {
+  font-size: 1.0625rem;
+  font-weight: 800;
+  color: var(--text-primary);
+  margin: 0;
+  text-align: center;
+}
+
+body.high-contrast .prov-section__title { color: var(--primary-color); }
+
+.prov-error {
+  padding: 0.75rem 1rem;
+  background: var(--error-bg);
+  color: var(--error-color);
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.prov-loading {
+  text-align: center;
+  padding: 2rem;
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+}
+
+/* ─── Estado vacío ──────────────────────────────────────────────────────── */
+
+.prov-empty {
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  padding: 3rem 1rem; gap: 0.625rem;
+  text-align: center;
+}
+
+.prov-empty__titulo {
+  font-size: 1rem; font-weight: 700;
+  color: var(--text-primary); margin: 0;
+}
+
+.prov-empty__desc {
+  font-size: 0.9375rem;
+  color: var(--text-secondary); margin: 0;
+}
+
+body.high-contrast .prov-empty__titulo { color: var(--primary-color); }
+body.high-contrast .prov-empty__desc   { color: var(--primary-color); }
+
+/* ─── Botón nuevo ───────────────────────────────────────────────────────── */
+
+.prov-btn-nuevo {
+  display: flex; align-items: center; gap: 0.375rem;
+  padding: 0.5rem 1rem;
+  background: var(--primary-color);
+  border: none; border-radius: 0.5rem;
+  color: #ffffff;
+  font-size: 0.9375rem; font-weight: 700;
+  cursor: pointer; font-family: inherit;
+  transition: background 0.15s ease;
+}
+
+.prov-btn-nuevo:hover { background: var(--primary-hover); }
+
+body.high-contrast .prov-btn-nuevo {
+  color: var(--bg-page);            /* #000000 */
+  border: 2px solid var(--border-strong);
+}
+
+/* ─── Grid + Cards ──────────────────────────────────────────────────────── */
+
+.prov-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 0.875rem;
+}
+
+.prov-card {
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border-color);
+  border-radius: 0.625rem;
+  padding: 1rem 1.125rem;
+  display: flex; flex-direction: column; gap: 0.625rem;
+  transition: border-color 0.15s ease;
+}
+
+.prov-card:hover { border-color: var(--primary-color); }
+
+body.high-contrast .prov-card {
+  background: var(--bg-primary);
+  border-color: var(--border-strong);
+}
+
+.prov-card__top {
+  display: flex; align-items: flex-start;
+  justify-content: space-between; gap: 0.5rem;
+}
+
+.prov-card__nombre {
+  font-size: 0.9375rem; font-weight: 800;
+  color: var(--text-primary); margin: 0;
+}
+
+body.high-contrast .prov-card__nombre { color: var(--primary-color); }
+
+.prov-card__actions { display: flex; gap: 0.375rem; flex-shrink: 0; }
+
+.prov-card__btn {
+  display: flex; align-items: center; justify-content: center;
+  width: 1.875rem; height: 1.875rem;
+  background: var(--bg-tertiary);
+  border: 1.5px solid var(--border-color);
+  border-radius: 0.375rem;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.prov-card__btn:hover { border-color: var(--primary-color); color: var(--primary-color); }
+
+/* Danger hover — --stock-danger: #ef4444 (dark) · #dc2626 (light) · #ffff00 (HC)
+   Antes: #ef4444 hardcodeado (solo correcto en tema oscuro). */
+.prov-card__btn--danger:hover {
+  border-color: var(--stock-danger);
+  color:        var(--stock-danger);
+}
+
+body.high-contrast .prov-card__btn {
+  background: var(--bg-primary);
+  border-color: var(--border-strong);
+  color: var(--primary-color);
+}
+
+.prov-card__meta { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+.prov-card__meta-item {
+  display: flex; align-items: center; gap: 0.25rem;
+  font-size: 0.875rem;
+  color: var(--text-secondary); font-weight: 600;
+}
+
+body.high-contrast .prov-card__meta-item { color: var(--primary-color); }
+
+.prov-card__notas {
+  font-size: 0.875rem;
+  color: var(--text-secondary); margin: 0; font-style: italic;
+  border-top: 1px solid var(--border-color);
+  padding-top: 0.5rem;
+}
+
+body.high-contrast .prov-card__notas { color: var(--primary-color); border-color: var(--border-strong); }
+
+/* ─── Historial ─────────────────────────────────────────────────────────── */
+
+.hist-lista { display: flex; flex-direction: column; gap: 0.625rem; }
+
+.hist-item {
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border-color);
+  border-radius: 0.625rem;
+  padding: 0.875rem 1rem;
+}
+
+/* --estado-entregado: #10b981 (dark) · #047857 (light) ✓
+   --estado-pendiente: #f59e0b (dark) · #b45309 (light) ✓
+   Antes: valores hardcodeados solo correctos en tema oscuro. */
+.hist-item--enviada   { border-left: 4px solid var(--estado-entregado); }
+.hist-item--pendiente { border-left: 4px solid var(--estado-pendiente); }
+
+body.high-contrast .hist-item { background: var(--bg-primary); border-color: var(--border-strong); }
+
+.hist-item__header {
+  display: flex; align-items: center; gap: 0.75rem;
+  flex-wrap: wrap; margin-bottom: 0.5rem;
+}
+
+.hist-item__prov {
+  font-size: 0.9375rem; font-weight: 800;
+  color: var(--text-primary); flex: 1;
+}
+
+body.high-contrast .hist-item__prov { color: var(--primary-color); }
+
+.hist-item__estado {
+  font-size: 0.875rem; font-weight: 800;
+  padding: 0.2rem 0.5rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+}
+
+/* --success-bg/color: cubre dark (#166534/#86efac) y light (#dcfce7/#14532d).
+   --warning-bg/color: cubre dark (#a16207/#fde047) y light (#fef3c7/#713f12).
+   Antes: colores hardcodeados que solo funcionaban en tema claro. */
+.hist-item__estado--enviada {
+  background: var(--success-bg);
+  color:      var(--success-color);
+  border:     1px solid var(--success-color);
+}
+
+/* Dark — fondo más oscuro para que el texto amarillo contraste: 6.6:1 ✓ */
+.hist-item__estado--pendiente {
+  background: #78350f;
+  color:      #fde68a;
+  border:     1px solid #fde68a;
+}
+
+/* Light — las vars ya dan 7.0:1 ✓, se restauran explícitamente */
+body.theme-light .hist-item__estado--pendiente {
+  background: var(--warning-bg);
+  color:      var(--warning-color);
+  border:     1px solid var(--warning-color);
+}
+
+body.high-contrast .hist-item__estado--enviada,
+body.high-contrast .hist-item__estado--pendiente {
+  background: var(--bg-secondary);
+  color:      var(--primary-color);
+  border:     1px solid var(--primary-color);
+}
+
+.hist-item__fecha {
+  font-size: 0.875rem; color: var(--text-secondary); font-weight: 600;
+}
+
+body.high-contrast .hist-item__fecha { color: var(--primary-color); }
+
+.hist-item__items {
+  list-style: disc; padding-left: 1.25rem;
+  margin: 0; display: flex; flex-direction: column; gap: 0.1rem;
+}
+
+.hist-item__items li {
+  font-size: 0.875rem; color: var(--text-secondary); font-weight: 600;
+}
+
+body.high-contrast .hist-item__items li { color: var(--primary-color); }

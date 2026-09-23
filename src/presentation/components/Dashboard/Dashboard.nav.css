@@ -1,0 +1,56 @@
+/* ================================================================
+   DASHBOARD — Botones secundarios (Productos, Estados de pedido)
+   ================================================================ */
+
+.db-secondary-row {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+  flex-wrap: wrap;
+  min-height: 56px;
+}
+
+.db-secondary-btn {
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: 0.75rem;
+  padding: 1rem 1.5rem;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
+  box-shadow: var(--shadow-sm);
+  will-change: transform;
+}
+
+.db-secondary-btn:hover {
+  border-color: var(--border-strong);
+  background: var(--bg-secondary);
+  transform: translateY(-2px);
+}
+
+.db-secondary-btn--active {
+  border-color: var(--primary-color);
+  background: var(--bg-secondary);
+  box-shadow: 0 0 0 2px var(--primary-glow, rgba(67, 56, 202, 0.15));
+}
+
+.db-secondary-btn:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* Alto contraste */
+body.high-contrast .db-secondary-btn             { border: 2px solid var(--border-color); background: var(--bg-page); color: var(--text-primary); }
+body.high-contrast .db-secondary-btn:hover       { border-color: var(--primary-color); background: var(--bg-secondary); }
+body.high-contrast .db-secondary-btn--active     { border: 3px solid var(--primary-color); background: var(--bg-secondary); box-shadow: 0.25rem 0.25rem 0 var(--primary-color); }
+
+/* Responsive */
+@media (max-width: 480px) {
+  .db-secondary-btn { flex: 1 1 140px; justify-content: center; }
+}

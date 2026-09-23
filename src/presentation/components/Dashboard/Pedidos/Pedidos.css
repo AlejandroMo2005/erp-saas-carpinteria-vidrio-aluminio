@@ -1,0 +1,129 @@
+.ped-container {
+  background: var(--bg-card);
+  border: 2px solid var(--border-color);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  box-shadow: var(--shadow-sm);
+  animation: slideIn 0.25s ease;
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateY(-8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+body.reduce-motion .ped-container { animation: none; }
+
+.ped-title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin-bottom: 1rem;
+}
+
+body.high-contrast .ped-title { color: var(--primary-color); }
+
+.ped-loading,
+.ped-empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+}
+
+/* ─── Tabla ──────────────────────────────────────────────────────────────── */
+.ped-table-wrap {
+  overflow-x: auto;
+}
+
+.ped-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.ped-table th {
+  text-align: left;
+  padding: 0.5rem 0.75rem;
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  border-bottom: 2px solid var(--border-color);
+  font-weight: 800;
+}
+
+.ped-table td {
+  padding: 0.625rem 0.75rem;
+  color: var(--text-primary);
+  border-bottom: 1px solid var(--border-color);
+  font-size: 0.9375rem;
+}
+
+.ped-table tr:last-child td { border-bottom: none; }
+.ped-table tr:hover td      { background: var(--bg-secondary); }
+
+.ped-table__id {
+  color: var(--text-secondary);
+  font-size: 0.9375rem;
+  font-weight: 600;
+}
+
+.ped-table__total {
+  font-weight: 900;
+  text-align: right;
+}
+
+/* ─── Badge base ─────────────────────────────────────────────────────────── */
+.ped-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.3rem 0.75rem;
+  border-radius: 0.375rem;
+  font-size: 0.8125rem;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+  /* background y color los asigna [data-estado] */
+}
+
+/* ══════════════════════════════════════════════════════════════════════════
+   COLORES POR ESTADO — usan variables de global.css
+   Selector: .ped-badge[data-estado="X"]
+   Al cambiar de tema (dark/light/HC) las variables cambian automáticamente.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.ped-badge[data-estado="PENDIENTE"] {
+  background: var(--estado-pendiente-bg);
+  color:      var(--estado-pendiente);
+}
+
+.ped-badge[data-estado="PROCESADO"] {
+  background: var(--estado-procesado-bg);
+  color:      var(--estado-procesado);
+}
+
+.ped-badge[data-estado="ENTREGADO"] {
+  background: var(--estado-entregado-bg);
+  color:      var(--estado-entregado);
+}
+
+.ped-badge[data-estado="CANCELADO"] {
+  background: var(--estado-cancelado-bg);
+  color:      var(--estado-cancelado);
+}
+
+/* ── Alto contraste: borde visible en el badge ──────────────────────────── */
+body.high-contrast .ped-badge[data-estado="PENDIENTE"] {
+  border: 1.5px solid var(--estado-pendiente);
+}
+body.high-contrast .ped-badge[data-estado="PROCESADO"] {
+  border: 1.5px solid var(--estado-procesado);
+}
+body.high-contrast .ped-badge[data-estado="ENTREGADO"] {
+  border: 1.5px solid var(--estado-entregado);
+}
+body.high-contrast .ped-badge[data-estado="CANCELADO"] {
+  border: 1.5px solid var(--estado-cancelado);
+}

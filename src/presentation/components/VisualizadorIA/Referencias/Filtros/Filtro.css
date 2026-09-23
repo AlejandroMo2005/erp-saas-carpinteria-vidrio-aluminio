@@ -1,0 +1,88 @@
+.ref-filter-bar {
+  position: relative;
+  display: flex;
+  align-items: center;
+  height: 2.5rem;
+  contain: layout;
+}
+
+.ref-filter-input {
+  width: 100%;
+  padding: 0.5625rem 2.25rem 0.5625rem 0.875rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 0.5rem;
+  color: var(--text-primary);
+  font-size: 0.875rem;
+  font-family: inherit;
+  transition: border-color 0.15s;
+  appearance: none;
+  -webkit-appearance: none;
+}
+.ref-filter-input::placeholder { color: var(--text-secondary); opacity: 0.7; }
+.ref-filter-input:focus {
+  outline: none;
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--primary-color) 20%, transparent);
+}
+
+.ref-filter-clear {
+  position: absolute;
+  right: 0.625rem;
+  background: none;
+  border: none;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-size: 0.8rem;
+  line-height: 1;
+  padding: 0.25rem;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, color 0.15s;
+}
+.ref-filter-clear:hover { background: var(--bg-tertiary); color: var(--text-primary); }
+
+.ref-chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.4375rem;
+  min-height: 2rem;
+  contain: layout;
+}
+
+.ref-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.3125rem 0.75rem;
+  border-radius: 2rem;
+  border: 1px solid var(--border-color);
+  background: var(--bg-secondary);
+  color: var(--text-secondary);
+  font-size: 0.8125rem;
+  font-family: inherit;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+}
+.ref-chip:hover { border-color: var(--primary-color); color: var(--text-primary); transform: translateY(-1px); }
+.ref-chip:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+.ref-chip--active { background: var(--primary-color); border-color: var(--primary-color); color: #fff; font-weight: 600; }
+body.high-contrast .ref-chip--active { color: #000; }
+body.reduce-motion .ref-chip { transition: none; }
+
+.ref-chip-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.25rem;
+  height: 1.25rem;
+  padding: 0 0.3rem;
+  border-radius: 1rem;
+  background: rgba(255,255,255,0.2);
+  font-size: 0.82rem;
+  font-weight: 700;
+  line-height: 1;
+}
+.ref-chip:not(.ref-chip--active) .ref-chip-count { background: var(--bg-tertiary); }

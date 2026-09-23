@@ -1,0 +1,291 @@
+@font-face {
+  font-family: 'DM Sans';
+  src: local('-apple-system'),
+       local('BlinkMacSystemFont'),
+       local('Segoe UI');
+  font-style:  normal;
+  font-weight: 400 1000;
+  size-adjust:      105%;
+  ascent-override:  90%;
+  descent-override: 22%;
+  line-gap-override: 0%;
+  font-display: optional;
+}
+
+/* RESET BÁSICO */
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+
+/* ================================================================
+   TEMA OSCURO (DEFAULT)
+   ================================================================ */
+:root {
+  /* Fondos */
+  --bg-page:      #0f172a;
+  --bg-primary:   #1e293b;
+  --bg-secondary: #334155;
+  --bg-tertiary:  #475569;
+  --bg-card:      #1e293b;
+
+  /* Texto */
+  --text-primary:   #f8fafc;
+  --text-secondary: #cbd5e1;
+
+  /* Marca */
+  --primary-color: #4338ca;
+  --primary-hover: #3730a3;
+  --primary-dark:  #312e81;
+  --primary-text:  #a5b4fc;
+
+  /* Bordes */
+  --border-color:  #475569;
+  --border-strong: #64748b;
+
+  /* Estados generales — usados en todos los módulos */
+  --success-bg:    #166534;
+  --success-color: #86efac;
+  --error-bg:      #991b1b;
+  --error-color:   #fca5a5;
+  --error-border:  #fca5a5;
+  --warning-bg:    #a16207;
+  --warning-color: #fde047;
+
+  /* Brand */
+  --brand-yellow: #fde047;
+  --brand-cyan:   #06b6d4;
+
+  /* Badges de estado Pedidos — usados en Dashboard y Pedidos */
+  --badge-pendiente-bg:   #431407;
+  --badge-pendiente-text: #ffffff;
+  --badge-entregado-bg:   #14532d;
+  --badge-entregado-text: #ffffff;
+  --badge-cancelado-bg:   #7f1d1d;
+  --badge-cancelado-text: #ffffff;
+
+  /* Botones de acción Pedidos — usados en Dashboard y Pedidos */
+  --btn-entregado-bg:   #166534;
+  --btn-entregado-text: #ffffff;   /* 7.1:1 ✓ */
+  --btn-cancelar-bg:    #b91c1c;
+  --btn-cancelar-text:  #ffffff;   /* 6.4:1 ✓ */
+  --btn-cancelar-hover: #991b1b;
+
+  /* Paleta de estados — usada en Dashboard y ProveedoresMain */
+  --estado-pendiente:    #f59e0b;
+  --estado-pendiente-bg: rgba(245, 158, 11, 0.13);
+  --estado-procesado:    #3b82f6;
+  --estado-procesado-bg: rgba(59, 130, 246, 0.13);
+  --estado-entregado:    #10b981;
+  --estado-entregado-bg: rgba(16, 185, 129, 0.13);
+  --estado-cancelado:    #e52f2f;
+  --estado-cancelado-bg: rgba(229, 47, 47, 0.13);
+
+  /* Sombras */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.3);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.5);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.6);
+}
+
+
+/* ================================================================
+   TEMA CLARO
+   ================================================================ */
+body.theme-light {
+  --bg-page:      #f8fafc;
+  --bg-primary:   #ffffff;
+  --bg-secondary: #f1f5f9;
+  --bg-tertiary:  #e2e8f0;
+  --bg-card:      #ffffff;
+
+  --text-primary:   #0f172a;
+  --text-secondary: #475569;
+
+  --primary-color: #4338ca;
+  --primary-hover: #3730a3;
+  --primary-dark:  #312e81;
+  --primary-text:  #4338ca;
+
+  --border-color:  #cbd5e1;
+  --border-strong: #94a3b8;
+
+  --success-bg:    #dcfce7;
+  --success-color: #14532d;
+  --error-bg:      #fee2e2;
+  --error-color:   #7f1d1d;
+  --error-border:  #f87171;
+  --warning-bg:    #fef3c7;
+  --warning-color: #713f12;
+
+  --brand-yellow: #facc15;
+  --brand-cyan:   #06b6d4;
+
+  --badge-pendiente-bg:   #431407;
+  --badge-pendiente-text: #ffffff;
+  --badge-entregado-bg:   #14532d;
+  --badge-entregado-text: #ffffff;
+  --badge-cancelado-bg:   #7f1d1d;
+  --badge-cancelado-text: #ffffff;
+
+  --btn-entregado-bg:   #166534;
+  --btn-entregado-text: #ffffff;
+  --btn-cancelar-bg:    #b91c1c;
+  --btn-cancelar-text:  #ffffff;
+  --btn-cancelar-hover: #991b1b;
+
+  /* Paleta de estados — tonos más oscuros para WCAG AA sobre blanco */
+  --estado-pendiente:    #b45309;   /* 4.7:1 ✓ */
+  --estado-pendiente-bg: rgba(180, 83, 9, 0.12);
+  --estado-procesado:    #1d4ed8;   /* 5.9:1 ✓ */
+  --estado-procesado-bg: rgba(29, 78, 216, 0.12);
+  --estado-entregado:    #047857;   /* 4.8:1 ✓ */
+  --estado-entregado-bg: rgba(4, 120, 87, 0.12);
+  --estado-cancelado:    #b91c1c;   /* 6.4:1 ✓ */
+  --estado-cancelado-bg: rgba(185, 28, 28, 0.12);
+
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+}
+
+
+/* ================================================================
+   ALTO CONTRASTE
+   ================================================================ */
+body.high-contrast {
+  --bg-page:      #000000;
+  --bg-primary:   #000000;
+  --bg-secondary: #1a1a1a;
+  --bg-tertiary:  #333333;
+  --bg-card:      #000000;
+
+  --text-primary:   #ffffff;
+  --text-secondary: #ffffff;
+
+  --primary-color: #ffff00;
+  --primary-hover: #ffff66;
+  --primary-dark:  #ffff00;
+  --primary-text:  #ffff00;
+
+  --border-color:  #ffffff;
+  --border-strong: #ffffff;
+
+  --success-color: #00ff00;
+  --error-color:   #ff0000;
+  --error-border:  #ff0000;
+  --warning-color: #ffff00;
+  --brand-yellow:  #ffff00;
+  --brand-cyan:    #00d4ff;
+
+  --badge-pendiente-bg:   #431407;
+  --badge-pendiente-text: #ffffff;
+  --badge-entregado-bg:   #ffffff;
+  --badge-entregado-text: #006600;
+  --badge-cancelado-bg:   #ffffff;
+  --badge-cancelado-text: #cc0000;
+
+  --btn-entregado-bg:   #006600;
+  --btn-entregado-text: #ffffff;
+  --btn-cancelar-bg:    #cc0000;
+  --btn-cancelar-text:  #ffffff;
+  --btn-cancelar-hover: #aa0000;
+
+  --estado-pendiente:    #fbbf24;   /* 10.6:1 ✓ */
+  --estado-pendiente-bg: transparent;
+  --estado-procesado:    #60a5fa;   /* 5.9:1 ✓ */
+  --estado-procesado-bg: transparent;
+  --estado-entregado:    #4ade80;   /* 9.7:1 ✓ */
+  --estado-entregado-bg: transparent;
+  --estado-cancelado:    #f87171;   /* 5.1:1 ✓ */
+  --estado-cancelado-bg: transparent;
+
+  --shadow-sm: none;
+  --shadow-md: 0 0 0 2px #ffffff;
+  --shadow-lg: 0 0 0 3px #ffffff;
+  --shadow-xl: 0 0 0 4px #ffffff;
+}
+
+
+/* ================================================================
+   BODY BASE
+   ================================================================ */
+html { font-size: var(--font-size-base, 16px); }
+
+body {
+  background-color: var(--bg-page);
+  color: var(--text-primary);
+  min-height: 100vh;
+  line-height: 1.6;
+  font-family: 'DM Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto,
+               'Helvetica Neue', Arial, sans-serif;
+}
+
+body.theme-switching::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-color: var(--bg-page);
+  pointer-events: none;
+  z-index: 99999;
+  opacity: 1;
+  animation: themeOverlayFade 0.22s ease-out forwards;
+  will-change: opacity;
+}
+
+@keyframes themeOverlayFade {
+  from { opacity: 0.6; }
+  to   { opacity: 0;   }
+}
+
+body.font-small  { --font-size-base: 18px; }
+body.font-medium { --font-size-base: 20px; }
+body.font-large  { --font-size-base: 22px; }
+
+body.reduce-motion *,
+body.reduce-motion *::before,
+body.reduce-motion *::after {
+  animation-duration:        0.01ms !important;
+  animation-iteration-count: 1      !important;
+  transition-duration:       0.01ms !important;
+  scroll-behavior:           auto   !important;
+}
+
+body.reduce-motion.theme-switching::before { display: none; }
+
+
+/* ================================================================
+   SCROLLBAR
+   ================================================================ */
+::-webkit-scrollbar        { width: 10px; height: 10px; }
+::-webkit-scrollbar-track  { background: var(--bg-secondary); }
+::-webkit-scrollbar-thumb  { background: var(--primary-color); border-radius: 5px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary-hover); }
+
+
+/* ================================================================
+   UTILIDADES GLOBALES
+   ================================================================ */
+.sr-only {
+  position: absolute;
+  width: 1px; height: 1px;
+  padding: 0; margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.content-area--navigating { cursor: wait; pointer-events: none; }
+
+@media (prefers-reduced-motion: no-preference) {
+  .content-area--navigating { opacity: 0.75; }
+}

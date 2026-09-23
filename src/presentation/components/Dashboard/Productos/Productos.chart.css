@@ -1,0 +1,83 @@
+/* ================================================================
+   PRODUCTOS — Panel del gráfico de líneas
+   ================================================================ */
+
+.prod-grafico {
+  background: var(--bg-primary);
+  border: 2px solid var(--primary-color);
+  border-radius: 1rem;
+  padding: 1.5rem;
+  animation: expandDown 0.3s ease;
+  box-shadow: var(--shadow-md);
+}
+
+@keyframes expandDown {
+  from { opacity: 0; transform: translateY(-12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+body.reduce-motion .prod-grafico { animation: none; }
+
+.prod-grafico__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.prod-grafico__info-center { flex: 1; text-align: center; }
+
+.prod-grafico__title {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.prod-grafico__hint {
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+  margin-top: 0.25rem;
+}
+
+.prod-grafico__close {
+  background: var(--btn-cancelar-bg);
+  border: 2px solid var(--btn-cancelar-hover);
+  color: var(--btn-cancelar-text);
+  width: 2rem;
+  height: 2rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+  font-weight: 700;
+}
+
+.prod-grafico__close:hover {
+  background: var(--btn-cancelar-hover);
+  border-color: var(--btn-cancelar-hover);
+  transform: scale(1.05);
+}
+
+.prod-grafico__close:focus-visible {
+  outline: 3px solid var(--error-color);
+  outline-offset: 2px;
+}
+
+body.high-contrast .prod-grafico__close { border: 2px solid var(--border-strong); }
+
+.prod-grafico__empty {
+  text-align: center;
+  padding: 2rem 1rem;
+  color: var(--text-secondary);
+  font-size: 0.875rem;
+  font-style: italic;
+}
+
+@media (max-width: 768px) {
+  .prod-grafico       { padding: 1rem; }
+  .prod-grafico__title { font-size: 1rem; }
+}

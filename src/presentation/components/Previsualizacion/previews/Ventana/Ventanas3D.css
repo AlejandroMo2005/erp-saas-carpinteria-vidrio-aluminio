@@ -1,0 +1,146 @@
+/* Ventanas3D.css — Sprint 8 — CSS variables WCAG AAA */
+
+.ventana-preview {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  font-size: var(--font-size-base, 14px);
+}
+
+.ventana-controles {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 1.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  flex-wrap: nowrap;
+  overflow-x: auto;
+}
+
+.ventana-preview .control-group {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  flex-shrink: 0;
+}
+
+.ventana-preview .control-label {
+  font-weight: 700;
+  font-size: 0.85em;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-right: 0.2rem;
+  white-space: nowrap;
+  color: var(--brand-yellow);
+}
+body.theme-light .ventana-preview .control-label { color: var(--primary-dark); }
+
+.ventana-preview .control-group button {
+  padding: 0.35rem 0.7rem;
+  border: 1px solid var(--border-color);
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s;
+  font-size: 0.8em;
+  white-space: nowrap;
+  min-height: 28px;
+}
+.ventana-preview .control-group button:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-strong);
+}
+.ventana-preview .control-group button.active {
+  background: var(--primary-color);
+  border-color: var(--primary-color);
+  color: #ffffff;
+  font-weight: 600;
+}
+.ventana-preview .control-group button:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.ventana-render {
+  width: 100%;
+  height: 500px;
+  background: var(--bg-tertiary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.ventana-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.6rem 1rem;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px;
+  flex-wrap: wrap;
+  gap: 0.5rem 0;
+  font-size: 0.82em;
+}
+.ventana-info span {
+  color: var(--text-secondary);
+  font-weight: 500;
+  flex: 1;
+  text-align: center;
+  white-space: nowrap;
+}
+.ventana-info span:first-child { text-align: left; }
+.ventana-info span:last-child  { text-align: right; }
+.ventana-info span + span {
+  border-left: 1px solid var(--border-color);
+  padding-left: 0.75rem;
+}
+.ventana-info b {
+  font-weight: 700;
+  margin-right: 0.2rem;
+  color: var(--brand-yellow);
+}
+body.theme-light .ventana-info b { color: var(--primary-dark); }
+
+/* ── Alto contraste ── */
+body.high-contrast .ventana-controles,
+body.high-contrast .ventana-render,
+body.high-contrast .ventana-info { border: 2px solid var(--border-color); }
+
+body.high-contrast .ventana-preview .control-label,
+body.high-contrast .ventana-info b { color: var(--brand-yellow); }
+
+body.high-contrast .ventana-preview .control-group button {
+  background: #000; border: 2px solid #fff; color: #fff;
+}
+body.high-contrast .ventana-preview .control-group button.active,
+body.high-contrast .ventana-preview .control-group button:hover {
+  background: var(--primary-color); border-color: #000; color: #000;
+}
+
+/* ── Reduce motion ── */
+body.reduce-motion .ventana-preview .control-group button { transition: none !important; }
+
+/* ── Responsive ── */
+@media (max-width: 520px) {
+  .ventana-controles { gap: 1rem; padding: 0.6rem 0.75rem; }
+  .ventana-render    { height: 320px; }
+  .ventana-info {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.3rem;
+  }
+  .ventana-info span,
+  .ventana-info span:first-child,
+  .ventana-info span:last-child { text-align: left; flex: unset; }
+  .ventana-info span + span {
+    border-left: none; padding-left: 0;
+    border-top: 1px solid var(--border-color);
+    padding-top: 0.25rem; width: 100%;
+  }
+}

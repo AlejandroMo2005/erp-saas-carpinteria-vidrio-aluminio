@@ -1,0 +1,399 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   SELECTOR DE CLIENTE
+   Sprint 16 — Fix CLS: reserva de alto en modos, campo buscar y seleccionado.
+               Fix HC: contraste en botones Buscar/Nuevo cliente.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+.sc-wrapper {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+  min-height: 48px;
+}
+
+/* ─── Toggle Buscar / Nuevo cliente ─────────────────────────────────────── */
+
+.sc-modos {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.25rem;
+  background: var(--bg-secondary);
+  border-radius: 0.5rem;
+  border: 1.5px solid var(--border-color);
+  min-height: 48px;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.sc-modo-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.375rem;
+  padding: 0.5rem 0.75rem;
+  background: transparent;
+  border: none;
+  border-radius: 0.375rem;
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  cursor: pointer;
+  transition: background 0.2s ease, color 0.2s ease;
+  font-family: inherit;
+  min-height: 36px;
+  white-space: nowrap;
+}
+
+.sc-modo-btn:hover         { background: var(--bg-tertiary); color: var(--text-primary); }
+/* #ffffff sobre --primary-color #4338ca → 8.6:1 ✓ en dark/light. HC lo sobreescribe. */
+.sc-modo-btn--active       { background: var(--primary-color); color: #ffffff; }
+.sc-modo-btn:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; }
+
+/* ─── Modo buscar ────────────────────────────────────────────────────────── */
+
+.sc-buscar { position: relative; }
+
+.sc-buscar__campo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.625rem 0.875rem;
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border-color);
+  border-radius: 0.5rem;
+  transition: border-color 0.2s ease;
+  min-height: 48px;
+  box-sizing: border-box;
+}
+
+.sc-buscar__campo:focus-within { border-color: var(--primary-color); }
+
+/* --text-secondary en lugar de --text-tertiary (no definida en global.css) */
+.sc-buscar__icono { color: var(--text-secondary); flex-shrink: 0; }
+
+.sc-buscar__input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  font-family: inherit;
+}
+
+/* --text-secondary en lugar de --text-tertiary */
+.sc-buscar__input::placeholder { color: var(--text-secondary); opacity: 0.6; }
+
+.sc-buscar__spinner {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  min-height: 18px;
+  border: 2px solid var(--border-color);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: sc-spin 0.7s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes sc-spin { to { transform: rotate(360deg); } }
+
+.sc-buscar__error {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  padding: 0.375rem 0.625rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--error-color);
+  margin-top: 0.25rem;
+}
+
+/* ─── Lista de resultados ────────────────────────────────────────────────── */
+
+.sc-lista {
+  position: absolute;
+  top: calc(100% + 0.375rem);
+  left: 0;
+  right: 0;
+  background: var(--bg-card);
+  border: 1.5px solid var(--border-color);
+  border-radius: 0.5rem;
+  box-shadow: var(--shadow-md);
+  z-index: 100;
+  list-style: none;
+  margin: 0;
+  padding: 0.25rem;
+  max-height: 280px;
+  overflow-y: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+}
+
+.sc-lista__vacio {
+  padding: 1rem;
+  text-align: center;
+  font-size: 0.875rem;
+  color: var(--text-secondary);
+}
+
+.sc-lista__item {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 0.375rem;
+  cursor: pointer;
+  transition: background 0.15s ease;
+  min-height: 48px;
+}
+
+.sc-lista__item:hover,
+.sc-lista__item--focused    { background: var(--bg-secondary); }
+
+/* --text-secondary en lugar de --text-tertiary */
+.sc-lista__item-icono       { color: var(--text-secondary); flex-shrink: 0; }
+
+.sc-lista__item-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.sc-lista__item-nombre {
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.sc-lista__item-detalle { font-size: 0.9375rem; color: var(--text-secondary); }
+
+.sc-lista__item-check {
+  color: var(--primary-color);
+  opacity: 0;
+  flex-shrink: 0;
+  transition: opacity 0.15s ease;
+}
+
+.sc-lista__item:hover .sc-lista__item-check,
+.sc-lista__item--focused .sc-lista__item-check { opacity: 1; }
+
+/* ─── Cliente seleccionado ───────────────────────────────────────────────── */
+
+.sc-seleccionado {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--primary-color);
+  border-radius: 0.5rem;
+  min-height: 72px;
+  box-sizing: border-box;
+}
+
+.sc-seleccionado__icono {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2.25rem;
+  height: 2.25rem;
+  min-width: 2.25rem;
+  min-height: 2.25rem;
+  background: var(--primary-color);
+  color: #ffffff;   /* HC sobreescribe a var(--bg-page) = #000 */
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.sc-seleccionado__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.125rem;
+  min-width: 0;
+}
+
+.sc-seleccionado__nombre  { font-size: 0.9375rem; font-weight: 700; color: var(--text-primary); min-height: 1.2em; }
+.sc-seleccionado__id,
+.sc-seleccionado__tel     { font-size: 0.9375rem; color: var(--text-secondary); }
+
+.sc-seleccionado__limpiar {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 2rem;
+  height: 2rem;
+  min-width: 2rem;
+  min-height: 2rem;
+  background: transparent;
+  border: 1.5px solid var(--border-color);
+  border-radius: 0.375rem;
+  color: var(--text-secondary);
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: all 0.15s ease;
+}
+
+.sc-seleccionado__limpiar:hover {
+  background: var(--error-bg);
+  border-color: var(--error-color);
+  color: var(--error-color);
+}
+
+/* ─── Formulario nuevo cliente ───────────────────────────────────────────── */
+
+.sc-form {
+  display: flex;
+  flex-direction: column;
+  gap: 0.875rem;
+}
+
+.sc-form__error-general {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  background: var(--error-bg);
+  border: 1px solid var(--error-color);
+  border-radius: 0.375rem;
+  color: var(--error-color);
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.sc-form__grupo {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3125rem;
+}
+
+.sc-form__label {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  min-height: 1.2em;
+  line-height: 1.2;
+}
+
+.sc-form__label span[aria-hidden] { color: var(--error-color); }
+
+/* --text-secondary en lugar de --text-tertiary */
+.sc-form__opcional { font-weight: 400; color: var(--text-secondary); }
+
+.sc-form__input,
+.sc-form__select {
+  padding: 0.625rem 0.875rem;
+  background: var(--bg-secondary);
+  border: 1.5px solid var(--border-color);
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  color: var(--text-primary);
+  font-family: inherit;
+  outline: none;
+  transition: border-color 0.2s ease;
+  min-height: 44px;
+  box-sizing: border-box;
+}
+
+.sc-form__input:focus,
+.sc-form__select:focus   { border-color: var(--primary-color); }
+
+.sc-form__input::placeholder { color: var(--text-secondary); opacity: 0.6; }
+
+.sc-form__input--error   { border-color: var(--error-color); }
+.sc-form__msg-error      { font-size: 0.9375rem; color: var(--error-color); font-weight: 700; }
+.sc-form__select         { cursor: pointer; }
+
+.sc-form__acciones {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.25rem;
+}
+
+.sc-form__btn {
+  flex: 1;
+  padding: 0.625rem 1rem;
+  border: none;
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.2s ease;
+  min-height: 44px;
+}
+
+.sc-form__btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+.sc-form__btn--cancelar { background: var(--bg-secondary); border: 1.5px solid var(--border-color); color: var(--text-primary); }
+.sc-form__btn--cancelar:hover:not(:disabled) { background: var(--bg-tertiary); }
+
+/* #ffffff sobre --primary-color → 8.6:1 ✓. HC sobreescribe a var(--bg-page). */
+.sc-form__btn--guardar { background: var(--primary-color); color: #ffffff; }
+.sc-form__btn--guardar:hover:not(:disabled) { filter: brightness(1.1); }
+
+/* ─── Reduce motion ──────────────────────────────────────────────────────── */
+
+@media (prefers-reduced-motion: reduce) {
+  .sc-buscar__spinner       { animation: none; }
+  .sc-modo-btn,
+  .sc-lista__item,
+  .sc-form__btn,
+  .sc-form__input,
+  .sc-seleccionado__limpiar { transition: none; }
+}
+
+
+/* ================================================================
+   ALTO CONTRASTE
+   ================================================================ */
+
+body.high-contrast .sc-modos {
+  background: var(--bg-primary);
+  border-color: var(--border-strong);
+}
+
+body.high-contrast .sc-modo-btn         { color: var(--primary-color); }
+body.high-contrast .sc-modo-btn:hover   { background: var(--bg-secondary); }
+body.high-contrast .sc-modo-btn--active { background: var(--primary-color); color: var(--bg-page); }
+
+body.high-contrast .sc-buscar__campo             { background: var(--bg-primary); border-color: var(--border-strong); }
+body.high-contrast .sc-buscar__campo:focus-within { border-color: var(--primary-color); }
+body.high-contrast .sc-buscar__input             { color: var(--text-primary); }
+body.high-contrast .sc-buscar__error             { color: var(--error-color); }
+body.high-contrast .sc-buscar__spinner           { border-color: var(--border-strong); border-top-color: var(--primary-color); }
+
+body.high-contrast .sc-lista                     { background: var(--bg-primary); border-color: var(--border-strong); }
+body.high-contrast .sc-lista__vacio              { color: var(--text-primary); }
+body.high-contrast .sc-lista__item:hover,
+body.high-contrast .sc-lista__item--focused      { background: var(--bg-secondary); }
+body.high-contrast .sc-lista__item-nombre        { color: var(--text-primary); }
+body.high-contrast .sc-lista__item-detalle       { color: var(--primary-color); }
+body.high-contrast .sc-lista__item-check         { color: var(--primary-color); }
+
+body.high-contrast .sc-seleccionado              { background: var(--bg-primary); border-color: var(--primary-color); }
+body.high-contrast .sc-seleccionado__icono       { background: var(--primary-color); color: var(--bg-page); }
+body.high-contrast .sc-seleccionado__nombre      { color: var(--text-primary); }
+body.high-contrast .sc-seleccionado__id,
+body.high-contrast .sc-seleccionado__tel         { color: var(--primary-color); }
+body.high-contrast .sc-seleccionado__limpiar     { border-color: var(--border-strong); color: var(--text-primary); }
+body.high-contrast .sc-seleccionado__limpiar:hover { background: var(--bg-secondary); border-color: var(--error-color); color: var(--error-color); }
+
+body.high-contrast .sc-form__error-general       { background: var(--bg-primary); border-color: var(--error-color); color: var(--error-color); }
+body.high-contrast .sc-form__label               { color: var(--primary-color); }
+body.high-contrast .sc-form__input,
+body.high-contrast .sc-form__select              { background: var(--bg-primary); border-color: var(--border-strong); color: var(--text-primary); }
+body.high-contrast .sc-form__input:focus,
+body.high-contrast .sc-form__select:focus        { border-color: var(--primary-color); }
+body.high-contrast .sc-form__msg-error           { color: var(--error-color); }
+
+body.high-contrast .sc-form__btn--cancelar       { background: var(--bg-primary); border-color: var(--border-strong); color: var(--text-primary); }
+body.high-contrast .sc-form__btn--cancelar:hover:not(:disabled) { background: var(--bg-secondary); }
+body.high-contrast .sc-form__btn--guardar        { background: var(--primary-color); color: var(--bg-page); }

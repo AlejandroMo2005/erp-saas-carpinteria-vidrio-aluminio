@@ -1,0 +1,358 @@
+/* presentation/components/Layout/Navbar.css
+   Sprint 7  — Top bar + Bottom nav
+   Sprint 15 — Fix contrast ratio
+   Sprint 16 — Fix CLS: reserva de espacio, will-change en elementos animados
+*/
+
+/* ════════════════════════════════════════════════════════════
+   TOP BAR
+════════════════════════════════════════════════════════════ */
+.navbar-top {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 52px;
+  background: var(--bg-primary);
+  border-bottom: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 16px;
+  z-index: 1000;
+  font-family: 'DM Sans', sans-serif;
+  box-shadow: var(--shadow-sm);
+  contain: layout;
+  /* CLS fix: will-change evita que cambios en el contenido de la página
+     causen recálculo de posición del navbar fijo */
+  will-change: transform;
+}
+
+/* ── Brand ── */
+.navbar-top__brand {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  min-width: 160px;
+  contain: layout;
+}
+
+.navbar-top__brand-dot {
+  width: 8px;
+  height: 8px;
+  min-width: 8px;
+  min-height: 8px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  flex-shrink: 0;
+}
+
+.navbar-top__brand-name {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: calc(var(--font-size-base, 16px) * 0.875);
+  font-weight: 500;
+  color: var(--text-primary, #1e293b);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  min-height: 1.2em;
+  min-width: 120px;
+  display: block;
+}
+
+/* ── Botón usuario ── */
+.navbar-top__user {
+  position: relative;
+  min-width: 180px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.navbar-top__user-btn {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 10px;
+  padding: 5px 10px 5px 5px;
+  cursor: pointer;
+  transition: background 0.18s ease, border-color 0.18s ease;
+  color: var(--text-primary);
+  font-family: 'DM Sans', sans-serif;
+  height: 42px;
+  min-width: 170px;
+  overflow: hidden;
+}
+
+.navbar-top__user-btn:hover,
+.navbar-top__user-btn.is-open {
+  background: var(--bg-tertiary);
+  border-color: var(--border-strong);
+}
+
+/* Avatar */
+.navbar-top__avatar {
+  width: 30px;
+  height: 30px;
+  min-width: 30px;
+  min-height: 30px;
+  border-radius: 8px;
+  background: var(--primary-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: calc(var(--font-size-base, 16px) * 0.875);
+  font-weight: 700;
+  color: #ffffff;
+  flex-shrink: 0;
+}
+
+/* Info nombre + rol */
+.navbar-top__user-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  min-height: 34px;
+  justify-content: center;
+  width: 100px;
+  flex-shrink: 0;
+}
+
+.navbar-top__user-nombre {
+  font-size: calc(var(--font-size-base, 16px) * 0.9375);
+  font-weight: 600;
+  color: var(--text-primary, #1e293b);
+  min-height: 1.1em;
+  line-height: 1.1;
+  max-width: 100px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  display: block;
+}
+
+.navbar-top__user-rol {
+  font-size: calc(var(--font-size-base, 16px) * 0.875);
+  font-weight: 700;
+  color: var(--text-primary, #1e293b);
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  min-height: 1.1em;
+  line-height: 1.1;
+  font-family: 'JetBrains Mono', monospace;
+  display: block;
+}
+
+/* Chevron */
+.navbar-top__chevron {
+  display: flex;
+  width: 14px;
+  min-width: 14px;
+  height: 14px;
+  min-height: 14px;
+  color: var(--text-secondary);
+  flex-shrink: 0;
+  /* CLS fix: will-change indica al browser que este elemento va a rotar,
+     lo aísla en su propio layer y evita que el shift se propague */
+  will-change: transform;
+  transition: transform 0.18s ease;
+}
+
+.navbar-top__chevron svg { width: 14px; height: 14px; }
+
+.navbar-top__chevron.rotated { transform: rotate(180deg); }
+
+/* Backdrop */
+.navbar-top__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 1001;
+}
+
+/* Dropdown */
+.navbar-top__dropdown {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  min-width: 190px;
+  background: var(--bg-primary);
+  border: 1px solid var(--border-strong);
+  border-radius: 12px;
+  overflow: hidden;
+  z-index: 1002;
+  box-shadow: var(--shadow-xl);
+  animation: dropdown-in 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+  /* CLS fix: contain evita que el dropdown afecte el layout exterior */
+  contain: layout;
+}
+
+@keyframes dropdown-in {
+  from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+  to   { opacity: 1; transform: translateY(0)    scale(1); }
+}
+
+.navbar-top__dropdown-item {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 12px 16px;
+  background: none;
+  border: none;
+  cursor: pointer;
+  font-family: 'DM Sans', sans-serif;
+  font-size: calc(var(--font-size-base, 16px) * 1);
+  font-weight: 500;
+  color: var(--text-secondary);
+  transition: background 0.15s ease, color 0.15s ease;
+  text-align: left;
+  min-height: 44px;
+}
+
+.navbar-top__dropdown-item svg { width: 15px; height: 15px; flex-shrink: 0; }
+
+.navbar-top__dropdown-item:hover       { background: var(--bg-secondary); color: var(--text-primary); }
+.navbar-top__dropdown-item--danger     { color: var(--error-color); }
+.navbar-top__dropdown-item--danger:hover { background: var(--error-bg); color: var(--error-color); }
+
+.navbar-top__dropdown-divider { height: 1px; background: var(--border-color); margin: 2px 0; }
+
+/* ════════════════════════════════════════════════════════════
+   BOTTOM NAV
+════════════════════════════════════════════════════════════ */
+.navbar-bottom {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 62px;
+  background: var(--bg-primary);
+  border-top: 1px solid var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: space-around;
+  z-index: 1000;
+  padding: 0 8px;
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+  box-shadow: var(--shadow-md);
+  contain: layout;
+  /* CLS fix: will-change evita recálculo cuando el contenido de la página cambia */
+  will-change: transform;
+}
+
+.navbar-bottom__item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  height: 100%;
+  background: none;
+  border: none;
+  cursor: pointer;
+  color: var(--text-secondary);
+  border-radius: 10px;
+  transition: color 0.15s ease;
+  position: relative;
+  padding: 0 4px;
+  max-width: 72px;
+  /* CLS fix: tamaño fijo — no puede crecer */
+  min-width: 44px;
+  box-sizing: border-box;
+  width: 72px;
+  height: 62px;
+  flex-shrink: 0;
+  contain: layout;
+}
+
+.navbar-bottom__item:hover     { color: var(--text-primary); }
+.navbar-bottom__item.is-active { color: var(--primary-text); }
+
+/* Ícono */
+.navbar-bottom__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+  border-radius: 10px;
+  /* CLS fix: borde transparente siempre presente evita reflow al activarse */
+  border: 1px solid transparent;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+  /* CLS fix: sin transform — translateY(-2px) causaba shifts registrados */
+  will-change: background;
+}
+
+.navbar-bottom__icon svg { width: 20px; height: 20px; }
+
+.navbar-bottom__item:hover .navbar-bottom__icon { background: var(--bg-secondary); }
+
+.navbar-bottom__item.is-active .navbar-bottom__icon {
+  background: var(--bg-secondary);
+  border-color: var(--primary-color);
+  /* CLS fix: transform eliminado — causaba shift al cambiar de vista */
+  box-shadow: var(--shadow-md);
+}
+
+/* Punto indicador activo */
+.navbar-bottom__active-dot {
+  /* CLS fix: espacio reservado siempre — opacity/scale no causan reflow */
+  width: 4px;
+  height: 4px;
+  min-width: 4px;
+  min-height: 4px;
+  border-radius: 50%;
+  background: var(--primary-text);
+  opacity: 0;
+  transform: scale(0);
+  transition: opacity 0.15s ease, transform 0.15s ease;
+  will-change: opacity, transform;
+}
+
+.navbar-bottom__item.is-active .navbar-bottom__active-dot {
+  opacity: 1;
+  transform: scale(1);
+}
+
+/* Tap */
+.navbar-bottom__item:active .navbar-bottom__icon {
+  transform: scale(0.92);
+}
+
+/* Focus visible */
+.navbar-bottom__item:focus-visible,
+.navbar-top__user-btn:focus-visible,
+.navbar-top__dropdown-item:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* ════════════════════════════════════════════════════════════
+   HIGH CONTRAST
+════════════════════════════════════════════════════════════ */
+body.high-contrast .navbar-top    { border-bottom: 2px solid var(--border-color); }
+body.high-contrast .navbar-bottom { border-top: 2px solid var(--border-color); }
+
+body.high-contrast .navbar-bottom__item.is-active .navbar-bottom__icon {
+  border: 2px solid var(--primary-color);
+  box-shadow: 0 0 0 2px var(--primary-color);
+}
+
+body.high-contrast .navbar-top__user-btn { border: 2px solid var(--border-color); }
+
+body.high-contrast .navbar-top__avatar {
+  color: #000000;
+  border: 2px solid #000000;
+}
+
+/* ════════════════════════════════════════════════════════════
+   OFFSET LAYOUT
+════════════════════════════════════════════════════════════ */
+.content-area {
+  padding-top: 52px;
+  padding-bottom: 62px;
+}

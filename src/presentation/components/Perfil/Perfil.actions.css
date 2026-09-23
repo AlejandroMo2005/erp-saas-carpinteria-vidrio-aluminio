@@ -1,0 +1,146 @@
+/* ================================================================
+   PERFIL — ACCIONES + FEEDBACK + STATES
+   feedback · btn-cancel · btn-save · spinner · high-contrast
+   ================================================================ */
+
+/* ── Feedback ────────────────────────────────────────────────── */
+.perfil-modal__feedback {
+  margin: 0;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-size: calc(var(--font-size-base, 16px) * 0.875);
+  font-weight: 600;
+  text-align: center;
+}
+
+.perfil-modal__feedback--error {
+  background: var(--error-bg);
+  color: var(--error-color);
+  border: 1px solid var(--error-color);
+}
+
+.perfil-modal__feedback--ok {
+  background: var(--success-bg);
+  color: var(--success-color);
+  border: 1px solid var(--success-color);
+}
+
+/* ── Acciones ────────────────────────────────────────────────── */
+.perfil-modal__actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  padding-top: 4px;
+}
+
+.perfil-modal__btn-cancel {
+  padding: 9px 18px;
+  border-radius: 8px;
+  border: 1px solid var(--border-color);
+  background: none;
+  color: var(--text-secondary);
+  font-family: 'DM Sans', sans-serif;
+  font-size: calc(var(--font-size-base, 16px) * 0.875);
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.perfil-modal__btn-cancel:hover {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+
+.perfil-modal__btn-cancel:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.perfil-modal__btn-save {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 20px;
+  border-radius: 8px;
+  border: none;
+  background: var(--primary-color);
+  color: #ffffff;
+  font-family: 'DM Sans', sans-serif;
+  font-size: calc(var(--font-size-base, 16px) * 0.875);
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+  box-shadow: var(--shadow-md);
+}
+
+.perfil-modal__btn-save svg { width: 14px; height: 14px; }
+
+.perfil-modal__btn-save:hover:not(:disabled) {
+  background: var(--primary-hover);
+  box-shadow: var(--shadow-lg);
+}
+
+.perfil-modal__btn-save:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.perfil-modal__btn-save:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 3px;
+}
+
+/* ── Spinner ─────────────────────────────────────────────────── */
+.perfil-modal__spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #fff;
+  border-radius: 50%;
+  display: inline-block;
+  animation: pf-spin 0.7s linear infinite;
+}
+
+@keyframes pf-spin { to { transform: rotate(360deg); } }
+
+/* ════════════════════════════════════════════════════════════
+   HIGH CONTRAST
+════════════════════════════════════════════════════════════ */
+body.high-contrast .perfil-modal {
+  border: 2px solid var(--border-color);
+}
+
+body.high-contrast .perfil-modal__field input {
+  border: 2px solid var(--border-color);
+}
+
+body.high-contrast .perfil-modal__field input:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 3px var(--primary-color);
+}
+
+/* Avatar: fondo amarillo (#ffff00) → texto negro 21:1 */
+body.high-contrast .perfil-modal__avatar {
+  color: #000000;
+  border: 2px solid #000000;
+}
+
+/* Botón guardar: fondo amarillo → texto negro 21:1 */
+body.high-contrast .perfil-modal__btn-save {
+  color: #000000;
+  border: 2px solid #000000;
+}
+
+body.high-contrast .perfil-modal__spinner {
+  border-color: rgba(0, 0, 0, 0.3);
+  border-top-color: #000000;
+}
+
+body.high-contrast .perfil-modal__feedback--error {
+  border: 2px solid var(--error-color);
+}
+
+body.high-contrast .perfil-modal__feedback--ok {
+  border: 2px solid var(--success-color);
+}

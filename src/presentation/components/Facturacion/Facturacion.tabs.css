@@ -1,0 +1,59 @@
+/* ================================================================
+   FACTURACIÓN — Barra de tabs de navegación
+   ================================================================ */
+
+.fact-tabs {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding: 0.5rem;
+  background: var(--bg-secondary);
+  border-radius: 0.75rem;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  scrollbar-color: var(--border-color) transparent;
+  min-height: 58px;
+  align-items: center;
+  box-sizing: border-box;
+}
+
+.fact-tabs::-webkit-scrollbar       { height: 6px; }
+.fact-tabs::-webkit-scrollbar-track { background: transparent; }
+.fact-tabs::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 3px; }
+
+.fact-tab {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1.25rem;
+  background: transparent;
+  border: 2px solid transparent;
+  border-radius: 0.5rem;
+  font-size: 0.9375rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  flex-shrink: 0;
+  font-family: inherit;
+  min-height: 44px;
+}
+
+.fact-tab:hover   { background: var(--bg-tertiary); color: var(--text-primary); }
+.fact-tab--active { background: var(--primary-color); color: #ffffff; border-color: var(--primary-color); }
+.fact-tab svg     { flex-shrink: 0; }
+
+@media (max-width: 768px) {
+  .fact-tab     { padding: 0.625rem 1rem; font-size: 0.875rem; }
+  .fact-tab svg { width: 18px; height: 18px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .fact-tab { transition: none; }
+}
+
+body.high-contrast .fact-tabs            { background: var(--bg-primary); border: 2px solid var(--border-strong); }
+body.high-contrast .fact-tab             { color: var(--primary-color); border-color: transparent; }
+body.high-contrast .fact-tab:hover       { background: var(--bg-secondary); border-color: var(--primary-color); }
+body.high-contrast .fact-tab--active     { background: var(--primary-color); border-color: var(--border-strong); color: var(--bg-page); }

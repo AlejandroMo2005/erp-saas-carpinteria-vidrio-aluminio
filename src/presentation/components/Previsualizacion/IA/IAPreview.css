@@ -1,0 +1,901 @@
+/* ═══════════════════════════════════════════════════════════════════════════
+   IAPreview.css — Sprint 8
+   Módulo de cámara + pintura de máscara + resultado inpainting IA
+   Usa variables de global.css — compatible con dark / light / high-contrast
+═══════════════════════════════════════════════════════════════════════════ */
+
+/* ── Overlay / backdrop ── */
+.ia-modal-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.82);
+  backdrop-filter: blur(4px);
+  z-index: 1100;
+  display: flex;
+  align-items: flex-end;          /* sube desde abajo en móvil */
+  justify-content: center;
+  animation: ia-overlay-in 0.22s ease;
+}
+
+@keyframes ia-overlay-in {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Modal ── */
+.ia-modal {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 20px 20px 0 0;
+  width: 100%;
+  max-width: 680px;
+  max-height: 96vh;
+  overflow-y: auto;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  animation: ia-modal-in 0.28s cubic-bezier(0.34, 1.2, 0.64, 1);
+  box-shadow: 0 -8px 48px rgba(0,0,0,0.5);
+}
+
+@keyframes ia-modal-in {
+  from { transform: translateY(60px); opacity: 0; }
+  to   { transform: translateY(0);    opacity: 1; }
+}
+
+@media (min-width: 600px) {
+  .ia-modal-overlay { align-items: center; }
+  .ia-modal {
+    border-radius: 20px;
+    max-height: 90vh;
+  }
+}
+
+/* ── Header ── */
+.ia-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 18px 20px 12px;
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.ia-header-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.ia-header-badge {
+  background: var(--primary-color);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-family: 'Courier New', monospace;
+}
+
+.ia-modal-title {
+  margin: 0;
+  font-size: calc(var(--font-size-base, 16px) * 1.05);
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.2;
+}
+
+.ia-modal-subtitle {
+  margin: 0;
+  font-size: calc(var(--font-size-base, 16px) * 0.78);
+  color: var(--text-secondary);
+}
+
+.ia-close-btn {
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  width: 34px;
+  height: 34px;
+  font-size: 20px;
+  line-height: 1;
+  color: var(--text-primary);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.15s, border-color 0.15s;
+  flex-shrink: 0;
+}
+.ia-close-btn:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-strong);
+}
+.ia-close-btn:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+/* ── Chip de trabajo seleccionado ── */
+.ia-trabajo-info {
+  padding: 8px 20px;
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.ia-trabajo-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  font-size: calc(var(--font-size-base, 16px) * 0.82);
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 20px;
+  padding: 4px 12px;
+}
+
+.ia-color-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 1.5px solid rgba(0,0,0,0.18);
+  flex-shrink: 0;
+}
+
+.ia-color-dot--vidrio {
+  border-style: dashed;
+  opacity: 0.8;
+}
+
+/* ══════════════════════════════════
+   FASE: CÁMARA
+══════════════════════════════════ */
+
+.ia-camara-root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  flex: 1;
+}
+
+.ia-video-wrap {
+  position: relative;
+  width: 100%;
+  background: #000;
+  overflow: hidden;
+  /* Aspect ratio 16:9 */
+  aspect-ratio: 16 / 9;
+  max-height: 52vh;
+}
+
+.ia-video {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+/* Guías de encuadre (4 esquinas) */
+.ia-video-guide {
+  position: absolute;
+  inset: 12px;
+  pointer-events: none;
+}
+
+.ia-guide-corner {
+  position: absolute;
+  width: 22px;
+  height: 22px;
+  border-color: rgba(255,255,255,0.85);
+  border-style: solid;
+}
+.ia-guide-corner--tl { top: 0; left: 0;  border-width: 2px 0 0 2px; }
+.ia-guide-corner--tr { top: 0; right: 0; border-width: 2px 2px 0 0; }
+.ia-guide-corner--bl { bottom: 0; left: 0;  border-width: 0 0 2px 2px; }
+.ia-guide-corner--br { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
+
+.ia-guide-hint {
+  position: absolute;
+  bottom: -30px;
+  left: 50%;
+  transform: translateX(-50%);
+  color: rgba(255,255,255,0.7);
+  font-size: 12px;
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.ia-camara-actions {
+  padding: 22px 20px 28px;
+  display: flex;
+  justify-content: center;
+}
+
+/* Botón de captura estilo cámara nativa */
+.ia-capture-btn {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: transparent;
+  border: 4px solid var(--primary-color);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.12s, box-shadow 0.12s;
+  box-shadow: 0 0 0 2px var(--bg-primary), 0 0 0 5px var(--primary-color);
+}
+.ia-capture-btn:hover  { transform: scale(1.06); }
+.ia-capture-btn:active { transform: scale(0.94); }
+.ia-capture-btn:focus-visible {
+  outline: 3px solid var(--primary-color);
+  outline-offset: 4px;
+}
+
+.ia-capture-inner {
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--primary-color);
+  display: block;
+  transition: background 0.12s;
+}
+.ia-capture-btn:active .ia-capture-inner {
+  background: var(--primary-dark, var(--primary-color));
+}
+
+/* ══════════════════════════════════
+   FASE: MÁSCARA
+══════════════════════════════════ */
+
+.ia-mask-root {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  flex: 1;
+}
+
+.ia-mask-header {
+  padding: 14px 20px 10px;
+  border-bottom: 1px solid var(--border-color);
+  flex-shrink: 0;
+}
+
+.ia-mask-title {
+  margin: 0 0 4px;
+  font-size: calc(var(--font-size-base, 16px) * 0.95);
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.ia-mask-icon { font-size: 1.1em; }
+
+.ia-mask-hint {
+  margin: 0;
+  font-size: calc(var(--font-size-base, 16px) * 0.78);
+  color: var(--text-secondary);
+}
+
+/* Canvas container — foto + máscara superpuestos */
+.ia-mask-canvas-wrap {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 46vh;
+  background: #000;
+  overflow: hidden;
+  cursor: crosshair;
+}
+
+.ia-mask-foto {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  pointer-events: none;
+  user-select: none;
+  -webkit-user-drag: none;
+}
+
+.ia-mask-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.48;             /* semi-transparente para ver la foto debajo */
+  mix-blend-mode: screen;    /* las zonas blancas (máscara) brillan */
+  cursor: crosshair;
+  touch-action: none;
+}
+
+/* Controles de máscara */
+.ia-mask-controls {
+  padding: 14px 20px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  flex-shrink: 0;
+}
+
+.ia-brush-group {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+
+.ia-brush-label {
+  font-size: calc(var(--font-size-base, 16px) * 0.8);
+  font-weight: 600;
+  color: var(--text-secondary);
+  white-space: nowrap;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.ia-brush-val {
+  font-size: calc(var(--font-size-base, 16px) * 0.78);
+  color: var(--primary-color);
+  font-weight: 700;
+  min-width: 36px;
+}
+
+.ia-brush-slider {
+  flex: 1;
+  accent-color: var(--primary-color);
+  cursor: pointer;
+}
+
+.ia-mask-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+}
+
+/* ══════════════════════════════════
+   FASE: PROCESANDO
+══════════════════════════════════ */
+
+.ia-procesando-root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  flex: 1;
+}
+
+.ia-procesando-preview {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  max-height: 42vh;
+  background: #000;
+  overflow: hidden;
+}
+
+.ia-procesando-foto {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  filter: brightness(0.6);
+}
+
+/* Línea de escaneo animada */
+.ia-procesando-overlay {
+  position: absolute;
+  inset: 0;
+  overflow: hidden;
+}
+
+.ia-scan-line {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(
+    90deg,
+    transparent 0%,
+    var(--primary-color) 40%,
+    #fff 50%,
+    var(--primary-color) 60%,
+    transparent 100%
+  );
+  animation: ia-scan 2.4s ease-in-out infinite;
+  box-shadow: 0 0 16px 4px var(--primary-color);
+}
+
+@keyframes ia-scan {
+  0%   { top: 0%;   opacity: 0; }
+  5%   { opacity: 1; }
+  95%  { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+
+.ia-procesando-info {
+  padding: 22px 20px 28px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  width: 100%;
+}
+
+.ia-spinner-ring {
+  width: 36px;
+  height: 36px;
+  border: 3px solid var(--border-color);
+  border-top-color: var(--primary-color);
+  border-radius: 50%;
+  animation: ia-spin 0.8s linear infinite;
+}
+
+@keyframes ia-spin {
+  to { transform: rotate(360deg); }
+}
+
+.ia-procesando-txt {
+  margin: 0;
+  font-weight: 700;
+  font-size: calc(var(--font-size-base, 16px) * 0.95);
+  color: var(--text-primary);
+}
+
+.ia-procesando-subtxt {
+  margin: 0;
+  font-size: calc(var(--font-size-base, 16px) * 0.78);
+  color: var(--text-secondary);
+}
+
+/* Barra de progreso */
+.ia-progress-bar {
+  width: 100%;
+  max-width: 320px;
+  height: 6px;
+  background: var(--bg-tertiary);
+  border-radius: 3px;
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+
+.ia-progress-fill {
+  height: 100%;
+  background: var(--primary-color);
+  border-radius: 3px;
+  transition: width 0.5s ease;
+}
+
+.ia-progress-pct {
+  margin: 0;
+  font-size: calc(var(--font-size-base, 16px) * 0.78);
+  color: var(--text-secondary);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ══════════════════════════════════
+   FASE: RESULTADO
+══════════════════════════════════ */
+
+.ia-resultado-root {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  flex: 1;
+}
+
+/* Comparador side-by-side */
+.ia-resultado-compare {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  gap: 0;
+  width: 100%;
+  background: #000;
+  max-height: 50vh;
+  overflow: hidden;
+}
+
+.ia-compare-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.ia-compare-label {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  background: rgba(0,0,0,0.65);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 8px;
+  border-radius: 4px;
+  z-index: 2;
+  backdrop-filter: blur(2px);
+}
+
+.ia-compare-label--ia {
+  background: var(--primary-color);
+}
+
+.ia-compare-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+
+.ia-compare-divider {
+  width: 2px;
+  background: var(--border-color);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  z-index: 3;
+}
+
+.ia-compare-vs {
+  background: var(--bg-primary);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  width: 28px;
+  height: 28px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 9px;
+  font-weight: 800;
+  color: var(--text-secondary);
+  letter-spacing: 0.05em;
+}
+
+.ia-resultado-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  padding: 16px 20px 24px;
+}
+
+/* ══════════════════════════════════
+   ERROR STATE
+══════════════════════════════════ */
+
+.ia-error-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+  padding: 48px 24px;
+  flex: 1;
+}
+
+.ia-error-icon {
+  font-size: 48px;
+  line-height: 1;
+}
+
+.ia-error-msg {
+  margin: 0;
+  font-size: calc(var(--font-size-base, 16px) * 0.9);
+  color: var(--text-secondary);
+  text-align: center;
+  max-width: 360px;
+  line-height: 1.5;
+}
+
+.ia-error-inline {
+  margin: 0 20px 0;
+  padding: 10px 14px;
+  background: var(--bg-secondary);
+  border-left: 3px solid #e74c3c;
+  border-radius: 0 6px 6px 0;
+  font-size: calc(var(--font-size-base, 16px) * 0.82);
+  color: var(--text-secondary);
+  line-height: 1.4;
+}
+
+/* ══════════════════════════════════
+   BOTONES COMPARTIDOS
+══════════════════════════════════ */
+
+.ia-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 18px;
+  border-radius: 8px;
+  font-size: calc(var(--font-size-base, 16px) * 0.85);
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid var(--border-color);
+  transition: background 0.15s, border-color 0.15s, transform 0.1s;
+  white-space: nowrap;
+}
+
+.ia-btn:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.ia-btn:active { transform: scale(0.97); }
+
+.ia-btn--ghost {
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+}
+.ia-btn--ghost:hover {
+  background: var(--bg-tertiary);
+  border-color: var(--border-strong);
+}
+
+.ia-btn--primary {
+  background: var(--primary-color);
+  color: #fff;
+  border-color: var(--primary-color);
+}
+.ia-btn--primary:hover   { filter: brightness(1.1); }
+.ia-btn--primary:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  filter: none;
+  transform: none;
+}
+
+.ia-btn--download {
+  background: var(--success-bg, #e8f5e9);
+  color: var(--success-color, #2e7d32);
+  border-color: var(--success-color, #2e7d32);
+}
+.ia-btn--download:hover { filter: brightness(0.95); }
+
+.ia-btn-icon { font-size: 1em; }
+
+/* ══════════════════════════════════
+   FASE: SUBIR FOTO  (fallback HTTP/IP)
+   Aparece automáticamente cuando
+   navigator.mediaDevices no existe.
+══════════════════════════════════ */
+
+.ia-subir-root {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+  padding: 40px 28px 36px;
+  flex: 1;
+  text-align: center;
+}
+
+.ia-subir-icon { font-size: 56px; line-height: 1; }
+
+.ia-subir-title {
+  margin: 0;
+  font-size: calc(var(--font-size-base, 16px) * 1.1);
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.ia-subir-desc {
+  margin: 0;
+  font-size: calc(var(--font-size-base, 16px) * 0.85);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  max-width: 360px;
+}
+
+.ia-subir-desc code {
+  font-family: 'Courier New', monospace;
+  background: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 4px;
+  padding: 1px 5px;
+  font-size: 0.95em;
+  color: var(--primary-color);
+}
+
+.ia-subir-actions {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.ia-subir-formatos {
+  margin: 0;
+  font-size: calc(var(--font-size-base, 16px) * 0.75);
+  color: var(--text-secondary);
+  opacity: 0.7;
+  letter-spacing: 0.04em;
+}
+
+/* Variantes de botón adicionales */
+.ia-btn--grande {
+  padding: 12px 28px;
+  font-size: calc(var(--font-size-base, 16px) * 0.95);
+}
+
+.ia-btn--galeria {
+  font-size: calc(var(--font-size-base, 16px) * 0.78);
+  padding: 7px 12px;
+}
+
+/* Grupo de acciones en error state */
+.ia-error-actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+/* ══════════════════════════════════
+   BOTÓN CÁMARA EN PREVISUALIZACION
+   (se renderiza fuera del modal)
+══════════════════════════════════ */
+
+.ia-trigger-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  font-size: calc(var(--font-size-base, 16px) * 0.82);
+  font-weight: 600;
+  color: var(--primary-color);
+  background: transparent;
+  border: 1.5px solid var(--primary-color);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, transform 0.1s, box-shadow 0.15s;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+.ia-trigger-btn:hover:not(:disabled) {
+  background: var(--primary-color);
+  color: #fff;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.18);
+}
+
+.ia-trigger-btn:active:not(:disabled) { transform: scale(0.96); }
+
+.ia-trigger-btn:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+
+.ia-trigger-btn:focus-visible {
+  outline: 2px solid var(--primary-color);
+  outline-offset: 2px;
+}
+
+.ia-trigger-icon {
+  font-size: 16px;
+  line-height: 1;
+}
+
+/* ══════════════════════════════════
+   RESULTADO EN DRAW-ZONE
+   (cuando cierra modal y muestra resultado inline)
+══════════════════════════════════ */
+
+.ia-draw-resultado {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #000;
+  border-radius: inherit;
+  overflow: hidden;
+}
+
+.ia-draw-resultado-img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: contain;
+  display: block;
+}
+
+.ia-draw-resultado-badge {
+  position: absolute;
+  top: 10px;
+  right: 10px;
+  background: var(--primary-color);
+  color: #fff;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 6px;
+  letter-spacing: 0.06em;
+}
+
+.ia-draw-resultado-actions {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  display: flex;
+  gap: 8px;
+}
+
+.ia-draw-btn-small {
+  padding: 5px 11px;
+  font-size: 12px;
+  border-radius: 6px;
+  font-weight: 600;
+  cursor: pointer;
+  border: 1px solid rgba(255,255,255,0.3);
+  background: rgba(0,0,0,0.55);
+  color: #fff;
+  backdrop-filter: blur(4px);
+  transition: background 0.15s;
+}
+.ia-draw-btn-small:hover { background: rgba(0,0,0,0.75); }
+
+/* ══════════════════════════════════
+   REDUCE MOTION
+══════════════════════════════════ */
+
+@media (prefers-reduced-motion: reduce) {
+  .ia-scan-line,
+  .ia-spinner-ring,
+  .ia-modal,
+  .ia-modal-overlay {
+    animation: none !important;
+    transition-duration: 0.01ms !important;
+  }
+  .ia-progress-fill { transition: none; }
+}
+
+/* ══════════════════════════════════
+   ALTO CONTRASTE
+══════════════════════════════════ */
+
+body.high-contrast .ia-modal {
+  border: 3px solid #ffffff;
+}
+
+body.high-contrast .ia-modal-header,
+body.high-contrast .ia-mask-header,
+body.high-contrast .ia-trabajo-info {
+  border-bottom-color: #ffffff;
+  border-bottom-width: 2px;
+}
+
+body.high-contrast .ia-btn--primary {
+  background: #ffff00;
+  color: #000;
+  border-color: #000;
+}
+
+body.high-contrast .ia-trigger-btn {
+  border-color: #ffffff;
+  color: #ffffff;
+}
+
+body.high-contrast .ia-trigger-btn:hover:not(:disabled) {
+  background: #ffff00;
+  color: #000;
+  border-color: #000;
+}
+
+body.high-contrast .ia-guide-corner {
+  border-color: #ffff00;
+}
+
+body.high-contrast .ia-scan-line {
+  background: #ffff00;
+}

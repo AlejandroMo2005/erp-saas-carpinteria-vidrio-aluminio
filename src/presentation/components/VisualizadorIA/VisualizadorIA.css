@@ -1,0 +1,139 @@
+/* VisualizadorIA.css — estilos del orquestador y compartidos */
+
+.via-root {
+  min-height: 100vh; background: var(--bg-page);
+  padding: 1rem; font-size: var(--font-size-base, 14px);
+}
+
+/* ── Header ─────────────────────────────────────────────────── */
+.via-header {
+  max-width: 680px; margin: 0 auto 1.25rem;
+  display: flex; flex-direction: column; gap: 0.5rem;
+}
+.via-btn-back {
+  background: none; border: none; color: var(--text-secondary);
+  font-size: 0.85rem; cursor: pointer; padding: 0;
+  text-align: left; width: fit-content;
+}
+.via-btn-back:hover { color: var(--text-primary); }
+.via-btn-back:focus-visible { outline: 2px solid var(--primary-color); outline-offset: 2px; border-radius: 3px; }
+
+.via-header-title { display: flex; flex-direction: column; gap: 0.2rem; }
+.via-badge {
+  background: var(--primary-color); color: var(--badge-text, #fff);
+  font-size: max(0.82rem, 0.75em); font-weight: 800; letter-spacing: 0.08em;
+  padding: 2px 8px; border-radius: 6px; width: fit-content;
+  font-family: 'Courier New', monospace;
+}
+body.high-contrast .via-badge { --badge-text: #000; }
+.via-header-title h1 { margin: 0; font-size: 1.4rem; font-weight: 700; color: var(--text-primary); }
+.via-header-title p  { margin: 0; font-size: 0.85rem; color: var(--text-secondary); }
+
+/* ── Body / Card ─────────────────────────────────────────────── */
+.via-body     { max-width: 680px; margin: 0 auto; }
+.via-card {
+  background: var(--bg-card); border: 1px solid var(--border-color);
+  border-radius: 12px; padding: 1.25rem; margin-bottom: 1rem;
+}
+.via-card--full { padding: 0; overflow: hidden; }
+
+/* ── Botones compartidos ─────────────────────────────────────── */
+.via-btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: 0.4rem;
+  padding: 0.6rem 1.1rem; border-radius: 8px; font-size: 0.9rem; font-weight: 600;
+  cursor: pointer; border: 1.5px solid transparent;
+  transition: background 0.15s, border-color 0.15s; min-height: 44px;
+}
+.via-btn--primary { background: var(--primary-color); color: #fff; border-color: var(--primary-color); }
+.via-btn--primary:hover:not(:disabled) { filter: brightness(1.1); }
+.via-btn--primary:disabled { opacity: 0.4; cursor: not-allowed; }
+body.high-contrast .via-btn--primary { color: #000; border-color: #000; }
+body.high-contrast .via-btn--primary:hover:not(:disabled) { filter: none; background: var(--primary-hover); color: #000; }
+
+.via-btn--ghost  { background: var(--bg-secondary); color: var(--text-primary); border-color: var(--border-color); }
+.via-btn--ghost:hover { background: var(--bg-tertiary); border-color: var(--border-strong); }
+.via-btn--full   { width: 100%; margin-top: 0.5rem; }
+body.reduce-motion .via-btn { transition: none; }
+
+/* ── Error compartido ────────────────────────────────────────── */
+.via-error {
+  background: var(--error-bg, #fee2e2); color: var(--error-color, #dc2626);
+  border-radius: 8px; padding: 0.6rem 0.8rem;
+  font-size: 0.85rem; margin-bottom: 0.75rem;
+}
+
+/* ── Procesando ──────────────────────────────────────────────── */
+.via-procesando { display: flex; flex-direction: column; gap: 0; padding: 0; overflow: hidden; }
+.via-procesando-preview { position: relative; width: 100%; background: #000; overflow: hidden; }
+.via-procesando-preview img { width: 100%; height: auto; display: block; filter: brightness(0.55); }
+.via-scan-overlay { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.via-scan-line {
+  position: absolute; top: 0; left: 0; right: 0; height: 3px;
+  background: linear-gradient(90deg, transparent 0%, var(--primary-color) 40%, #fff 50%, var(--primary-color) 60%, transparent 100%);
+  animation: via-scan 2.4s ease-in-out infinite;
+  box-shadow: 0 0 14px 3px var(--primary-color);
+}
+@keyframes via-scan {
+  0%   { top: 0%;   opacity: 0; }
+  5%   { opacity: 1; }
+  95%  { opacity: 1; }
+  100% { top: 100%; opacity: 0; }
+}
+.via-procesando-info {
+  padding: 1.5rem 1.25rem;
+  display: flex; flex-direction: column; align-items: center; gap: 0.6rem;
+}
+.via-spinner {
+  width: 32px; height: 32px;
+  border: 3px solid var(--border-color); border-top-color: var(--primary-color);
+  border-radius: 50%; animation: via-spin 0.8s linear infinite;
+}
+@keyframes via-spin { to { transform: rotate(360deg); } }
+.via-procesando-txt    { margin: 0; font-weight: 700; color: var(--text-primary); }
+.via-procesando-subtxt { margin: 0; font-size: 0.82rem; color: var(--text-secondary); }
+.via-progress {
+  width: 100%; max-width: 300px; height: 6px;
+  background: var(--bg-tertiary); border-radius: 3px; overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+.via-progress-fill { height: 100%; background: var(--primary-color); border-radius: 3px; transition: width 0.5s ease; }
+.via-progress-pct  { font-size: 0.82rem; color: var(--text-secondary); margin: 0; }
+
+/* ── Resultado ───────────────────────────────────────────────── */
+.via-resultado-titulo { margin: 0 0 1rem; font-size: 1.1rem; font-weight: 700; color: var(--text-primary); }
+.via-resultado-compare {
+  display: grid; grid-template-columns: 1fr 1fr; gap: 0.75rem; margin-bottom: 1rem;
+}
+.via-compare-lado {
+  position: relative; border-radius: 8px; overflow: hidden;
+  border: 1px solid var(--border-color);
+}
+.via-compare-lado img { display: block; width: 100%; height: auto; }
+.via-compare-label {
+  position: absolute; top: 0.4rem; left: 0.4rem;
+  background: rgba(0,0,0,0.72); color: #fff;
+  font-size: 0.82rem; font-weight: 700;
+  padding: 0.2rem 0.55rem; border-radius: 4px; backdrop-filter: blur(2px);
+}
+.via-compare-label--ia { background: var(--primary-color); }
+body.high-contrast .via-compare-label--ia { color: #000; }
+
+.via-prompt-detail  { font-size: 0.82rem; color: var(--text-secondary); margin-bottom: 1rem; }
+.via-prompt-detail summary { cursor: pointer; font-weight: 600; }
+.via-prompt-texto {
+  margin-top: 0.4rem; padding: 0.5rem 0.75rem;
+  background: var(--bg-secondary); border-radius: 6px;
+  font-style: italic; line-height: 1.5;
+}
+.via-resultado-actions { display: flex; flex-direction: column; gap: 0.5rem; }
+
+/* ── Reduce motion ───────────────────────────────────────────── */
+@media (prefers-reduced-motion: reduce) {
+  .via-scan-line, .via-spinner { animation: none; }
+  .via-progress-fill           { transition: none; }
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 480px) {
+  .via-resultado-compare { grid-template-columns: 1fr; }
+}

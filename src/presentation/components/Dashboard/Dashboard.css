@@ -1,0 +1,60 @@
+/* ================================================================
+   TOKENS DEL MÓDULO DASHBOARD
+   Importar en Dashboard.jsx:
+     import './dashboard.css';
+   ================================================================ */
+
+
+/* ================================================================
+   TEMA OSCURO (DEFAULT)
+   ================================================================ */
+:root {
+  /* KPI — colores de icono y stroke en Recharts.
+     Recharts usa atributos SVG que no aceptan CSS custom props,
+     por eso los valores se duplican como constantes JS en los
+     componentes (Ingresos.jsx, Ticket.jsx, Usuarios.jsx).      */
+  --kpi-ingresos: #f59e0b;
+  --kpi-pedidos:  #3b82f6;
+  --kpi-usuarios: #10b981;
+  --kpi-ticket:   #8b5cf6;
+
+  /* Fondos de icono KPI — Estadisticas.jsx */
+  --kpi-green-bg:  rgba(16,  185, 129, 0.12);
+  --kpi-blue-bg:   rgba(59,  130, 246, 0.12);
+  --kpi-purple-bg: rgba(139,  92, 246, 0.12);
+  --kpi-orange-bg: rgba(245, 158,  11, 0.12);
+}
+
+
+/* ================================================================
+   TEMA CLARO
+   ================================================================ */
+body.theme-light {
+  /* Tonos más oscuros para mantener contraste sobre bg blanco */
+  --kpi-ingresos: #d97706;
+  --kpi-pedidos:  #2563eb;
+  --kpi-usuarios: #059669;
+  --kpi-ticket:   #7c3aed;
+
+  --kpi-green-bg:  rgba(16,  185, 129, 0.12);
+  --kpi-blue-bg:   rgba(59,  130, 246, 0.12);
+  --kpi-purple-bg: rgba(139,  92, 246, 0.12);
+  --kpi-orange-bg: rgba(245, 158,  11, 0.12);
+}
+
+
+/* ================================================================
+   ALTO CONTRASTE
+   ================================================================ */
+body.high-contrast {
+  --kpi-ingresos: #fbbf24;
+  --kpi-pedidos:  #60a5fa;
+  --kpi-usuarios: #4ade80;
+  --kpi-ticket:   #c4b5fd;
+
+  /* Fondos sólidos en lugar de rgba (mejor contraste sobre negro) */
+  --kpi-green-bg:  var(--bg-secondary);
+  --kpi-blue-bg:   var(--bg-secondary);
+  --kpi-purple-bg: var(--bg-secondary);
+  --kpi-orange-bg: var(--bg-secondary);
+}
