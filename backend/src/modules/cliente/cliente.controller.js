@@ -9,7 +9,6 @@
 
 const db     = require('../../config/database');
 const logger = require('../../shared/utils/logger');
-console.log('CONTROLLER CARGADO DESDE:', __filename);
 
 function sanitizeHTML(text) {
   if (!text) return '';
@@ -151,10 +150,6 @@ exports.updateMisDatos = async (req, res) => {
     if (nombre?.trim())   { campos.push('nombre = ?');   valores.push(sanitizeHTML(nombre.trim())); }
     if (telefono?.trim()) { campos.push('telefono = ?'); valores.push(sanitizeHTML(telefono.trim())); }
     campos.push('updated_at = NOW()');
-
-exports.obtenerPorClave = async (req, res) => {
-  console.log('DEBUG →', { empresaId: req.empresaId, userId: req.user?.id });
-};
     const [resultado] = await db.query(
       `UPDATE clientes SET ${campos.join(', ')}
        WHERE empresa_id = ?

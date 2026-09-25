@@ -10,7 +10,6 @@
 
 const fs    = require('fs');
 const path  = require('path');
-const https = require('https');
 
 const {
   generarInpainting,
@@ -70,44 +69,6 @@ async function obtenerReferencias(trabajoId) {
   }
 }
 
-async function describirConClaudeVision(imageBuffer, mimeType) {
-  const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) { console.warn('[IA] Sin ANTHROPIC_API_KEY'); return null; }
-
-  const imageBase64   = imageBuffer.toString('base64');
-  const requestBody   = JSON.stringify({
-    model: 'claude-sonnet-4-5-20251001', max_tokens: 300,
-    messages: [{
-      role: 'user', content: [
-        { type: 'image', source: { type: 'base64', media_type: mimeType, data: imageBase64 } },
-        { type: 'text', text: 'Analyze this aluminum/glass architectural work and describe it as a Stable Diffusion SDXL prompt. Rules: English only, comma-separated, focus on material/frame/glass/color/quality, max 80 words, no brand names. Output ONLY descriptors.' },
-      ],
-    }],
-  });
-
-  return new Promise((resolve) => {
-    const req = https.request({
-      hostname: 'api.anthropic.com', path: '/v1/messages', method: 'POST',
-      headers: { 'Content-Type': 'application/json', 'x-api-key': apiKey, 'anthropic-version': '2023-06-01', 'Content-Length': Buffer.byteLength(requestBody) },
-    }, (res) => {
-      const chunks = [];
-      res.on('data', c => chunks.push(c));
-      res.on('end', () => {
-        try {
-          const data = JSON.parse(Buffer.concat(chunks).toString());
-          const desc = data?.content?.[0]?.text?.trim();
-          resolve(desc && desc.length > 10 ? desc : null);
-        } catch { resolve(null); }
-      });
-    });
-    req.setTimeout(20_000, () => { req.destroy(); resolve(null); });
-    req.on('error', () => resolve(null));
-    req.write(requestBody);
-    req.end();
-  });
-}
-
-// ═══════════════════════════════════════════════════════
 // POST /api/ia/inpaint
 // ═══════════════════════════════════════════════════════
 async function inpaint(req, res) {
