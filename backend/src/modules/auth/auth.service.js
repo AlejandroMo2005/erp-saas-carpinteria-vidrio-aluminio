@@ -69,29 +69,29 @@ const crearSesion = async (usuarioId, tokenHash, req, expireDays = 7) => {
 // Redis: capa rápida O(1) con TTL automático
 // MySQL: respaldo y auditoría
 const addToBlacklist = async (jti) => {
-  if (!jti) return;
-  try {
-    const ttlSeconds = parseInt(process.env.JWT_EXPIRE_MINUTES || '15') * 60;
-    await redis.set('bl:' + jti, '1', 'EX', ttlSeconds);
-    const expiresAt = new Date(Date.now() + ttlSeconds * 1000);
-    await db.query(
-      'INSERT IGNORE INTO token_blacklist (jti, expires_at) VALUES (?, ?)',
-      [jti, expiresAt]
-    );
-  } catch (err) {
-    logger.warn('BLACKLIST_INSERT_FAIL', {
-      event: 'auth.blacklist_insert_fail', jti, message: err.message,
-    });
-  }
+  return jti && (async () => {
+    try {
+      const ttlSeconds = parseInt(process.env.JWT_EXPIRE_MINUTES || '15') * 60;
+      await redis.set('bl:' + jti, '1', 'EX', ttlSeconds);
+      await db.query(
+        'INSERT IGNORE INTO token_blacklist (jti, expires_at) VALUES (?, ?)',
+        [jti, new Date(Date.now() + ttlSeconds * 1000)]
+      );
+    } catch (err) {
+      logger.warn('BLACKLIST_INSERT_FAIL', {
+        event: 'auth.blacklist_insert_fail', jti, message: err.message,
+      });
+    }
+  })();
 };
 
 const cleanupBlacklist = async () => {
   try {
     const [result] = await db.query('DELETE FROM token_blacklist WHERE expires_at < NOW()');
-    if (result.affectedRows > 0)
-      logger.info('BLACKLIST_CLEANUP', {
-        event: 'auth.blacklist_cleanup', deleted: result.affectedRows,
-      });
+
+    result.affectedRows > 0 && logger.info('BLACKLIST_CLEANUP', {
+      event: 'auth.blacklist_cleanup', deleted: result.affectedRows,
+    });
   } catch (err) {
     logger.warn('BLACKLIST_CLEANUP_FAIL', {
       event: 'auth.blacklist_cleanup_fail', message: err.message,

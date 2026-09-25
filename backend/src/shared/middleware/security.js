@@ -1,5 +1,3 @@
-// src/shared/middleware/security.js
-// 📦 Sprint 20 — Movido de middleware/security.js
 'use strict';
 
 const rateLimit = require('express-rate-limit');
@@ -28,7 +26,11 @@ const authLimiter = rateLimit({
 function sanitizeValue(value) {
   if (typeof value === 'string') return xss(value, xssOptions);
   if (Array.isArray(value)) return value.map(sanitizeValue);
-  if (value !== null && typeof value === 'object') { const c = {}; for (const k of Object.keys(value)) c[k] = sanitizeValue(value[k]); return c; }
+  if (value !== null && typeof value === 'object') {
+    const c = {};
+    for (const k of Object.keys(value)) c[k] = sanitizeValue(value[k]);
+    return c;
+  }
   return value;
 }
 
@@ -52,7 +54,10 @@ const SQL_INJECTION_PATTERNS = [
 
 function hasSQLInjection(value) {
   if (typeof value !== 'string') return false;
-  return SQL_INJECTION_PATTERNS.some(p => { p.lastIndex = 0; return p.test(value); });
+  return SQL_INJECTION_PATTERNS.some(p => {
+    p.lastIndex = 0;
+    return p.test(value);
+  });
 }
 
 function checkObjectForSQLi(obj) {
@@ -77,7 +82,10 @@ const timingSafeEqual = (a, b) => {
   const bufA = Buffer.from(a), bufB = Buffer.from(b);
   if (bufA.length !== bufB.length) {
     const maxLen = Math.max(bufA.length, bufB.length);
-    crypto.timingSafeEqual(Buffer.concat([bufA, Buffer.alloc(maxLen - bufA.length)]), Buffer.concat([bufB, Buffer.alloc(maxLen - bufB.length)]));
+    crypto.timingSafeEqual(
+      Buffer.concat([bufA, Buffer.alloc(maxLen - bufA.length)]),
+      Buffer.concat([bufB, Buffer.alloc(maxLen - bufB.length)])
+    );
     return false;
   }
   return crypto.timingSafeEqual(bufA, bufB);
@@ -98,7 +106,9 @@ const additionalSecurityHeaders = (req, res, next) => {
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('X-DNS-Prefetch-Control', 'off');
   res.setHeader('Permissions-Policy',     'camera=(), microphone=(), geolocation=()');
-  if (process.env.NODE_ENV === 'production') res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  if (process.env.NODE_ENV === 'production') {
+    res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains; preload');
+  }
   res.removeHeader('X-Powered-By');
   next();
 };
@@ -109,10 +119,27 @@ const httpLogger = (req, res, next) => {
     const ms = Date.now() - start;
     if (res.statusCode >= 400 || ms > 1000) {
       const level = res.statusCode >= 500 ? 'error' : res.statusCode >= 400 ? 'warn' : 'info';
-      logger[level]('HTTP', { method: req.method, path: req.path, status: res.statusCode, ms, ip: req.ip, userId: req.user?.id || null });
+      logger[level]('HTTP', {
+        method: req.method,
+        path: req.path,
+        status: res.statusCode,
+        ms,
+        ip: req.ip,
+        userId: req.user?.id || null
+      });
     }
   });
   next();
 };
 
-module.exports = { globalLimiter, authLimiter, xssProtect, sqlInjectionProtect, timingSafeEqual, timingNormalize, additionalSecurityHeaders, httpLogger };
+module.exports = {
+  globalLimiter,
+  authLimiter,
+  xssProtect,
+  sqlInjectionProtect,
+  timingSafeEqual,
+  timingNormalize,
+  additionalSecurityHeaders,
+  httpLogger,
+  hasSQLInjection,
+};

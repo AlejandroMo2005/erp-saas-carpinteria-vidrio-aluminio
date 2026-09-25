@@ -71,7 +71,15 @@ async function generarInpainting({ imagenBase64, mascaraBase64, prompt, promptNe
         if (status === 503) { let info = ''; try { info = JSON.parse(buffer.toString()); } catch (_) {} await esperar(Math.min(info?.estimated_time ? Math.ceil(info.estimated_time * 1000) : ESPERA_503_MS, 20_000)); continue; }
         if (status === 429) { await esperar(10_000); continue; }
         if (status !== 200) { let msg = `HTTP ${status}`; try { msg = JSON.parse(buffer.toString())?.error ?? msg; } catch (_) {} console.error(`[IA/HF] Error en ${modelo}: ${msg}`); break; }
-        if (!contentType.startsWith('image/')) { let m = ''; try { m = JSON.parse(buffer.toString())?.error ?? ''; } catch (_) {} throw new Error(m || `Content-Type inesperado: ${contentType}`); }
+          if (!contentType.startsWith('image/')) {
+            let m = '';
+            try {
+              const parsed = JSON.parse(buffer.toString());
+              m = parsed?.error;
+            } catch (_) {}
+
+            throw new Error(m || `Content-Type inesperado: ${contentType}`);
+          }
         const ext = contentType.includes('png') ? 'png' : 'jpeg';
         console.log(`[IA/HF] ✅ Generado en ${Date.now() - inicio}ms con ${modelo}`);
         return { imagenBase64: `data:image/${ext};base64,${buffer.toString('base64')}`, modelo, duracionMs: Date.now() - inicio };
@@ -222,8 +230,13 @@ async function generarVisualizacion({ imagenBuffer, mascaraBuffer, imagenMimeTyp
     throw err;
   }
   const data = JSON.parse(respuesta.buffer.toString());
-  if (!data.image) { const err = new Error('Stability AI v2beta no devolvió imagen'); err.code = 'STABILITY_API_ERROR'; throw err; }
-  return Buffer.from(data.image, 'base64');
+  if (!data.image) {
+    const err = new Error('Stability AI v2beta no devolvió imagen');
+    err.code = 'STABILITY_API_ERROR';
+    throw err;
+  } else {
+    return Buffer.from(data.image, 'base64');
+  }
 }
 
 // ── SAM via Replicate ─────────────────────────────────────────────────────────
@@ -317,12 +330,15 @@ async function generarMascaraSAM(imagenBuffer, puntoXPct = 50, puntoYPct = 50) {
     version: SAM_VERSION,
     input: { image: `data:image/jpeg;base64,${imagenBuffer.toString('base64')}`, point_coords: `[[${px},${py}]]`, point_labels: '[1]', pred_iou_thresh: 0.86, stability_score_thresh: 0.92, multimask_output: false },
   });
-  if (pred.error) throw new Error(`SAM error: ${pred.error}`);
-  const resultado  = await esperarResultadoReplicate(pred.id);
-  const outputUrls = Array.isArray(resultado.output) ? resultado.output : [resultado.output].filter(Boolean);
-  if (!outputUrls.length) throw new Error('SAM no devolvió máscaras');
-  const maskBuffer = await descargarBuffer(outputUrls[0]);
-  return sharp(maskBuffer).resize(meta.width, meta.height, { fit: 'fill' }).grayscale().threshold(128).png().toBuffer();
+  if (pred.error) {
+    throw new Error(`SAM error: ${pred.error}`);
+  } else {
+    const resultado  = await esperarResultadoReplicate(pred.id);
+    const outputUrls = Array.isArray(resultado.output) ? resultado.output : [resultado.output].filter(Boolean);
+    if (!outputUrls.length) throw new Error('SAM no devolvió máscaras');
+    const maskBuffer = await descargarBuffer(outputUrls[0]);
+    return sharp(maskBuffer).resize(meta.width, meta.height, { fit: 'fill' }).grayscale().threshold(128).png().toBuffer();
+  }
 }
 
 module.exports = { generarInpainting, hashImagen, generarVisualizacion, generarMascaraSAM, construirPrompt, construirPromptLibre, traducirAIngles };

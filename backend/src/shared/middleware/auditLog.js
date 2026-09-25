@@ -35,7 +35,7 @@ const auditarOperacion = (tabla) => (req, res, next) => {
     if (res.statusCode >= 200 && res.statusCode < 300) {
       const accion = esDelete ? 'DELETE' : 'ANULACION';
       const registroId = req.params.id || req.params.facturaId || req.params.pedidoId || body?.data?.id || null;
-      insertarAuditoria({ usuario_id: req.user?.id, usuario_nombre: req.user?.nombre||req.user?.email, accion, tabla_afectada: tabla, registro_id: registroId, detalle: { method: req.method, path: req.path, params: req.params, body: esAnular ? { estado: req.body?.estado } : undefined, respuesta: body?.message||null }, ip: req.ip||req.headers['x-forwarded-for']?.split(',')[0]?.trim(), user_agent: req.headers['user-agent']?.slice(0,255) }).catch(()=>{});
+      insertarAuditoria({ usuario_id: req.user?.id, usuario_nombre: req.user?.nombre||req.user?.email, accion, tabla_afectada: tabla, registro_id: registroId, detalle: { method: req.method, path: req.path, params: req.params, body: esAnular ? { estado: req.body?.estado } : undefined, respuesta: body?.message||null }, ip: req.ip||req.headers['x-forwarded-for']?.split(',')[0]?.trim(), user_agent: req.headers['user-agent']?.slice(0,255) });
     }
     return originalJson(body);
   };

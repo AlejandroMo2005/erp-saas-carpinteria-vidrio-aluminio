@@ -154,8 +154,8 @@ function dibujarTotales(doc, factura, y) {
         .text(fila.label, xLabel, yFila+4, {width:anchoLabel, align:'right'})
         .text(fila.valor, xValor, yFila+4, {width:anchoValor, align:'right'});
     } else {
-      doc.font(fila.bold?FUENTES.bold:FUENTES.regular).fontSize(8.5).fillColor(COLORES.secundario).text(fila.label, xLabel, yFila+4, {width:anchoLabel, align:'right'});
-      doc.font(fila.bold?FUENTES.bold:FUENTES.regular).fontSize(8.5).fillColor(COLORES.texto).text(fila.valor, xValor, yFila+4, {width:anchoValor, align:'right'});
+      doc.font(FUENTES.regular).fontSize(8.5).fillColor(COLORES.secundario).text(fila.label, xLabel, yFila+4, {width:anchoLabel, align:'right'});
+      doc.font(FUENTES.regular).fontSize(8.5).fillColor(COLORES.texto).text(fila.valor, xValor, yFila+4, {width:anchoValor, align:'right'});
     }
   });
   return y + altoBloque + 12;

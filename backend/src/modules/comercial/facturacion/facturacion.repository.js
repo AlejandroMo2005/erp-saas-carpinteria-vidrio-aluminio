@@ -301,9 +301,10 @@ const actualizarFactura = async (id, datos, empresaId = null) => {
       `UPDATE facturas SET ${campos.join(', ')} WHERE id = ? AND empresa_id = ?`,
       valores
     );
+  } else {
+    valores.push(id);
+    return db.query(`UPDATE facturas SET ${campos.join(', ')} WHERE id = ?`, valores);
   }
-  valores.push(id);
-  return db.query(`UPDATE facturas SET ${campos.join(', ')} WHERE id = ?`, valores);
 };
 
 // Sprint 19: empresa_id en el WHERE
