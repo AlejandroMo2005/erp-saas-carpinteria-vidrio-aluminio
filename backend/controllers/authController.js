@@ -12,7 +12,7 @@ const jwt      = require('jsonwebtoken');
 const db       = require('../config/database');
 const redis    = require('../config/redis');            // 🚀 Sprint 15 — DT-04
 const crypto   = require('crypto');
-const { timingSafeEqual, timingNormalize } = require('../middleware/security');
+const { timingSafeEqual } = require('../middleware/security');
 const { registrarAuditoria }              = require('../middleware/auditLog');
 const logger                              = require('../utils/logger');
 

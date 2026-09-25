@@ -113,11 +113,11 @@ const generarRIDE = (factura, empresa = {}) => {
 
       // ── 6. Observaciones (si hay) ─────────────────────────────────────
       if (factura.observaciones) {
-        y = dibujarObservaciones(doc, factura.observaciones, y);
+        dibujarObservaciones(doc, factura.observaciones, y);
       }
 
       // ── 7. Pie de página ──────────────────────────────────────────────
-      dibujarPiePagina(doc, factura);
+      dibujarPiePagina(doc);
 
       doc.end();
     } catch (err) {
@@ -513,7 +513,7 @@ function dibujarObservaciones(doc, texto, y) {
 /**
  * Pie de página: mensaje legal + sistema
  */
-function dibujarPiePagina(doc, factura) {
+function dibujarPiePagina(doc) {
   const yPie = ALTO_PAGINA - MARGENES.bottom - 30;
 
   doc

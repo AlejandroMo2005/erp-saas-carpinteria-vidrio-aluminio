@@ -142,7 +142,7 @@ class Usuario {
   // Sprint 11: excluye deleted_at
   // TODO Sprint 21: agregar AND empresa_id = ? cuando se complete la migración
 
-  static async findByNombre(query, { limite = 10, empresaId } = {}) {
+  static async findByNombre(query, { limite = 10, empresaId: _empresaId } = {}) {
     const termino = `%${query}%`;
     const [rows] = await db.query(
       `SELECT id, nombre, nombre_completo, telefono, email, cedula_ruc

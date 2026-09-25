@@ -1,6 +1,6 @@
 'use strict';
 
-import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, describe, expect, it, vi } from 'vitest';
 import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
@@ -474,7 +474,7 @@ describe('utils/logger', () => {
   });
 
   it('configura producción con nivel info y overridea console.*', async () => {
-    const logger = await loadLogger('production');
+    await loadLogger('production');
 
     const createLoggerOptions =
       mockState.createLoggerCalls[0].options;

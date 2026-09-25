@@ -54,7 +54,7 @@ const obtenerSiguienteSecuencia = async (
   tipoComprobante = 'FACTURA',
   establecimiento = '001',
   puntoEmision    = '001',
-  empresaId       = null
+  _empresaId      = null
 ) => {
   const connection = await db.getConnection();
   try {

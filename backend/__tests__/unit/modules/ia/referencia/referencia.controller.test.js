@@ -625,7 +625,7 @@ describe('referencia.controller', () => {
       destroy: vi.fn(),
     };
 
-    httpsMock.request.mockImplementation((options, callback) => {
+    httpsMock.request.mockImplementation((_options, callback) => {
       callback(response);
       return request;
     });
@@ -695,7 +695,7 @@ describe('referencia.controller', () => {
       destroy: vi.fn(),
     };
 
-    httpsMock.request.mockImplementation((options, callback) => {
+    httpsMock.request.mockImplementation((_options, callback) => {
       callback(response);
       return request;
     });
@@ -756,7 +756,7 @@ describe('referencia.controller', () => {
       destroy: vi.fn(),
     };
 
-    httpsMock.request.mockImplementation((options, callback) => {
+    httpsMock.request.mockImplementation((_options, callback) => {
       callback(response);
       return request;
     });
@@ -859,7 +859,7 @@ describe('referencia.controller', () => {
       destroy: vi.fn(),
     };
 
-    httpsMock.request.mockImplementation((options, callback) => {
+    httpsMock.request.mockImplementation((_options, __callback) => {
       request.setTimeout.mockImplementation((ms, callbackTimeout) => {
         callbackTimeout();
       });

@@ -74,7 +74,7 @@ describe('trabajo.validators', () => {
   });
 
   it('debe rechazar un item sin material_id', () => {
-    const { material_id, ...item } = itemValido;
+    const { material_id: _material_id, ...item } = itemValido;
 
     const result = agendarPedidoTrabajoSchema.safeParse({
       ...datosValidos,

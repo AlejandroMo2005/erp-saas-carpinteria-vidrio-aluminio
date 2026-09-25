@@ -2,7 +2,7 @@
 
 import { createRequire } from 'node:module';
 import Module from 'node:module';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
 const require = createRequire(import.meta.url);
 

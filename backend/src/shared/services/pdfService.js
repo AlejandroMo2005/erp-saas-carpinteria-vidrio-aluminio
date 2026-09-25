@@ -204,7 +204,7 @@ const generarRIDE = (factura, empresa = {}) => new Promise((resolve, reject) => 
     y = dibujarTablaItems(doc, factura, y);
     y = dibujarTotales(doc, factura, y);
     y = dibujarClaveAcceso(doc, factura, y);
-    if (factura.observaciones) y = dibujarObservaciones(doc, factura.observaciones, y);
+    if (factura.observaciones) dibujarObservaciones(doc, factura.observaciones, y);
     dibujarPiePagina(doc);
     doc.end();
   } catch (err) { reject(err); }

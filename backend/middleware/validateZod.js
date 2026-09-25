@@ -8,7 +8,6 @@
 
 'use strict';
 
-const { ZodError } = require('zod');
 const logger       = require('../utils/logger');
 
 /**

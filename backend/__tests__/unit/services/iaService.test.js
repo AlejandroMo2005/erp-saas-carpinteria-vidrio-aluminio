@@ -221,7 +221,7 @@ describe('services/iaService', () => {
 
       const https = {
         request: vi.fn(),
-        get: vi.fn((url, options, callback) => {
+        get: vi.fn((_url, _options, callback) => {
           const res = {
             on: vi.fn((event, handler) => {
               if (event === 'data') handler(Buffer.from(JSON.stringify(response)));
@@ -257,7 +257,7 @@ describe('services/iaService', () => {
 
       const https = {
         request: vi.fn(),
-        get: vi.fn((url, options, callback) => {
+        get: vi.fn((_url, _options, callback) => {
           const res = {
             on: vi.fn((event, handler) => {
               if (event === 'data') handler(Buffer.from(JSON.stringify(response)));
@@ -282,7 +282,7 @@ describe('services/iaService', () => {
     it('debe retornar el texto original si la respuesta JSON es inválida', async () => {
       const https = {
         request: vi.fn(),
-        get: vi.fn((url, options, callback) => {
+        get: vi.fn((_url, _options, callback) => {
           const res = {
             on: vi.fn((event, handler) => {
               if (event === 'data') handler(Buffer.from('no-json'));
@@ -307,7 +307,7 @@ describe('services/iaService', () => {
     it('debe retornar el texto original cuando ocurre un error de red', async () => {
       const https = {
         request: vi.fn(),
-        get: vi.fn((url, options, callback) => {
+        get: vi.fn((_url, _options, _callback) => {
           const req = {
             on: vi.fn((event, handler) => {
               if (event === 'error') handler(new Error('network error'));
@@ -364,7 +364,7 @@ describe('services/iaService', () => {
       };
 
       const https = {
-        request: vi.fn((url, options, callback) => {
+        request: vi.fn((_url, _options, callback) => {
           callback(response);
           return req;
         }),
@@ -417,7 +417,7 @@ describe('services/iaService', () => {
       };
 
       const https = {
-        request: vi.fn((url, options, callback) => {
+        request: vi.fn((_url, _options, callback) => {
           callback(response);
           return req;
         }),
@@ -469,7 +469,7 @@ describe('services/iaService', () => {
       const req = createRequest();
 
       const https = {
-        request: vi.fn((url, options, callback) => {
+        request: vi.fn((_url, _options, callback) => {
           callback(
             createResponse(
               200,
@@ -509,7 +509,7 @@ describe('services/iaService', () => {
       ];
 
       const https = {
-        request: vi.fn((url, options, callback) => {
+        request: vi.fn((_url, _options, callback) => {
           const req = {
           on: vi.fn(),
           setTimeout: vi.fn(),
@@ -550,7 +550,7 @@ describe('services/iaService', () => {
       ];
 
       const https = {
-        request: vi.fn((url, options, callback) => {
+        request: vi.fn((_url, _options, callback) => {
           const req = createRequest();
           callback(responses.shift());
           return req;
@@ -585,7 +585,7 @@ describe('services/iaService', () => {
         ];
 
         const https = {
-          request: vi.fn((url, options, callback) => {
+          request: vi.fn((_url, _options, callback) => {
             const req = createRequest();
             callback(responses.shift());
             return req;
@@ -628,7 +628,7 @@ describe('services/iaService', () => {
         ];
 
         const https = {
-          request: vi.fn((url, options, callback) => {
+          request: vi.fn((_url, _options, callback) => {
             const req = createRequest();
             callback(responses.shift());
             return req;
@@ -670,7 +670,7 @@ describe('services/iaService', () => {
       ];
 
       const https = {
-        request: vi.fn((url, options, callback) => {
+        request: vi.fn((_url, _options, callback) => {
           const value = responses.shift();
           const req = createRequest();
 
@@ -709,7 +709,7 @@ describe('services/iaService', () => {
 
     it('debe lanzar el error final cuando todos los modelos fallan', async () => {
       const https = {
-        request: vi.fn((url, options, callback) => {
+        request: vi.fn((_url, _options, _callback) => {
           const req = createRequest();
 
           queueMicrotask(() => {

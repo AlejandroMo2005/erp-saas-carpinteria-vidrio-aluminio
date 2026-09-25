@@ -31,7 +31,7 @@ describe('ia.validators', () => {
     });
 
     test('debe rechazar imagen ausente', () => {
-      const { imagen, ...datos } = datosValidos;
+      const { imagen: _imagen, ...datos } = datosValidos;
 
       const result = inpaintSchema.safeParse(datos);
 
@@ -48,7 +48,7 @@ describe('ia.validators', () => {
     });
 
     test('debe rechazar mascara ausente', () => {
-      const { mascara, ...datos } = datosValidos;
+      const { mascara: _mascara, ...datos } = datosValidos;
 
       const result = inpaintSchema.safeParse(datos);
 
@@ -65,7 +65,7 @@ describe('ia.validators', () => {
     });
 
     test('debe rechazar prompt ausente', () => {
-      const { prompt, ...datos } = datosValidos;
+      const { prompt: _prompt, ...datos } = datosValidos;
 
       const result = inpaintSchema.safeParse(datos);
 

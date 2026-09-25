@@ -12,7 +12,6 @@
 
 const Usuario    = require('./usuario.repository');
 const logger     = require('../../../utils/logger');
-const { softDelete } = require('../../../utils/softDelete');
 const db         = require('../../../config/database');
 
 function validarCedulaRuc(valor) {

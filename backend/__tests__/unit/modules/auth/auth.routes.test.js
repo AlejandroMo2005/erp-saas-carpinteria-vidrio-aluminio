@@ -35,7 +35,7 @@ const protectMock = vi.fn((req, res, next) => next());
 const authLimiterMock = vi.fn((req, res, next) => next());
 const timingNormalizeMock = vi.fn(() => (req, res, next) => next());
 
-const validateBodyMock = vi.fn(schema => {
+const validateBodyMock = vi.fn(_schema => {
   return (req, res, next) => next();
 });
 

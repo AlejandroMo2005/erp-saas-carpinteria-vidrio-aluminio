@@ -460,7 +460,7 @@ describe('usuario.validators', () => {
     });
 
     it('debe rechazar nombre ausente', () => {
-      const { nombre, ...sinNombre } = usuarioValido;
+      const { nombre: _nombre, ...sinNombre } = usuarioValido;
 
       const result = createUsuarioSchema.safeParse(sinNombre);
 
@@ -521,7 +521,7 @@ describe('usuario.validators', () => {
     });
 
     it('debe rechazar email ausente', () => {
-      const { email, ...sinEmail } = usuarioValido;
+      const { email: _email, ...sinEmail } = usuarioValido;
 
       const result = createUsuarioSchema.safeParse(sinEmail);
 
@@ -556,7 +556,7 @@ describe('usuario.validators', () => {
     });
 
     it('debe rechazar password ausente', () => {
-      const { password, ...sinPassword } = usuarioValido;
+      const { password: _password, ...sinPassword } = usuarioValido;
 
       const result = createUsuarioSchema.safeParse(sinPassword);
 
@@ -594,7 +594,7 @@ describe('usuario.validators', () => {
     });
 
     it('debe rechazar rol ausente', () => {
-      const { rol, ...sinRol } = usuarioValido;
+      const { rol: _rol, ...sinRol } = usuarioValido;
 
       const result = createUsuarioSchema.safeParse(sinRol);
 
