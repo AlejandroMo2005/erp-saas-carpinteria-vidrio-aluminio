@@ -1,72 +1,47 @@
-# Referencias de trabajos
+# Trabajo Referencias
 
 ## Descripción
 
-La tabla `trabajo_referencias` almacena referencias asociadas a los trabajos registrados en el sistema.
+La tabla `trabajo_referencias` almacena referencias asociadas a los trabajos registrados en el sistema, incluyendo el archivo, descriptores y peso de cada referencia.
 
-## Tabla
+## Estructura
 
-`trabajo_referencias`
+| Columna | Tipo | Nulo | Valor por defecto | Descripción |
+|---|---|---|---|---|
+| `id` | bigint unsigned | No | — | Identificador único de la referencia. Es clave primaria y autoincremental. |
+| `trabajo_id` | bigint unsigned | No | — | Identificador del trabajo asociado. |
+| `filename` | varchar | No | — | Nombre del archivo de referencia. |
+| `descriptores` | json | Sí | `NULL` | Descriptores asociados a la referencia. |
+| `peso` | decimal(3,2) | No | `0.80` | Peso asignado a la referencia. |
+| `activo` | tinyint(1) | No | `1` | Indica si la referencia está activa. |
+| `created_at` | timestamp | Sí | `CURRENT_TIMESTAMP` | Fecha y hora de creación del registro. |
 
-## Columnas
+## Clave primaria
 
-### `id`
+- `PRIMARY KEY (id)`
 
-Identificador único de la referencia.
+## Relaciones
 
-- Tipo: `int unsigned`
-- `NOT NULL`
-- `AUTO_INCREMENT`
-- Clave primaria
+El campo `trabajo_id` identifica el trabajo al que pertenece la referencia.
 
-### `trabajo_id`
+La tabla no presenta una clave foránea declarada hacia `trabajos` en el esquema de la base de datos.
 
-Identificador del trabajo asociado.
+## Índices
 
-- Tipo: `int unsigned`
-- `NOT NULL`
+La tabla dispone de los índices definidos en el esquema para facilitar la consulta de las referencias asociadas a los trabajos.
 
-### `filename`
+## Descriptores
 
-Nombre del archivo de referencia.
+El campo `descriptores` utiliza el tipo `JSON` para almacenar información estructurada asociada a las características de la referencia.
 
-- Tipo: `varchar(255)`
-- `NOT NULL`
+## Estado
 
-### `descriptores`
+El campo `activo` permite identificar si una referencia se encuentra habilitada dentro del sistema.
 
-Información descriptiva asociada a la referencia.
+## Peso
 
-- Tipo: `text`
-- `NOT NULL`
+El campo `peso` almacena un valor decimal utilizado para representar la ponderación asignada a la referencia. Su valor por defecto es `0.80`.
 
-### `peso`
+## Referencia del esquema
 
-Peso asignado a la referencia.
-
-- Tipo: `decimal(3,2)`
-- `NOT NULL`
-- Valor por defecto: `0.80`
-
-### `activo`
-
-Indica si la referencia se encuentra activa.
-
-- Tipo: `tinyint(1)`
-- `NOT NULL`
-- Valor por defecto: `1`
-
-### `created_at`
-
-Fecha y hora de creación de la referencia.
-
-- Tipo: `timestamp`
-- `NOT NULL`
-- Valor por defecto: `CURRENT_TIMESTAMP`
-
-## Claves
-
-### Clave primaria
-
-```text
-id
+Tabla definida como `trabajo_referencias` en la base de datos `inventario_proformas`.
