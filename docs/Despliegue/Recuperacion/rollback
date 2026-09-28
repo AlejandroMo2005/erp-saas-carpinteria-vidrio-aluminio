@@ -1,0 +1,202 @@
+# Rollback
+
+## Propósito
+
+Este documento define el procedimiento para revertir un despliegue cuando una nueva versión introduce errores, regresiones o condiciones que impidan operar correctamente la plataforma.
+
+## Objetivos
+
+El rollback debe permitir:
+
+- Restaurar una versión previamente validada.
+- Reducir el tiempo de indisponibilidad.
+- Evitar pérdida o corrupción de información.
+- Mantener la integridad de la base de datos.
+- Recuperar los servicios afectados de forma controlada.
+- Registrar las acciones realizadas durante la reversión.
+
+## Cuándo realizar un rollback
+
+El rollback puede considerarse cuando un despliegue produce:
+
+- Errores críticos de aplicación.
+- Fallos en autenticación o autorización.
+- Regresiones funcionales.
+- Errores de integración entre frontend y backend.
+- Fallos de health checks.
+- Incrementos anormales de errores HTTP.
+- Problemas de rendimiento posteriores al despliegue.
+- Fallos de conexión con MySQL o Redis.
+- Problemas que comprometan la seguridad.
+- Incompatibilidad entre componentes desplegados.
+
+La decisión debe basarse en evidencia obtenida mediante pruebas, logs, health checks y monitoreo.
+
+## Tipos de rollback
+
+La reversión puede aplicarse a diferentes componentes:
+
+- Frontend.
+- Backend.
+- Configuración.
+- Contenedores.
+- Dependencias.
+- Migraciones de base de datos.
+- Infraestructura.
+
+El alcance debe limitarse al componente afectado cuando sea posible.
+
+## Versionado
+
+Cada despliegue debe estar asociado a una versión identificable.
+
+La versión utilizada para rollback debe poder relacionarse con:
+
+- Commit.
+- Rama.
+- Artefacto.
+- Imagen Docker cuando corresponda.
+- Configuración.
+- Migraciones ejecutadas.
+
+No debe realizarse un rollback hacia una versión cuya procedencia no pueda verificarse.
+
+## Precondiciones
+
+Antes de realizar un rollback se debe identificar:
+
+- Versión actualmente desplegada.
+- Versión objetivo.
+- Componente afectado.
+- Causa conocida o probable.
+- Estado de MySQL.
+- Estado de Redis.
+- Estado del frontend.
+- Estado del backend.
+- Migraciones ejecutadas.
+- Disponibilidad de backups cuando sean necesarios.
+
+## Rollback del frontend
+
+El frontend puede revertirse reemplazando el artefacto desplegado por una versión anterior validada.
+
+Después de la reversión se debe comprobar:
+
+- Carga de la aplicación.
+- Navegación.
+- Comunicación con el backend.
+- Autenticación.
+- Rutas principales.
+- Recursos estáticos.
+- Compatibilidad con la versión del backend.
+
+Debe verificarse que la versión anterior siga siendo compatible con los contratos actuales del backend.
+
+## Rollback del backend
+
+El backend puede revertirse hacia una versión anterior validada.
+
+El procedimiento debe considerar:
+
+1. Identificar la versión estable anterior.
+2. Detener o retirar la versión afectada según la estrategia de despliegue.
+3. Restaurar la versión anterior.
+4. Aplicar la configuración correspondiente.
+5. Iniciar el servicio.
+6. Ejecutar health checks.
+7. Validar las funciones críticas.
+8. Revisar logs y errores.
+9. Confirmar estabilidad.
+
+Cuando se utilice PM2, la operación debe comprobar el estado de los procesos después del reinicio.
+
+## Rollback de configuración
+
+Los cambios de configuración deben poder identificarse y revertirse de manera independiente cuando sea posible.
+
+Debe comprobarse especialmente:
+
+- Variables de entorno.
+- URL del backend.
+- Configuración de CORS.
+- Configuración de CSRF.
+- Credenciales de servicios.
+- Configuración de Redis.
+- Configuración de MySQL.
+- Configuración de servicios externos.
+
+Los secretos no deben almacenarse dentro del código ni en los artefactos de despliegue.
+
+## Rollback de Docker
+
+Cuando Docker forme parte del despliegue, el rollback debe realizarse utilizando una imagen previamente validada.
+
+La imagen debe identificarse mediante una versión o referencia inmutable.
+
+El procedimiento debe considerar:
+
+- Detener la versión afectada.
+- Restaurar la imagen anterior.
+- Mantener las variables de entorno correspondientes.
+- Mantener los volúmenes requeridos.
+- Iniciar los servicios.
+- Ejecutar health checks.
+- Validar conectividad entre componentes.
+
+La adopción de Docker para producción permanece pendiente en el estado actual del proyecto.
+
+## Rollback de base de datos
+
+El rollback de base de datos requiere especial precaución.
+
+Una versión anterior de la aplicación puede no ser compatible con un esquema modificado.
+
+Antes de ejecutar una migración destructiva debe evaluarse:
+
+- Compatibilidad hacia atrás.
+- Compatibilidad de columnas.
+- Índices.
+- Restricciones.
+- Triggers.
+- Procedimientos.
+- Datos existentes.
+- Dependencias entre versiones.
+
+Las migraciones deben diseñarse preferentemente de forma que permitan mantener compatibilidad durante la transición.
+
+## Migraciones no reversibles
+
+Una migración que elimine o transforme información no debe revertirse únicamente restaurando el código de la aplicación.
+
+Cuando una migración pueda producir pérdida de información, debe existir un mecanismo de recuperación apropiado antes de ejecutarla.
+
+Esto puede requerir:
+
+- Backup.
+- Snapshot.
+- Exportación controlada.
+- Migración inversa.
+- Restauración selectiva.
+
+## Datos durante el rollback
+
+El rollback de aplicación no debe eliminar automáticamente datos generados durante el periodo de operación de la versión afectada.
+
+Antes de restaurar información debe determinarse:
+
+- Qué datos fueron creados.
+- Qué datos fueron modificados.
+- Qué operaciones son válidas.
+- Qué registros deben conservarse.
+- Qué registros requieren corrección.
+
+La recuperación de datos debe realizarse de manera controlada.
+
+## Redis durante el rollback
+
+La reversión del backend debe considerar el estado de Redis.
+
+La blacklist de tokens utiliza Redis mediante claves con formato:
+
+```text
+bl:<jti>
