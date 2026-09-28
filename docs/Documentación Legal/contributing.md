@@ -1,113 +1,49 @@
-# Contribución al proyecto
+# Contribución
 
-## Descripción
+## Propósito
 
-## Objetivo
+Este documento establece las reglas para contribuir al proyecto de forma controlada, manteniendo consistencia en código, arquitectura, pruebas, seguridad, documentación y control de versiones.
 
 ## Alcance
 
-## Requisitos previos
+Las contribuciones comprenden:
 
-## Configuración del entorno
+- Código frontend.
+- Código backend.
+- Pruebas.
+- Configuración.
+- Base de datos.
+- CI/CD.
+- Seguridad.
+- Documentación.
+- Correcciones de errores.
+- Refactorizaciones.
+- Dependencias.
 
-## Estructura del proyecto
+## Repositorio
 
-## Flujo de trabajo
+El proyecto utiliza Git como sistema de control de versiones.
 
-### Crear una rama
+Cada cambio debe mantenerse asociado con una rama o commit identificable.
 
-### Realizar cambios
+Las modificaciones deben poder relacionarse con su propósito técnico o funcional.
 
-### Ejecutar pruebas
+## Ramas
 
-### Ejecutar lint
+Las ramas deben utilizarse para aislar cambios antes de integrarlos a la rama principal.
 
-### Revisar cambios
+Las contribuciones no deben modificar directamente la rama principal cuando el flujo de trabajo requiera revisión previa.
 
-### Crear commit
+## Commits
 
-### Crear Pull Request
+Los commits deben describir de forma clara el cambio realizado.
 
-## Convenciones de ramas
+Se recomienda mantener cada commit enfocado en una modificación coherente.
 
-## Convenciones de commits
+Los mensajes deben evitar descripciones ambiguas como:
 
-## Convenciones de código
-
-## Organización de archivos
-
-## Arquitectura
-
-## Pruebas
-
-### Unit Tests
-
-### Integration Tests
-
-### E2E
-
-### Performance
-
-### Security
-
-## Cambios en la base de datos
-
-### Migraciones
-
-### Triggers
-
-### Índices
-
-### Restricciones
-
-## Cambios en contratos de API
-
-## Cambios de seguridad
-
-## Gestión de secretos
-
-## Pull Requests
-
-### Descripción
-
-### Evidencia
-
-### Pruebas realizadas
-
-### Impacto
-
-### Riesgos
-
-### Checklist
-
-## Code Review
-
-### Criterios de revisión
-
-### Arquitectura
-
-### Seguridad
-
-### Testing
-
-### Rendimiento
-
-### Mantenibilidad
-
-## CI/CD
-
-## Resolución de conflictos
-
-## Gestión de deuda técnica
-
-## Issues
-
-## Documentación
-
-## Cambios que requieren actualización documental
-
-## Reglas para cambios arquitectónicos
-
-## Buenas prácticas
-
-## Historial de cambios
+```text
+cambios
+fix
+update
+cosas
