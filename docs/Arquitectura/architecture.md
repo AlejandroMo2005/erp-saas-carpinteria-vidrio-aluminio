@@ -1,39 +1,41 @@
-# Arquitectura del sistema
+# Arquitectura
 
-## Propósito
+## Descripción
 
-Este documento describe la arquitectura técnica actual del proyecto ERP SaaS para negocios de carpintería de vidrio y aluminio.
+La aplicación está estructurada como una plataforma web empresarial full-stack, compuesta por un frontend, un backend, una base de datos relacional y servicios complementarios.
 
-Su objetivo es documentar la organización del sistema, las responsabilidades de sus principales capas, la arquitectura modular del backend y la estrategia de consolidación de la arquitectura.
+## Índice
+
+- [Descripción](#descripción)
+- [Arquitectura general](#arquitectura-general)
+- [Frontend](#frontend)
+- [Backend](#backend)
+- [Base de datos](#base-de-datos)
+- [Redis](#redis)
+- [Inteligencia artificial](#inteligencia-artificial)
+- [Seguridad](#seguridad)
+- [Comunicación entre capas](#comunicación-entre-capas)
+- [Estructura modular](#estructura-modular)
+- [Ejecución](#ejecución)
 
 ## Arquitectura general
 
-El sistema está compuesto por un frontend web, un backend API y servicios de persistencia y apoyo.
+La solución utiliza una arquitectura por capas en la que el frontend consume servicios HTTP proporcionados por el backend.
 
 ```text
-┌──────────────────────────────────────────────┐
-│                  FRONTEND                    │
-│                                              │
-│ React + Vite + React Query + Axios           │
-│                                              │
-│ Components / Hooks / Context / Services      │
-└──────────────────────┬───────────────────────┘
-                       │
-                       │ HTTP / REST
-                       ▼
-┌──────────────────────────────────────────────┐
-│                  BACKEND                     │
-│                                              │
-│ Node.js + Express                            │
-│                                              │
-│ Modules / Controllers / Services / Repositories
-└─────────────────┬──────────────────┬─────────┘
-                  │                  │
-                  ▼                  ▼
-         ┌────────────────┐  ┌────────────────┐
-         │     MySQL      │  │     Redis      │
-         │                │  │                │
-         │ Persistencia   │  │ Estado temporal │
-         │ Integridad     │  │ y mecanismos   │
-         │ Relacional     │  │ de autenticación│
-         └────────────────┘  └────────────────┘
+┌──────────────────────────────┐
+│          Frontend            │
+│       React + Vite           │
+└──────────────┬───────────────┘
+               │ HTTP / JSON
+               ▼
+┌──────────────────────────────┐
+│           Backend            │
+│       Node.js + Express      │
+└───────┬──────────────┬───────┘
+        │              │
+        ▼              ▼
+┌──────────────┐ ┌──────────────┐
+│    MySQL     │ │    Redis     │
+│ Persistencia │ │ Datos temp.  │
+└──────────────┘ └──────────────┘
