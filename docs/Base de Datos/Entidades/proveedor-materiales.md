@@ -1,43 +1,55 @@
-# Relación proveedor-material
+# Proveedor Materiales
 
 ## Descripción
 
-La tabla `proveedor_materiales` representa la relación entre proveedores y materiales disponibles en el sistema.
+La tabla `proveedor_materiales` establece la relación entre los proveedores y los materiales que pueden suministrar.
 
-## Tabla
+## Estructura
 
-`proveedor_materiales`
+| Columna | Tipo | Nulo | Valor por defecto | Descripción |
+|---|---|---|---|---|
+| `id` | int | No | — | Identificador único de la relación. Es clave primaria y autoincremental. |
+| `proveedor_id` | int | No | — | Identificador del proveedor asociado. |
+| `material_id` | int | No | — | Identificador del material asociado. |
 
-## Columnas
+## Clave primaria
 
-### `id`
+- `PRIMARY KEY (id)`
 
-Identificador único de la relación.
+## Restricciones de unicidad
 
-- Tipo: `int`
-- `NOT NULL`
-- `AUTO_INCREMENT`
-- Clave primaria
+La combinación de:
 
-### `proveedor_id`
+- `proveedor_id`
+- `material_id`
 
-Identificador del proveedor relacionado.
+es única.
 
-- Tipo: `int`
-- `NOT NULL`
-- Clave foránea hacia `proveedores.id`
+Esto evita registrar más de una relación entre el mismo proveedor y material.
 
-### `material_id`
+## Claves foráneas
 
-Identificador del material relacionado.
+| Columna | Referencia | Acción |
+|---|---|---|
+| `proveedor_id` | `proveedores.id` | `ON DELETE CASCADE` |
+| `material_id` | `materiales.id` | `ON DELETE CASCADE` |
 
-- Tipo: `int`
-- `NOT NULL`
-- Clave foránea hacia `materiales.id`
+## Índices
 
-## Claves
+La tabla dispone de índices asociados a las claves foráneas y a la combinación única de proveedor y material.
 
-### Clave primaria
+## Relaciones
 
-```text
-id
+- Un registro relaciona un proveedor con un material.
+- Un proveedor puede estar relacionado con múltiples materiales.
+- Un material puede estar relacionado con múltiples proveedores.
+- La eliminación de un proveedor elimina en cascada sus relaciones.
+- La eliminación de un material elimina en cascada sus relaciones.
+
+## Modelo de relación
+
+La entidad funciona como tabla intermedia para representar una relación de muchos a muchos entre `proveedores` y `materiales`.
+
+## Referencia del esquema
+
+Tabla definida como `proveedor_materiales` en la base de datos `inventario_proformas`.
