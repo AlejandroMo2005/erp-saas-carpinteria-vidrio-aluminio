@@ -1,70 +1,147 @@
-# Getting Started with Create React App
+# ERP SaaS - Carpintería de Vidrio y Aluminio
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Plataforma web empresarial full-stack tipo ERP/SaaS orientada a negocios de carpintería de vidrio y aluminio.
 
-## Available Scripts
+El sistema centraliza procesos de clientes, materiales, inventario, proformas, pedidos, proveedores, facturación, autenticación, auditoría y funcionalidades asistidas por inteligencia artificial.
 
-In the project directory, you can run:
+---
 
-### `npm start`
+## Autor
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+**Anthony Alejandro Moreira Moreira**  
+**Ingeniero en Software**
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+---
 
-### `npm test`
+## Estado del proyecto
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+Proyecto en proceso de consolidación técnica.
 
-### `npm run build`
+Actualmente se trabaja en:
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+- Consolidación de la arquitectura modular.
+- Eliminación progresiva de código legacy.
+- Pruebas unitarias.
+- Pruebas de integración.
+- Pruebas End-to-End.
+- Pruebas de rendimiento y concurrencia.
+- Seguridad de la aplicación.
+- Análisis estático con SonarCloud.
+- Automatización CI/CD.
+- Docker y reproducibilidad.
+- Documentación técnica.
+- Reducción de deuda técnica.
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+---
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Objetivo
 
-### `npm run eject`
+Diseñar y consolidar una plataforma web empresarial tipo ERP/SaaS que permita centralizar y optimizar la gestión de proformas e inventario en negocios de carpintería de vidrio y aluminio.
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+---
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+## Funcionalidades principales
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+### Autenticación y usuarios
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+- Inicio de sesión.
+- Cierre de sesión.
+- Refresh tokens.
+- Gestión de sesiones.
+- Recuperación de contraseña.
+- Control de acceso por roles.
+- Invalidación de tokens.
+- Auditoría de autenticación.
 
-## Learn More
+### Clientes
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+- Registro de clientes.
+- Consulta de clientes.
+- Actualización de información.
+- Gestión asociada a la empresa.
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+### Inventario
 
-### Code Splitting
+- Gestión de materiales.
+- Control de stock.
+- Stock mínimo.
+- Colores.
+- Variantes de materiales.
+- Proveedores.
+- Relación proveedor-material.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+### Proformas
 
-### Analyzing the Bundle Size
+- Creación de proformas.
+- Gestión de medidas.
+- Gestión de trabajos.
+- Cálculo de precios.
+- Gestión de detalles.
+- Conversión a pedidos.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+### Pedidos
 
-### Making a Progressive Web App
+- Creación de pedidos.
+- Gestión de detalles.
+- Estados.
+- Cálculo de totales.
+- Relación con proformas.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### Facturación
 
-### Advanced Configuration
+- Creación de facturas.
+- Gestión de detalles.
+- Cálculo de totales.
+- Estados de factura.
+- Información del cliente.
+- Autorizaciones SRI.
+- Secuencias de comprobantes.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### Inteligencia artificial
 
-### Deployment
+- Generación de imágenes.
+- Visualización de trabajos.
+- Gestión de referencias.
+- Registro de solicitudes.
+- Integración con servicios externos de IA.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+### Administración
 
-### `npm run build` fails to minify
+- Empresas.
+- Usuarios.
+- Configuración.
+- Auditoría.
+- Gestión de permisos.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+---
+
+# Arquitectura
+
+El proyecto utiliza una arquitectura full-stack dividida entre frontend, backend y persistencia.
+
+```text
+┌───────────────────────────────────────────────┐
+│                   FRONTEND                    │
+│                                               │
+│ React + Vite + React Query + Axios            │
+│                                               │
+│ Components / Hooks / Context / Services       │
+└───────────────────────┬───────────────────────┘
+                        │
+                        │ HTTP / REST
+                        ▼
+┌───────────────────────────────────────────────┐
+│                   BACKEND                     │
+│                                               │
+│ Node.js + Express                             │
+│                                               │
+│ Modules / Controllers / Services / Repositories│
+└────────────────┬──────────────────┬───────────┘
+                 │                  │
+                 ▼                  ▼
+        ┌────────────────┐  ┌────────────────┐
+        │     MySQL      │  │     Redis      │
+        │                │  │                │
+        │ Persistencia   │  │ Sesiones /     │
+        │ Integridad     │  │ cache / auth   │
+        └────────────────┘  └────────────────┘
