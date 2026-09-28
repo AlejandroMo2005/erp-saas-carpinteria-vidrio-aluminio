@@ -1,43 +1,59 @@
-# Relación material-color
+# Material Colores
 
 ## Descripción
 
-La tabla `material_colores` representa la relación entre materiales y colores disponibles en el sistema.
+La tabla `material_colores` establece la relación entre los materiales y los colores disponibles para cada uno.
 
-## Tabla
+## Estructura
 
-`material_colores`
+| Columna | Tipo | Nulo | Valor por defecto | Descripción |
+|---|---|---|---|---|
+| `id` | int | No | — | Identificador único de la relación. Es clave primaria y autoincremental. |
+| `material_id` | int | No | — | Identificador del material asociado. |
+| `color_id` | int | No | — | Identificador del color asociado. |
 
-## Columnas
+## Clave primaria
 
-### `id`
+- `PRIMARY KEY (id)`
 
-Identificador único de la relación.
+## Claves foráneas
 
-- Tipo: `int`
-- `NOT NULL`
-- `AUTO_INCREMENT`
-- Clave primaria
+| Columna | Referencia | Acción |
+|---|---|---|
+| `material_id` | `materiales.id` | `ON DELETE CASCADE` |
+| `color_id` | `colores.id` | `ON DELETE CASCADE` |
 
-### `material_id`
+## Restricciones de unicidad
 
-Identificador del material relacionado.
+La combinación de:
 
-- Tipo: `int`
-- `NOT NULL`
-- Clave foránea hacia `materiales.id`
+- `material_id`
+- `color_id`
 
-### `color_id`
+es única.
 
-Identificador del color relacionado.
+Esto evita registrar más de una relación entre el mismo material y color.
 
-- Tipo: `int`
-- `NOT NULL`
-- Clave foránea hacia `colores.id`
+## Índices
 
-## Claves
+La tabla dispone de índices asociados a:
 
-### Clave primaria
+- `material_id`
+- `color_id`
+- La combinación `material_id` + `color_id`.
 
-```text
-id
+## Relaciones
+
+- Un registro relaciona un material con un color.
+- Un material puede relacionarse con múltiples colores.
+- Un color puede relacionarse con múltiples materiales.
+- La eliminación de un material elimina en cascada sus relaciones.
+- La eliminación de un color elimina en cascada sus relaciones.
+
+## Modelo de relación
+
+La entidad funciona como tabla intermedia para representar la relación de muchos a muchos entre `materiales` y `colores`.
+
+## Referencia del esquema
+
+Tabla definida como `material_colores` en la base de datos `inventario_proformas`.
