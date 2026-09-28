@@ -1,169 +1,381 @@
-# Cumplimiento y aspectos legales
+# Cumplimiento y consideraciones legales
 
-## Descripción
+## Propósito
 
-## Objetivo
+Este documento establece las consideraciones de cumplimiento que deben contemplarse durante el diseño, desarrollo, despliegue y operación de la plataforma.
 
 ## Alcance
 
-## Marco normativo aplicable
+El cumplimiento debe considerar:
 
-## Protección de datos personales
+- Protección de datos personales.
+- Seguridad de la información.
+- Gestión de usuarios.
+- Auditoría.
+- Facturación.
+- Conservación de información.
+- Control de acceso.
+- Gestión de secretos.
+- Dependencias externas.
+- Infraestructura.
+- Registros técnicos.
 
-### Datos personales tratados
+## Protección de datos
 
-### Finalidad del tratamiento
+La plataforma procesa información relacionada con:
 
-### Base legal del tratamiento
+- Clientes.
+- Usuarios.
+- Proveedores.
+- Contactos.
+- Información de empresas.
+- Registros de operaciones.
+- Información de autenticación.
+- Registros de auditoría.
 
-### Consentimiento
+El tratamiento de estos datos debe limitarse a las finalidades necesarias para las funciones de la plataforma.
 
-### Derechos de los titulares
+## Minimización de datos
 
-### Conservación de datos
+La aplicación debe evitar recopilar información que no sea necesaria para las funcionalidades disponibles.
 
-### Eliminación de datos
+Los datos almacenados deben corresponder con las necesidades funcionales y operativas del sistema.
 
-### Seguridad de la información
+## Control de acceso
 
-### Transferencia de datos
+El acceso debe estar restringido de acuerdo con:
 
-### Encargados del tratamiento
+- Identidad del usuario.
+- Rol.
+- Empresa.
+- Permisos correspondientes.
 
-## Privacidad
+Los roles definidos actualmente incluyen:
 
-### Política de privacidad
+- `ADMIN`
+- `VENDEDOR`
+- `ALMACEN`
+- `CLIENTE`
 
-### Información al usuario
+## Aislamiento por empresa
 
-### Gestión de consentimiento
+La información empresarial debe mantenerse aislada mediante `empresa_id`.
 
-### Cookies
+Las operaciones sobre:
 
-## Facturación electrónica
+- Clientes.
+- Materiales.
+- Proformas.
+- Pedidos.
+- Facturas.
+- Proveedores.
+- Trabajos.
+- Configuración.
 
-### Comprobantes electrónicos
+deben respetar el contexto de la empresa correspondiente.
 
-### Información fiscal
+## Autenticación
 
-### Estados de comprobantes
+La autenticación utiliza mecanismos basados en tokens y sesiones.
 
-### Autorización
+La arquitectura contempla:
 
-### Conservación de comprobantes
+- Access token en memoria.
+- Refresh token mediante cookie `httpOnly`.
+- Identificadores `jti`.
+- Blacklist de tokens.
+- Redis.
+- Persistencia de sesiones.
 
-## Seguridad y protección de la información
+La implementación debe proteger las credenciales y evitar su exposición mediante logs, respuestas HTTP o archivos públicos.
 
-### Control de acceso
+## Seguridad de comunicaciones
 
-### Gestión de credenciales
+La comunicación de producción debe utilizar HTTPS.
 
-### Protección de secretos
+La configuración de seguridad contempla:
 
-### Registro de actividades
+- TLS.
+- HSTS.
+- CORS.
+- CSRF.
+- CSP.
+- Helmet.
+- Cookies seguras.
 
-### Auditoría
+Los servicios internos como MySQL y Redis no deben exponerse públicamente sin una necesidad justificada.
 
-### Gestión de incidentes
+## Protección contra exposición de información
 
-## Términos y condiciones
+Los mensajes de error no deben exponer:
 
-### Uso del sistema
+- Contraseñas.
+- Tokens.
+- Claves API.
+- Credenciales.
+- Configuración interna.
+- Información sensible de usuarios.
 
-### Responsabilidades del usuario
+Los logs deben evitar registrar secretos y datos personales innecesarios.
 
-### Limitaciones del servicio
+## Auditoría
 
-### Propiedad intelectual
+La plataforma dispone de la entidad `auditoria_acciones` para registrar determinadas acciones.
 
-### Disponibilidad del servicio
+Entre las acciones contempladas se encuentran:
 
-## Propiedad intelectual
+- `DELETE`
+- `ANULACION`
+- `LOGIN`
+- `LOGOUT`
+- `LOGIN_FALLIDO`
+- `REFRESH_TOKEN`
+- `CAMBIO_PASSWORD`
 
-### Código fuente
+Los registros de auditoría deben conservar información suficiente para identificar la operación y su contexto.
 
-### Dependencias
+## Facturación
 
-### Bibliotecas de terceros
+La plataforma contempla funcionalidades relacionadas con comprobantes y estados de facturación.
 
-### Recursos multimedia
+Los documentos asociados a facturación deben mantener:
 
-### Servicios externos
+- Numeración.
+- Estado.
+- Totales.
+- Detalles.
+- Relación con la empresa.
+- Registros necesarios para auditoría.
 
-## Servicios de terceros
+La integración definitiva con servicios externos de facturación debe cumplir los requisitos correspondientes al entorno donde se utilice.
 
-### Servicios de IA
+## SRI
 
-### Servicios de correo
+La base de datos contempla información relacionada con autorización de comprobantes y estados SRI.
 
-### Infraestructura
+La operación productiva de facturación electrónica debe considerar los requisitos técnicos y normativos vigentes aplicables al servicio.
 
-### Procesamiento externo de información
+La documentación de cumplimiento no debe asumir que una funcionalidad técnica equivale por sí sola al cumplimiento legal.
 
-## Retención y eliminación
+## Conservación de información
 
-### Datos de usuarios
+La conservación debe definirse según:
 
-### Datos comerciales
+- Necesidad operativa.
+- Requisitos legales aplicables.
+- Políticas internas.
+- Seguridad.
+- Capacidad de almacenamiento.
 
-### Datos de facturación
+No debe conservarse información indefinidamente sin una justificación.
 
-### Logs
+## Eliminación
 
-### Auditoría
+La eliminación de información debe considerar:
 
-### Backups
+- Dependencias entre entidades.
+- Requisitos de auditoría.
+- Integridad referencial.
+- Obligaciones de conservación.
+- Necesidades operativas.
 
-## Incidentes de seguridad
+Las entidades que utilizan `deleted_at` deben diferenciar eliminación lógica de eliminación física.
 
-### Identificación
+## Contraseñas
 
-### Contención
+Las contraseñas no deben almacenarse en texto plano.
 
-### Investigación
+Los procesos relacionados con recuperación y cambio de contraseña deben utilizar mecanismos seguros y limitar la exposición de códigos y tokens temporales.
 
-### Notificación
+## Sesiones
 
-### Recuperación
+Las sesiones deben controlarse mediante:
 
-### Registro del incidente
+- Expiración.
+- Revocación.
+- Identificación.
+- Registro de actividad cuando corresponda.
+- Protección de cookies.
+- Blacklist de tokens.
 
-## Cumplimiento en desarrollo
+Los mecanismos de sesión deben permitir responder ante pérdida o compromiso de credenciales.
 
-### Protección de datos de prueba
+## Proveedores externos
 
-### Secretos
+Los servicios externos, incluidos proveedores de IA, deben evaluarse considerando:
 
-### Acceso a entornos
+- Datos enviados.
+- Credenciales utilizadas.
+- Finalidad.
+- Seguridad.
+- Disponibilidad.
+- Condiciones de uso.
+- Requisitos aplicables.
 
-### Logs de desarrollo
+No deben enviarse datos personales a servicios externos sin una justificación y configuración adecuadas.
 
-## Cumplimiento en producción
+## IA
 
-### Accesos
+Las solicitudes relacionadas con IA pueden contener imágenes, prompts y metadatos asociados.
 
-### Infraestructura
+La plataforma debe controlar:
 
-### Backups
+- Tipo de información enviada.
+- Tamaño de archivos.
+- Credenciales del proveedor.
+- Logs.
+- Resultados almacenados.
+- Tiempo de conservación.
 
-### Monitoreo
+La utilización de servicios externos debe revisarse de acuerdo con los requisitos de privacidad aplicables.
 
-### Auditoría
+## Dependencias de software
 
-## Revisión periódica
+Las dependencias deben mantenerse identificables mediante los archivos de gestión del proyecto.
 
-### Revisión normativa
+La gestión debe considerar:
 
-### Revisión técnica
+- Vulnerabilidades conocidas.
+- Licencias.
+- Versiones.
+- Actualizaciones.
+- Procedencia.
+- Integridad de paquetes.
 
-### Revisión de políticas
+Las dependencias críticas deben revisarse antes de incorporarse a producción.
 
-### Revisión de proveedores
+## Código fuente
 
-## Responsables
+El código fuente debe mantenerse bajo control de versiones.
 
-## Evidencias de cumplimiento
+No deben almacenarse en el repositorio:
 
-## Documentación relacionada
+- Contraseñas.
+- Tokens.
+- Claves privadas.
+- Credenciales de producción.
+- Secretos de proveedores.
 
-## Historial de cambios
+Los archivos de configuración sensibles deben mantenerse fuera del control de versiones cuando contengan secretos.
+
+## Variables de entorno
+
+Las variables de entorno permiten separar configuración y secretos del código.
+
+Entre las variables conocidas se encuentran:
+
+- `VITE_API_URL`
+- `DB_HOST`
+- `DB_PORT`
+- `DB_USER`
+- `DB_PASSWORD`
+- `DB_NAME`
+- `REDIS_HOST`
+- `REDIS_PORT`
+- `REDIS_PASSWORD`
+
+Las variables expuestas al frontend mediante el prefijo `VITE_` no deben contener secretos.
+
+## Backups
+
+Los backups deben protegerse contra:
+
+- Acceso no autorizado.
+- Modificación.
+- Eliminación accidental.
+- Exposición de información.
+- Pérdida simultánea del entorno principal.
+
+La estrategia definitiva de backups para producción permanece pendiente de consolidación.
+
+## Logs
+
+Los logs deben gestionarse considerando:
+
+- Seguridad.
+- Privacidad.
+- Retención.
+- Acceso.
+- Rotación.
+- Integridad.
+
+Los logs no deben utilizarse como almacenamiento permanente de información personal innecesaria.
+
+## Incidentes
+
+Ante una exposición de información o credenciales se debe:
+
+1. Identificar el alcance.
+2. Contener el incidente.
+3. Revocar credenciales comprometidas.
+4. Rotar secretos cuando corresponda.
+5. Revisar logs.
+6. Aplicar correcciones.
+7. Documentar el incidente.
+8. Evaluar las obligaciones de notificación aplicables.
+
+## Cumplimiento en despliegue
+
+Los entornos deben mantenerse separados.
+
+La configuración de desarrollo, testing, staging y producción debe evitar compartir credenciales y secretos innecesariamente.
+
+La infraestructura productiva debe aplicar controles de acceso restringido.
+
+## Responsabilidades
+
+La definición de responsabilidades debe establecer quién puede:
+
+- Administrar usuarios.
+- Acceder a datos.
+- Modificar configuración.
+- Gestionar infraestructura.
+- Acceder a backups.
+- Gestionar secretos.
+- Ejecutar despliegues.
+- Ejecutar procedimientos de recuperación.
+
+## Estado actual
+
+Actualmente la plataforma dispone de:
+
+- Autenticación.
+- Autorización por roles.
+- Aislamiento mediante `empresa_id`.
+- Auditoría de acciones.
+- Protección mediante Helmet.
+- CSP.
+- HSTS.
+- CSRF.
+- CORS.
+- Gestión de sesiones.
+- Blacklist de tokens.
+- Variables de entorno.
+- Logs mediante Winston.
+- Control de versiones mediante Git.
+
+Permanecen pendientes de consolidación:
+
+- Revisión legal específica para producción.
+- Política formal de privacidad.
+- Política de retención de datos.
+- Procedimiento formal de respuesta ante incidentes.
+- Estrategia definitiva de backups.
+- Infraestructura productiva.
+- Revisión formal de licencias de dependencias.
+- Validación de requisitos regulatorios aplicables a facturación electrónica.
+
+## Criterios de aceptación
+
+La documentación de cumplimiento se considera preparada cuando:
+
+- Los datos tratados están identificados.
+- Los controles de acceso están documentados.
+- Los mecanismos de seguridad están definidos.
+- Los secretos están protegidos.
+- Las acciones auditables están identificadas.
+- Los backups contemplan protección de datos.
+- Los servicios externos están identificados.
+- Las responsabilidades están establecidas.
+- Las políticas necesarias para producción están definidas.
+- Los requisitos legales aplicables han sido revisados antes del despliegue productivo.
