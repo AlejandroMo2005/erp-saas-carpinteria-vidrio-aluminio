@@ -2,114 +2,38 @@
 
 ## Descripción
 
-## Objetivo
+Este documento establece la estructura general de los contratos de comunicación entre el frontend y el backend de la aplicación ERP/SaaS.
 
-## Principios de los contratos
+## Índice
 
-## Arquitectura de la API
+- [Descripción](#descripción)
+- [Arquitectura de comunicación](#arquitectura-de-comunicación)
+- [Base de las rutas](#base-de-las-rutas)
+- [Formato de solicitudes](#formato-de-solicitudes)
+- [Formato de respuestas](#formato-de-respuestas)
+- [Autenticación](#autenticación)
+- [Cookies y CSRF](#cookies-y-csrf)
+- [Validación](#validación)
+- [Errores](#errores)
+- [Multiempresa](#multiempresa)
+- [Compatibilidad](#compatibilidad)
 
-## URL base
+## Arquitectura de comunicación
 
-## Versionado de la API
+La aplicación utiliza una arquitectura cliente-servidor en la que:
 
-## Autenticación
+| Componente | Tecnología | Responsabilidad |
+|---|---|---|
+| Frontend | React + Vite | Interfaz y consumo de la API. |
+| Backend | Node.js + Express | Lógica de negocio y exposición de endpoints. |
+| Base de datos | MySQL | Persistencia de la información. |
+| Caché y sesiones | Redis | Gestión de información temporal y mecanismos asociados a autenticación. |
 
-## Autorización
+El frontend consume los endpoints HTTP expuestos por el backend.
 
-## Multi-tenancy
+## Base de las rutas
 
-## Formato de solicitudes
+Las solicitudes de la aplicación utilizan el prefijo:
 
-## Formato de respuestas
-
-## Códigos HTTP
-
-## Manejo de errores
-
-## Validación de entradas
-
-## Paginación
-
-## Filtrado
-
-## Ordenamiento
-
-## Recursos
-
-### Autenticación
-
-### Usuarios
-
-### Empresas
-
-### Clientes
-
-### Materiales
-
-### Colores
-
-### Variantes
-
-### Proveedores
-
-### Trabajos
-
-### Proformas
-
-### Pedidos
-
-### Facturas
-
-### Solicitudes de materiales
-
-### Inteligencia artificial
-
-### Configuración
-
-### Auditoría
-
-## Endpoints
-
-### Métodos GET
-
-### Métodos POST
-
-### Métodos PUT
-
-### Métodos PATCH
-
-### Métodos DELETE
-
-## Parámetros de ruta
-
-## Parámetros de consulta
-
-## Cuerpo de las solicitudes
-
-## Respuestas exitosas
-
-## Respuestas de error
-
-## Autenticación mediante tokens
-
-## Refresh tokens
-
-## CSRF
-
-## Idempotencia
-
-## Límites y rate limiting
-
-## Archivos y contenido multimedia
-
-## Integración con servicios externos
-
-## Compatibilidad
-
-## Cambios y versionado de contratos
-
-## Pruebas de contratos
-
-## Documentación automática
-
-## Reglas para modificar un contrato
+```text
+/api
