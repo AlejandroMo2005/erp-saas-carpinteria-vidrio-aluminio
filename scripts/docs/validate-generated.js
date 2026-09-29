@@ -4,6 +4,9 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const { validateLinks } = require('./validate-links');
+const {
+  validateGeneratedConsistency,
+} = require('./validate-generated-consistency');
 
 const ROOT_DIR = path.resolve(__dirname, '../..');
 const GENERATED_DIR = path.join(ROOT_DIR, 'docs', 'generated');
@@ -47,6 +50,14 @@ function validateGeneratedDocumentation() {
         `El archivo no contiene un título Markdown válido: ${filePath}`,
       );
     }
+  }
+
+  const consistencyResult = validateGeneratedConsistency(ROOT_DIR);
+
+  if (!consistencyResult.valid) {
+    throw new Error(
+      'La documentación generada no cumple las reglas de consistencia.',
+    );
   }
 
   const linkErrors = validateLinks(ROOT_DIR);
