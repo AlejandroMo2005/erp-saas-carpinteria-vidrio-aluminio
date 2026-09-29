@@ -19,7 +19,7 @@ function parseRouteFile(filePath) {
 }
 
 function parseRouteFiles(filePaths) {
-  return filePaths.flatMap(parseRouteFile);
+  return filePaths.flatMap((filePath) => parseRouteFile(filePath));
 }
 
 module.exports = {
