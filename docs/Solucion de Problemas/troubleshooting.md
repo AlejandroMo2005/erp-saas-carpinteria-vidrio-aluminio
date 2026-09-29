@@ -1,528 +1,758 @@
-# Solución de Problemas
+# Solución de problemas
 
 ## Descripción
 
-Esta documentación centraliza los procedimientos generales para identificar, analizar y resolver problemas de la plataforma ERP/SaaS.
+Este documento establece una guía para identificar, diagnosticar y resolver problemas frecuentes del ERP/SaaS durante desarrollo, pruebas, CI/CD, despliegue y operación.
 
-La documentación se enfoca en problemas operativos, funcionales, de infraestructura, persistencia, autenticación, rendimiento, despliegue y dependencias.
+El diagnóstico debe partir de evidencia observable y evitar cambios destructivos que dificulten determinar la causa original del problema.
 
-## Propósito
+## Objetivo
 
-El propósito es proporcionar una referencia para diagnosticar problemas de forma estructurada, reducir tiempos de resolución y evitar correcciones basadas únicamente en suposiciones.
+Establecer un procedimiento para:
 
-Los procedimientos deben partir de evidencia observable y considerar el contexto del entorno donde ocurre el problema.
+- identificar síntomas;
+- recopilar evidencia;
+- localizar el componente afectado;
+- comprobar dependencias;
+- aplicar correcciones controladas;
+- verificar la recuperación;
+- documentar incidentes relevantes;
+- evitar recurrencias.
 
-## Alcance
+## Principios de diagnóstico
 
-Comprende problemas relacionados con:
+El diagnóstico debe seguir estos principios:
 
-- Frontend.
-- Backend.
-- API.
-- MySQL.
-- Redis.
-- Autenticación.
-- Sesiones.
-- Multiempresa.
-- IA.
-- Rendimiento.
-- Procesos PM2.
-- Configuración.
-- Variables de entorno.
-- Despliegue.
-- CI/CD.
-- Seguridad.
-- Integridad de datos.
+- reproducir el problema cuando sea posible;
+- revisar evidencia antes de modificar código;
+- aislar el componente afectado;
+- realizar un cambio controlado por vez cuando sea viable;
+- ejecutar pruebas después de una corrección;
+- conservar información útil del incidente;
+- evitar eliminar evidencia antes de determinar la causa.
 
-## Principios de resolución
+No se debe asumir que el primer error visible corresponde necesariamente a la causa raíz.
 
-La resolución de problemas debe seguir estos principios:
+## Flujo general
 
-- Identificar primero el alcance.
-- Confirmar el problema mediante evidencia.
-- Determinar el componente afectado.
-- Diferenciar síntoma y causa.
-- Revisar cambios recientes.
-- Correlacionar logs, métricas y trazabilidad.
-- Evitar cambios destructivos sin respaldo.
-- Aplicar una corrección controlada.
-- Validar el resultado.
-- Documentar problemas recurrentes.
+```text
+Detectar síntoma
+      ↓
+Reproducir
+      ↓
+Recopilar evidencia
+      ↓
+Identificar componente
+      ↓
+Revisar dependencias
+      ↓
+Determinar causa probable
+      ↓
+Aplicar corrección
+      ↓
+Ejecutar pruebas
+      ↓
+Verificar recuperación
+      ↓
+Documentar
+```
 
 ## Clasificación inicial
 
-Antes de aplicar una corrección se debe determinar:
+Los problemas pueden clasificarse inicialmente como:
 
-1. Qué funcionalidad está afectada.
-2. En qué entorno ocurre.
-3. Desde cuándo ocurre.
-4. A qué usuarios afecta.
-5. Si afecta a una empresa específica.
-6. Si el problema es reproducible.
-7. Si existe un cambio reciente relacionado.
-8. Qué componentes participan en la operación.
+- frontend;
+- backend;
+- API;
+- autenticación;
+- base de datos;
+- Redis;
+- integración externa;
+- IA;
+- pruebas;
+- linting;
+- CI/CD;
+- despliegue;
+- rendimiento;
+- seguridad.
 
-Esta clasificación permite reducir el área de investigación.
+La clasificación inicial puede cambiar cuando aparezca nueva evidencia.
+
+## Recopilación de evidencia
+
+Antes de realizar cambios importantes se debe recopilar, cuando corresponda:
+
+- mensaje de error;
+- stack trace;
+- endpoint afectado;
+- método HTTP;
+- código de respuesta;
+- fecha y hora;
+- versión;
+- commit;
+- logs;
+- estado de servicios;
+- resultado de pruebas;
+- configuración relevante sin secretos.
+
+Nunca se deben copiar contraseñas, tokens o API keys dentro de reportes de incidentes.
 
 ## Problemas del frontend
 
-Ante un problema en la interfaz se debe revisar:
+### La aplicación no inicia
 
-- Consola del navegador.
-- Errores de JavaScript.
-- Solicitudes realizadas a la API.
-- Código HTTP de las respuestas.
-- Payload enviado.
-- Respuesta recibida.
-- Estado de React Query.
-- Variables de entorno del frontend.
-- Configuración de Vite.
-- Errores de renderizado.
-- Recursos no encontrados.
+Comprobar:
 
-Cuando una operación depende del backend, se debe verificar primero si la API respondió correctamente antes de modificar el componente frontend.
+```bash
+node --version
+npm --version
+npm ci
+npm run dev
+```
+
+Verificar que:
+
+- las dependencias estén instaladas;
+- la versión de Node.js sea compatible;
+- las variables de entorno requeridas estén disponibles;
+- no exista un error de compilación;
+- el puerto esperado esté disponible.
+
+### Error de compilación
+
+Revisar:
+
+- archivo indicado por el compilador;
+- importaciones;
+- nombres exportados;
+- dependencias;
+- alias de rutas;
+- sintaxis;
+- variables de entorno utilizadas durante la construcción.
+
+No se debe ocultar un error de compilación modificando temporalmente la configuración sin identificar su causa.
+
+### Error de conexión con la API
+
+Comprobar:
+
+- URL base;
+- disponibilidad del backend;
+- configuración de Vite;
+- proxy `/api`;
+- puerto del backend;
+- credenciales de sesión;
+- cookies;
+- CSRF;
+- código HTTP devuelto.
+
+La configuración actual utiliza `VITE_API_URL` cuando está disponible y `/api` como valor alternativo.
+
+### Error CORS
+
+Revisar:
+
+- origen del frontend;
+- configuración del backend;
+- credenciales;
+- headers;
+- métodos permitidos;
+- configuración del entorno.
+
+No se debe solucionar un problema de CORS habilitando indiscriminadamente cualquier origen en producción.
 
 ## Problemas del backend
 
-Ante un problema del backend se debe revisar:
+### El backend no inicia
 
-- Logs de Winston.
-- Endpoint afectado.
-- Código HTTP.
-- Validación de entrada.
-- Middleware involucrado.
-- Autenticación.
-- Autorización.
-- Contexto `empresa_id`.
-- Consultas MySQL.
-- Operaciones Redis.
-- Servicios externos.
-- Estado del proceso Node.js.
+Comprobar:
 
-El endpoint `GET /health` debe utilizarse como comprobación inicial de disponibilidad cuando corresponda.
+- versión de Node.js;
+- dependencias;
+- variables de entorno;
+- conexión a MySQL;
+- conexión a Redis cuando corresponda;
+- errores de importación;
+- configuración de ejecución.
 
-## Problemas de API
+Si faltan variables obligatorias de base de datos, el backend puede finalizar durante el arranque.
 
-Cuando una solicitud HTTP falla se debe comprobar:
+### Error de conexión con MySQL
 
-- Método HTTP.
-- URL.
-- Parámetros.
-- Headers.
-- Cookies.
-- Payload.
-- Código de respuesta.
-- Mensaje de error.
-- Logs del backend.
-- Dependencias utilizadas por el endpoint.
+Comprobar:
 
-Los errores de validación, autenticación, autorización y servidor deben analizarse por separado.
+```text
+DB_HOST
+DB_USER
+DB_PASSWORD
+DB_NAME
+```
+
+También revisar:
+
+- disponibilidad del servidor MySQL;
+- puerto;
+- credenciales;
+- permisos;
+- existencia de la base de datos;
+- conectividad desde el entorno de ejecución.
+
+No se deben modificar credenciales de producción para resolver un problema que no haya sido diagnosticado.
+
+### Error de Redis
+
+Comprobar:
+
+- disponibilidad del servicio;
+- host;
+- puerto;
+- credenciales cuando correspondan;
+- conectividad;
+- expiración de claves;
+- logs del backend.
+
+Determinar si la funcionalidad afectada requiere Redis obligatoriamente o si puede manejar la indisponibilidad de manera controlada.
 
 ## Problemas de autenticación
 
-Ante problemas de inicio de sesión o sesión se debe revisar:
+### Inicio de sesión rechazado
 
-- Usuario.
-- Estado de la cuenta.
-- Credenciales.
-- Empresa asociada.
-- JWT.
-- `jti`.
-- `token_id`.
-- Sesiones existentes.
-- Redis.
-- `token_blacklist`.
-- `usuarios_sesiones`.
-- Registros de auditoría.
+Comprobar:
 
-No se deben registrar ni solicitar contraseñas o tokens completos durante el diagnóstico.
+- existencia del usuario;
+- estado activo;
+- contraseña;
+- empresa;
+- rol;
+- respuesta del backend;
+- logs de autenticación;
+- registros de auditoría cuando corresponda.
 
-## Problemas de sesión
+No se deben registrar contraseñas para diagnosticar problemas de autenticación.
 
-Cuando una sesión no se mantiene o deja de ser válida se debe comprobar:
+### Sesión expirada
 
-- Expiración.
-- Cookie correspondiente.
-- Sesión persistida.
-- Estado del token.
-- Blacklist.
-- Redis.
-- Renovación del token.
-- Cambios recientes de autenticación.
+Comprobar:
 
-Los problemas de sesión deben diferenciarse de problemas generales de conectividad con el backend.
+- access token;
+- refresh token;
+- expiración;
+- cookie;
+- sesión almacenada;
+- blacklist de tokens;
+- `token_id`;
+- Redis;
+- hora del servidor.
 
-## Problemas de multiempresa
+El diagnóstico debe evitar exponer el contenido de los tokens.
 
-Cuando un usuario obtiene información incorrecta o no puede acceder a sus recursos se debe revisar:
+### Logout no funciona correctamente
 
-- `empresa_id`.
-- Usuario autenticado.
-- Middleware de tenant.
-- Consultas realizadas.
-- Filtros aplicados.
-- Autorización.
-- Empresa asociada al registro.
+Comprobar:
 
-Cualquier comportamiento que pueda permitir acceso entre empresas debe tratarse como un problema de seguridad además de un problema funcional.
+- invalidación del token;
+- blacklist;
+- eliminación de sesión;
+- cookie;
+- auditoría;
+- respuesta del backend.
 
-## Problemas de MySQL
+Si el problema está relacionado con Redis, debe verificarse primero la disponibilidad de la dependencia.
 
-Ante errores de persistencia se debe revisar:
+## Problemas de autorización
 
-- Variables de entorno de conexión.
-- Disponibilidad del servidor.
-- Usuario y permisos.
-- Base de datos seleccionada.
-- Tablas requeridas.
-- Integridad referencial.
-- Restricciones.
-- Índices.
-- Triggers.
-- Procedimientos.
-- Transacciones.
-- Conexiones del pool.
-- Bloqueos y concurrencia.
+Cuando un usuario recibe un `403`, comprobar:
 
-Los errores de conexión deben diferenciarse de los errores producidos por consultas específicas.
+- usuario autenticado;
+- rol;
+- permisos;
+- empresa;
+- middleware de autorización;
+- endpoint solicitado.
 
-## Problemas de Redis
+No se debe solucionar un `403` eliminando controles de autorización sin determinar primero qué regla está rechazando la operación.
 
-Ante problemas relacionados con Redis se debe comprobar:
+## Problemas de multi-tenancy
 
-- Disponibilidad del servicio.
-- Host y puerto configurados.
-- Conectividad.
-- Autenticación cuando corresponda.
-- Latencia.
-- Estado de las claves utilizadas.
-- Expiración.
-- Errores registrados por el backend.
+Cuando un usuario visualice información incorrecta o no pueda acceder a información de su empresa, comprobar:
 
-Debe verificarse si el fallo afecta únicamente a una funcionalidad dependiente de Redis o a otras operaciones del backend.
+- `empresa_id`;
+- contexto de tenant;
+- middleware correspondiente;
+- filtros de consultas;
+- repositorios;
+- relaciones;
+- datos utilizados por la operación.
 
-## Problemas de IA
+Cuando exista sospecha de aislamiento incorrecto, el problema debe tratarse como incidente de seguridad hasta comprobar lo contrario.
 
-Las operaciones de inteligencia artificial dependen de servicios externos.
+## Problemas de API
 
-Ante un problema se debe revisar:
+### `400 Bad Request`
 
-- Proveedor utilizado.
-- Modelo configurado.
-- Credenciales del proveedor.
-- Código de respuesta.
-- Tiempo de espera.
-- Duración de la operación.
-- Estado registrado en `ia_requests`.
-- Logs generados.
-- Disponibilidad del servicio externo.
+Comprobar:
 
-Los estados `OK`, `ERROR` y `TIMEOUT` de `ia_requests` permiten diferenciar resultados exitosos, errores y tiempos de espera.
+- estructura del body;
+- parámetros;
+- tipos de datos;
+- campos obligatorios;
+- validadores;
+- límites de entrada.
 
-Un error del proveedor externo no debe atribuirse automáticamente al backend.
+### `401 Unauthorized`
 
-## Problemas de rendimiento
+Comprobar:
 
-Ante una degradación se debe determinar primero qué componente presenta el problema:
+- autenticación;
+- token;
+- sesión;
+- expiración;
+- cookie;
+- middleware correspondiente.
 
-- Frontend.
-- Backend.
-- API.
-- MySQL.
-- Redis.
-- IA.
-- Infraestructura.
+### `403 Forbidden`
 
-Después se deben revisar:
+Comprobar:
 
-- Latencia.
-- Errores.
-- CPU.
-- Memoria.
-- Consultas.
-- Conexiones.
-- Logs.
-- Dependencias externas.
+- autorización;
+- rol;
+- permisos;
+- tenant.
 
-La línea base disponible del frontend incluye Performance 98, LCP de 2.45 s, CLS de 0 e INP de 56 ms.
+### `404 Not Found`
 
-No deben asumirse capacidades de concurrencia o tiempos de respuesta del backend que todavía no hayan sido medidos.
+Comprobar:
 
-## Problemas de memoria
+- ruta;
+- método HTTP;
+- identificador;
+- recurso;
+- prefijo `/api`;
+- configuración del router.
 
-PM2 utiliza `max_memory_restart` con un límite configurado de 400 MB.
+### `409 Conflict`
 
-Si un proceso alcanza este límite y se reinicia, se debe investigar:
+Comprobar:
 
-- Operación ejecutada.
-- Crecimiento del consumo.
-- Logs previos al reinicio.
-- Frecuencia de los reinicios.
-- Cambios recientes.
-- Posibles acumulaciones de memoria.
+- restricciones únicas;
+- estado actual del recurso;
+- concurrencia;
+- operaciones duplicadas;
+- reglas de negocio.
 
-El reinicio automático constituye una medida de contención y no una solución definitiva al origen del problema.
+### `422 Unprocessable Entity`
 
-## Problemas de configuración
+Comprobar:
 
-Ante un comportamiento inesperado se debe verificar:
+- validación semántica;
+- datos incompatibles con la operación;
+- reglas de negocio.
 
-- Variables de entorno.
-- Valores requeridos.
-- Configuración del frontend.
-- Configuración del backend.
-- Configuración de MySQL.
-- Configuración de Redis.
-- Configuración de PM2.
-- Configuración del entorno.
+### `429 Too Many Requests`
 
-No se deben introducir secretos directamente en archivos versionados.
+Comprobar:
 
-## Problemas de variables de entorno
+- rate limiting;
+- frecuencia de solicitudes;
+- configuración del límite;
+- cliente que genera las solicitudes.
 
-Cuando una aplicación no inicia o una dependencia no funciona correctamente se debe comprobar:
+### `500 Internal Server Error`
 
-- Que la variable exista.
-- Que tenga el nombre esperado.
-- Que el valor corresponda al entorno.
-- Que no exista una variable sobrescrita.
-- Que el proceso haya sido reiniciado después del cambio.
+Comprobar primero los logs del backend y el stack trace disponible.
 
-Los valores sensibles deben comprobarse sin exponerlos en logs o capturas.
+Después revisar:
 
-## Problemas de despliegue
+- servicio;
+- repositorio;
+- base de datos;
+- dependencias externas;
+- datos de entrada;
+- cambios recientes.
 
-Ante un problema posterior a un despliegue se debe revisar:
+No se debe interpretar un `500` únicamente por el mensaje mostrado al cliente.
 
-1. Versión desplegada.
-2. Cambios incluidos.
-3. Resultado del CI/CD.
-4. Variables de entorno.
-5. Dependencias.
-6. Migraciones.
-7. Estado del backend.
-8. Estado del frontend.
-9. MySQL.
-10. Redis.
-11. Logs posteriores al despliegue.
+## Problemas de base de datos
 
-Si el problema está relacionado con una versión concreta, debe evaluarse el procedimiento de rollback documentado.
+### Tabla inexistente
 
-## Problemas de CI/CD
+Comprobar:
 
-Cuando un pipeline falla se debe identificar la etapa:
+- nombre de la tabla;
+- base de datos seleccionada;
+- migraciones;
+- versión del esquema;
+- conexión utilizada por la aplicación.
 
-- Instalación de dependencias.
-- Lint.
-- Pruebas unitarias.
-- Cobertura.
-- Integración.
-- E2E.
-- Seguridad.
-- Análisis estático.
-- Construcción.
-- Despliegue.
+### Columna inexistente
 
-El error debe analizarse en el contexto de la etapa que lo produjo y no únicamente a partir del estado final del pipeline.
+Comprobar:
+
+- versión del código;
+- migración correspondiente;
+- esquema real;
+- nombre de columna;
+- compatibilidad entre backend y base de datos.
+
+### Violación de clave única
+
+Comprobar:
+
+- valores duplicados;
+- tenant;
+- índices;
+- reglas de negocio;
+- operaciones concurrentes.
+
+### Violación de clave foránea
+
+Comprobar:
+
+- existencia del registro relacionado;
+- orden de operaciones;
+- eliminación previa;
+- restricciones definidas;
+- integridad de los datos.
+
+### Problemas de transacciones
+
+Comprobar:
+
+- inicio de transacción;
+- commit;
+- rollback;
+- errores intermedios;
+- operaciones concurrentes;
+- conexiones utilizadas.
+
+Las operaciones que requieran atomicidad no deben dejar cambios parciales después de un error.
+
+## Problemas de inventario
+
+Cuando una operación de inventario produzca cantidades inesperadas, comprobar:
+
+- material;
+- stock actual;
+- cantidad solicitada;
+- variante;
+- empresa;
+- transacción;
+- concurrencia;
+- operaciones anteriores;
+- reglas de actualización de stock.
+
+Los cambios de stock deben analizarse especialmente cuando varias operaciones pueden ejecutarse simultáneamente.
+
+## Problemas de proformas
+
+Comprobar:
+
+- cliente;
+- materiales;
+- cantidades;
+- precios;
+- medidas;
+- variantes;
+- subtotal;
+- total;
+- empresa;
+- estado del registro.
+
+Cuando el problema corresponda a cálculos, deben revisarse primero las funciones responsables del cálculo y sus pruebas.
+
+## Problemas de facturación
+
+Comprobar:
+
+- estado de factura;
+- secuencia;
+- empresa;
+- detalles;
+- totales;
+- IVA;
+- claves de acceso;
+- estado SRI cuando corresponda;
+- transacciones;
+- restricciones de base de datos.
+
+Los cambios de estado deben respetar las transiciones definidas por la lógica de negocio.
+
+## Problemas con IA
+
+Comprobar:
+
+- proveedor;
+- modelo;
+- credenciales;
+- disponibilidad;
+- límite de entrada;
+- formato de imagen;
+- prompt;
+- referencias;
+- timeout;
+- respuesta del proveedor;
+- estado registrado en `ia_requests`.
+
+### Error `402`
+
+Un `402` de un proveedor puede indicar una condición relacionada con pago, crédito o cuota.
+
+Comprobar el estado de la cuenta del proveedor y diferenciarlo de errores propios de la aplicación.
+
+No se debe tratar automáticamente como un fallo de autenticación.
+
+### Timeout de IA
+
+Comprobar:
+
+- duración de la solicitud;
+- proveedor;
+- modelo;
+- tamaño de entrada;
+- timeout configurado;
+- reintentos;
+- disponibilidad externa.
+
+No se deben aumentar indefinidamente los timeouts para ocultar problemas de rendimiento.
 
 ## Problemas de pruebas
 
-Cuando una prueba falla se debe determinar si corresponde a:
+### Tests fallan localmente
 
-- Cambio funcional.
-- Defecto real.
-- Fixture incorrecta.
-- Mock incorrecto.
-- Dependencia externa.
-- Configuración del entorno.
-- Problema de datos.
-- Condición de carrera.
-- Prueba inestable.
+Comprobar:
 
-No se debe modificar una prueba únicamente para hacer desaparecer un fallo sin determinar primero la causa.
+- versión de Node.js;
+- dependencias;
+- variables de entorno de prueba;
+- base de datos de prueba;
+- Redis de prueba;
+- archivos de configuración;
+- mocks;
+- estado residual.
+
+Los tests deben ejecutarse en un entorno aislado de los datos de producción.
+
+### Tests pasan localmente pero fallan en CI
+
+Comparar:
+
+- versión de Node.js;
+- sistema operativo;
+- variables de entorno;
+- dependencias;
+- servicios disponibles;
+- configuración;
+- tiempos de ejecución;
+- condiciones de concurrencia.
+
+No se debe modificar una prueba únicamente para hacer que CI pase sin entender la diferencia entre ambos entornos.
+
+## Problemas de cobertura
+
+Una reducción de cobertura debe analizarse según el cambio realizado.
+
+Comprobar:
+
+- archivos incluidos;
+- exclusiones;
+- nuevas ramas;
+- nuevas funciones;
+- pruebas eliminadas;
+- configuración de Vitest.
+
+La cobertura debe utilizarse como indicador de riesgo, no como único criterio de calidad.
+
+## Problemas de ESLint
+
+Cuando aparezca un error:
+
+1. identificar archivo y línea;
+2. determinar la regla;
+3. revisar si existe un patrón equivalente en el proyecto;
+4. corregir la causa;
+5. ejecutar nuevamente ESLint.
+
+Las reglas no deben desactivarse únicamente para eliminar un resultado.
+
+## Problemas de CI/CD
+
+Comprobar:
+
+- workflow;
+- versión de Node.js;
+- instalación con `npm ci`;
+- dependencias;
+- secretos;
+- variables;
+- comandos;
+- artifacts;
+- servicios externos;
+- permisos de GitHub Actions.
+
+Si un workflow falla antes de ejecutar las pruebas, primero se debe corregir la etapa que impide llegar a las verificaciones posteriores.
+
+## Problemas de SonarCloud
+
+Cuando aparezcan issues nuevos, primero se debe determinar:
+
+- archivo afectado;
+- regla;
+- tipo de issue;
+- severidad;
+- código involucrado;
+- relación con arquitectura legacy;
+- si existe una implementación equivalente.
+
+No se deben realizar correcciones aisladas sin analizar si el problema forma parte de una duplicación o migración arquitectónica más amplia.
+
+## Problemas de despliegue
+
+Comprobar:
+
+- versión desplegada;
+- commit;
+- variables de entorno;
+- dependencias;
+- base de datos;
+- migraciones;
+- Redis;
+- PM2;
+- health check;
+- logs;
+- disponibilidad del frontend.
+
+Cuando una release falle, debe compararse con la versión anterior para determinar qué cambió.
+
+## Problemas de PM2
+
+Comprobar:
+
+- estado del proceso;
+- reinicios;
+- memoria;
+- logs;
+- configuración;
+- variables de entorno;
+- código desplegado.
+
+Un reinicio repetitivo debe investigarse como síntoma de un problema, no tratarse únicamente aumentando el límite de memoria.
+
+## Problemas de rendimiento
+
+Comprobar primero:
+
+- tiempo de respuesta;
+- consultas de base de datos;
+- uso de CPU;
+- memoria;
+- Redis;
+- tamaño de respuestas;
+- llamadas externas;
+- frontend;
+- cantidad de solicitudes.
+
+El diagnóstico debe basarse en mediciones y no únicamente en percepción.
 
 ## Problemas de seguridad
 
-Ante un posible problema de seguridad se debe conservar la evidencia y revisar:
+Cuando exista sospecha de un problema de seguridad:
 
-- Logs.
-- Auditoría.
-- Autenticación.
-- Autorización.
-- Sesiones.
-- Tokens.
-- `empresa_id`.
-- Solicitudes realizadas.
-- Respuestas generadas.
-- Cambios recientes.
+1. conservar evidencia;
+2. determinar el alcance;
+3. evitar divulgar secretos;
+4. comprobar si existe exposición activa;
+5. aplicar medidas de contención;
+6. corregir;
+7. ejecutar pruebas;
+8. documentar el incidente.
 
-Los controles de seguridad no deben deshabilitarse como primera medida de diagnóstico.
+Los problemas relacionados con aislamiento multi-tenant, credenciales, tokens o exposición de datos deben tratarse con prioridad.
 
-## Problemas de integridad de datos
+## Reproducción de errores
 
-Cuando existen datos inconsistentes se debe revisar:
+Cuando sea posible, se debe registrar un caso mínimo reproducible que incluya:
 
-- Restricciones de base de datos.
-- Relaciones.
-- Triggers.
-- Transacciones.
-- Operaciones concurrentes.
-- Código responsable de la modificación.
-- Registros de auditoría.
-- Historial disponible.
+- precondiciones;
+- pasos;
+- entrada;
+- resultado esperado;
+- resultado obtenido;
+- entorno;
+- versión.
 
-Las correcciones manuales de datos deben realizarse de forma controlada y documentada.
+Un caso reproducible facilita tanto la corrección como la creación de una prueba de regresión.
 
-## Problemas de concurrencia
+## Correcciones
 
-Cuando un error aparece únicamente bajo solicitudes simultáneas se debe revisar:
+Después de corregir un problema se debe ejecutar la prueba específica que demuestra la corrección.
 
-- Transacciones.
-- Bloqueos.
-- Deadlocks.
-- Pool de conexiones.
-- Operaciones sobre inventario.
-- Actualizaciones simultáneas.
-- Orden de las operaciones.
-- Idempotencia.
+Cuando el problema represente una regresión, se recomienda agregar una prueba automatizada que impida su reaparición.
 
-Los problemas concurrentes requieren pruebas específicas y no deben diagnosticarse únicamente mediante ejecuciones secuenciales.
+Las correcciones que afecten varias capas deben probarse en todas las capas relevantes.
 
-## Uso de logs durante la investigación
+## Regresión
 
-Durante una investigación se deben consultar los logs correspondientes al intervalo temporal del problema.
+Una corrección no debe validarse únicamente contra el caso que falló.
 
-La revisión debe considerar:
+Debe comprobarse también que:
 
-- Primer error observado.
-- Errores posteriores.
-- Operaciones inmediatamente anteriores.
-- Dependencias involucradas.
-- Reinicios del proceso.
-- Cambios de comportamiento.
+- las pruebas relacionadas continúan pasando;
+- no se rompieron contratos;
+- no se alteró el aislamiento de tenant;
+- no se modificó involuntariamente otra funcionalidad;
+- CI/CD continúa funcionando.
 
-Debe evitarse registrar información sensible adicional únicamente para facilitar una investigación puntual.
+## Registro de incidentes
 
-## Uso de auditoría durante la investigación
+Los incidentes relevantes deben registrar:
 
-La tabla `auditoria_acciones` puede utilizarse para reconstruir eventos relacionados con:
+```text
+Fecha:
+Versión:
+Componente:
+Descripción:
+Impacto:
+Pasos para reproducir:
+Evidencia:
+Causa:
+Corrección:
+Pruebas:
+Resultado:
+Acciones preventivas:
+```
 
-- `LOGIN`.
-- `LOGOUT`.
-- `LOGIN_FALLIDO`.
-- `REFRESH_TOKEN`.
-- `CAMBIO_PASSWORD`.
-- `DELETE`.
-- `ANULACION`.
+No se deben almacenar secretos dentro del registro.
 
-La auditoría debe utilizarse junto con logs y trazabilidad para obtener una visión completa del incidente.
+## Documentación de soluciones
 
-## Uso de health checks
+Cuando un problema sea recurrente o tenga una solución no evidente, debe incorporarse a este documento o a la documentación técnica correspondiente.
 
-Los health checks deben utilizarse para determinar si un componente está disponible.
+La solución documentada debe explicar el procedimiento real y no una solución hipotética.
 
-Un resultado correcto no garantiza que todas las funcionalidades estén funcionando correctamente. Una operación específica puede fallar aunque el servicio general permanezca disponible.
+## Mantenimiento
 
-Por esta razón, los health checks deben complementarse con logs, métricas y pruebas funcionales.
+Este documento debe actualizarse cuando se identifiquen:
 
-## Cambios recientes
+- nuevos problemas recurrentes;
+- nuevas dependencias;
+- cambios de arquitectura;
+- nuevos comandos;
+- nuevos mecanismos de diagnóstico;
+- cambios en CI/CD;
+- cambios de despliegue;
+- nuevas integraciones.
 
-Los cambios recientes constituyen una hipótesis inicial útil, pero no deben considerarse automáticamente como causa raíz.
-
-Se deben revisar:
-
-- Commits recientes.
-- Cambios de dependencias.
-- Modificaciones de configuración.
-- Migraciones.
-- Cambios de infraestructura.
-- Cambios de seguridad.
-- Cambios en consultas.
-
-La relación causal debe confirmarse mediante evidencia o reproducción.
-
-## Corrección controlada
-
-Una corrección debe aplicarse de forma controlada.
-
-Antes del cambio se debe determinar:
-
-- Qué se modificará.
-- Por qué se modificará.
-- Qué resultado se espera.
-- Cómo se validará.
-- Cómo revertirlo si falla.
-
-Cuando el cambio afecte datos o infraestructura, debe existir un mecanismo de recuperación apropiado.
-
-## Validación posterior
-
-Después de una corrección se debe comprobar:
-
-- Que el problema original desapareció.
-- Que el flujo afectado funciona.
-- Que las pruebas continúan pasando.
-- Que no aparecen nuevos errores.
-- Que el rendimiento no se deterioró.
-- Que los controles de seguridad continúan activos.
-
-La resolución debe considerarse completa únicamente después de esta validación.
-
-## Documentación de incidentes
-
-Los problemas relevantes deben registrar:
-
-- Fecha.
-- Entorno.
-- Componente afectado.
-- Síntoma.
-- Alcance.
-- Evidencias.
-- Causa identificada.
-- Corrección aplicada.
-- Validación.
-- Acciones preventivas.
-
-La documentación debe diferenciar hechos comprobados de hipótesis utilizadas durante la investigación.
-
-## Estado actual
-
-La plataforma dispone de documentación especializada para observabilidad, logging, métricas, health checks, monitoreo, alertas, trazabilidad, auditoría, rendimiento, seguridad y diagnóstico.
-
-Esta documentación de solución de problemas funciona como punto de referencia transversal para utilizar dichos mecanismos durante una investigación.
-
-## Aspectos pendientes
-
-Queda pendiente:
-
-- Definir procedimientos específicos para incidentes frecuentes.
-- Documentar casos de fallo reproducibles.
-- Incorporar resultados de pruebas de carga.
-- Definir métricas operativas completas.
-- Establecer umbrales de alerta basados en líneas base.
-- Automatizar tareas de diagnóstico repetitivas cuando corresponda.
-- Mantener procedimientos actualizados después de cambios arquitectónicos.
-- Registrar problemas recurrentes y sus soluciones verificadas.
+La documentación debe mantenerse alineada con el sistema real.
 
 ## Documentación relacionada
 
-| Documento | Relación |
-|---|---|
-| [Observabilidad](../Observabilidad/observability.md) | Índice general de observabilidad. |
-| [Diagnóstico](../Observabilidad/Diagnostico/diagnostico.md) | Procedimientos generales de investigación. |
-| [Logging](../Observabilidad/Logging/logging.md) | Registros utilizados durante la resolución. |
-| [Métricas](../Observabilidad/Metricas/metricas.md) | Indicadores utilizados para detectar problemas. |
-| [Health Checks](../Observabilidad/Health%20Checks/health-checks.md) | Comprobación de disponibilidad. |
-| [Monitoreo](../Observabilidad/Monitoreo/monitoreo.md) | Supervisión de componentes. |
-| [Alertas](../Observabilidad/Alertas/alertas.md) | Detección de condiciones anómalas. |
-| [Trazabilidad](../Observabilidad/Trazabilidad/trazabilidad.md) | Correlación de operaciones. |
-| [Auditoría](../Observabilidad/Auditoria/auditoria.md) | Evidencia persistente de eventos. |
-| [Rendimiento](../Observabilidad/Rendimiento/rendimiento.md) | Diagnóstico de degradaciones de rendimiento. |
-| [Seguridad](../Observabilidad/Seguridad/seguridad.md) | Diagnóstico de eventos de seguridad. |
-| [Arquitectura](../Arquitectura/architecture.md) | Componentes y dependencias del sistema. |
-| [Base de Datos](../Base%20de%20Datos/database.md) | Estructura general de persistencia. |
-| [Concurrencia](../Base%20de%20Datos/Concurrencia/concurrencia.md) | Diagnóstico de problemas concurrentes. |
-| [Despliegue](../Despliegue/deployment.md) | Operación de los diferentes entornos. |
-| [Rollback](../Despliegue/Recuperacion/rollback.md) | Reversión controlada de despliegues. |
-| [Recuperación de fallos](../Despliegue/Recuperacion/recuperacion-fallos.md) | Procedimientos de recuperación. |
-| [CI/CD](../CI-CD/ci-cd.md) | Diagnóstico de pipelines automatizados. |
+- `docs/Arquitectura/architecture.md`
+- `docs/API/api-contracts.md`
+- `docs/Base de Datos/database.md`
+- `docs/CI-CD/ci-cd.md`
+- `docs/Despliegue/deployment.md`
+- `docs/IA/ai.md`
+- `docs/Observabilidad/observability.md`
+- `docs/Documentación Legal/compliance.md`
+- `docs/Documentación Legal/release-management.md`
+- `docs/Decisiones Técnicas/technical-debt.md`
