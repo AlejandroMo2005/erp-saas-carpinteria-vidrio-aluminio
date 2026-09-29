@@ -1,29 +1,25 @@
 #!/usr/bin/env node
 
-/**
- * Punto de entrada para la generación automatizada de documentación.
- *
- * Este archivo coordina los generadores de documentación del proyecto.
- * Los generadores individuales se incorporarán progresivamente a medida
- * que cada fuente técnica tenga una representación automatizable.
- */
-
-const fs = require('node:fs');
 const path = require('node:path');
 
-const ROOT_DIR = path.resolve(__dirname, '../..');
-const GENERATED_DIR = path.join(ROOT_DIR, 'docs', 'generated');
+const { generateApiCatalog } = require('./generators/generate-api-catalog');
 
-function ensureGeneratedDirectory() {
-  fs.mkdirSync(GENERATED_DIR, { recursive: true });
-}
+const ROOT_DIR = path.resolve(__dirname, '../..');
 
 function main() {
-  ensureGeneratedDirectory();
+  console.log('Iniciando generación de documentación...');
 
-  console.log('Documentación automatizada inicializada.');
-  console.log(`Repositorio: ${ROOT_DIR}`);
-  console.log(`Salida: ${GENERATED_DIR}`);
+  const generatedFiles = [
+    generateApiCatalog(ROOT_DIR),
+  ];
+
+  console.log('\nDocumentación generada:');
+
+  for (const filePath of generatedFiles) {
+    console.log(`- ${filePath}`);
+  }
+
+  console.log('\nGeneración completada.');
 }
 
 main();
