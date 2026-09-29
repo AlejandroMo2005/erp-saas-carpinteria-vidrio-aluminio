@@ -1,6 +1,6 @@
 const fs = require('node:fs');
-const path = require('node:path');
 const os = require('node:os');
+const path = require('node:path');
 
 const {
   validateGeneratedConsistency,
@@ -8,14 +8,21 @@ const {
 
 describe('validateGeneratedConsistency', () => {
   let temporaryRoot;
+  let generatedDirectory;
 
   beforeEach(() => {
     temporaryRoot = fs.mkdtempSync(
-      path.join(os.tmpdir(), 'docs-validation-'),
+      path.join(os.tmpdir(), 'docs-consistency-'),
+    );
+
+    generatedDirectory = path.join(
+      temporaryRoot,
+      'docs',
+      'generated',
     );
 
     fs.mkdirSync(
-      path.join(temporaryRoot, 'docs/generated'),
+      generatedDirectory,
       { recursive: true },
     );
   });
@@ -27,18 +34,19 @@ describe('validateGeneratedConsistency', () => {
     });
   });
 
-  it('valida correctamente documentación generada válida', () => {
-    const filePath = path.join(
-      temporaryRoot,
-      'docs/generated/example.md',
-    );
-
+  it('valida documentación generada válida', () => {
     fs.writeFileSync(
-      filePath,
-      '# Documento generado\n\n> Este archivo es generado automáticamente.\n',
+      path.join(
+        generatedDirectory,
+        'README.md',
+      ),
+      '# Documentación\n\n> Este archivo es generado automáticamente.\n',
+      'utf8',
     );
 
-    const result = validateGeneratedConsistency(temporaryRoot);
+    const result = validateGeneratedConsistency(
+      temporaryRoot,
+    );
 
     expect(result).toEqual({
       valid: true,
@@ -47,53 +55,44 @@ describe('validateGeneratedConsistency', () => {
   });
 
   it('detecta archivos sin título de nivel 1', () => {
-    const filePath = path.join(
-      temporaryRoot,
-      'docs/generated/example.md',
-    );
-
     fs.writeFileSync(
-      filePath,
+      path.join(
+        generatedDirectory,
+        'README.md',
+      ),
       'Contenido\n\n> Este archivo es generado automáticamente.\n',
+      'utf8',
     );
 
-    expect(() => validateGeneratedConsistency(temporaryRoot))
-      .toThrow('falta un título Markdown de nivel 1.');
+    expect(() => {
+      validateGeneratedConsistency(
+        temporaryRoot,
+      );
+    }).toThrow(
+      'falta un título Markdown de nivel 1.',
+    );
   });
 
   it('detecta archivos sin marca de generación automática', () => {
-    const filePath = path.join(
-      temporaryRoot,
-      'docs/generated/example.md',
-    );
-
     fs.writeFileSync(
-      filePath,
-      '# Documento generado\n\nContenido.\n',
+      path.join(
+        generatedDirectory,
+        'README.md',
+      ),
+      '# Documentación\n\nContenido.\n',
+      'utf8',
     );
 
-    expect(() => validateGeneratedConsistency(temporaryRoot))
-      .toThrow('falta la marca de generación automática.');
-  });
-
-  it('devuelve cero archivos cuando no existe documentación generada', () => {
-    fs.rmSync(
-      path.join(temporaryRoot, 'docs/generated'),
-      {
-        recursive: true,
-        force: true,
-      },
+    expect(() => {
+      validateGeneratedConsistency(
+        temporaryRoot,
+      );
+    }).toThrow(
+      'falta la marca de generación automática.',
     );
-
-    const result = validateGeneratedConsistency(temporaryRoot);
-
-    expect(result).toEqual({
-      valid: true,
-      files: 0,
-    });
   });
 
-  it('valida archivos generados dentro de subdirectorios', () => {
+  it('valida archivos dentro de subdirectorios', () => {
     const files = [
       'README.md',
       'api/endpoints.md',
@@ -103,26 +102,48 @@ describe('validateGeneratedConsistency', () => {
 
     for (const relativePath of files) {
       const filePath = path.join(
-        temporaryRoot,
-        'docs/generated',
+        generatedDirectory,
         relativePath,
       );
 
-      fs.mkdirSync(path.dirname(filePath), {
-        recursive: true,
-      });
+      fs.mkdirSync(
+        path.dirname(filePath),
+        { recursive: true },
+      );
 
       fs.writeFileSync(
         filePath,
         `# ${relativePath}\n\n> Este archivo es generado automáticamente.\n`,
+        'utf8',
       );
     }
 
-    const result = validateGeneratedConsistency(temporaryRoot);
+    const result = validateGeneratedConsistency(
+      temporaryRoot,
+    );
 
     expect(result).toEqual({
       valid: true,
       files: files.length,
+    });
+  });
+
+  it('devuelve cero archivos cuando no existe documentación generada', () => {
+    fs.rmSync(
+      generatedDirectory,
+      {
+        recursive: true,
+        force: true,
+      },
+    );
+
+    const result = validateGeneratedConsistency(
+      temporaryRoot,
+    );
+
+    expect(result).toEqual({
+      valid: true,
+      files: 0,
     });
   });
 });
