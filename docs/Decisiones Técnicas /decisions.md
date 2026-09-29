@@ -1,459 +1,788 @@
-# Decisiones arquitectónicas
+# Decisiones Técnicas
 
 ## Descripción
 
-Este documento registra las decisiones arquitectónicas y técnicas relevantes que afectan la estructura, evolución y operación del sistema ERP/SaaS.
+Este documento registra las principales decisiones técnicas que condicionan la arquitectura, implementación, seguridad, calidad, operación y evolución de la plataforma ERP/SaaS para negocios de carpintería de vidrio y aluminio.
 
-Las decisiones se documentan para conservar su contexto, las alternativas consideradas y las consecuencias asociadas.
+El objetivo es conservar el contexto de las decisiones relevantes, explicar los criterios utilizados y facilitar su revisión cuando cambien los requisitos, dependencias, infraestructura o arquitectura del sistema.
 
 ## Objetivo
 
-Mantener un registro trazable de las decisiones que condicionan la arquitectura y evolución del sistema.
+Mantener un registro verificable de las decisiones técnicas relevantes para:
 
-El documento permite conocer no solamente qué decisión fue adoptada, sino también el problema que la originó, las alternativas consideradas y sus consecuencias.
+- reducir decisiones contradictorias entre módulos;
+- conservar el contexto de las soluciones adoptadas;
+- facilitar el mantenimiento y evolución del sistema;
+- identificar decisiones que deban revisarse;
+- relacionar decisiones con seguridad, rendimiento, pruebas y operación;
+- evitar que cambios arquitectónicos importantes dependan únicamente del conocimiento individual de un desarrollador.
 
 ## Alcance
 
-El registro comprende decisiones relacionadas con:
+Este documento cubre decisiones relacionadas con:
 
-- Arquitectura del sistema.
-- Organización modular.
-- Backend y frontend.
-- Base de datos.
-- Multi-tenancy.
-- Autenticación y seguridad.
-- Persistencia y Redis.
-- Testing.
-- CI/CD.
-- Docker.
-- Migración de arquitectura legacy.
-- Inteligencia artificial.
-- Rendimiento.
-- Documentación.
+- arquitectura frontend y backend;
+- organización modular del código;
+- API;
+- persistencia;
+- multi-tenancy;
+- autenticación y sesiones;
+- seguridad;
+- validación;
+- caché y almacenamiento temporal;
+- IA;
+- observabilidad;
+- testing;
+- calidad de código;
+- CI/CD;
+- gestión de código legacy;
+- documentación y evolución técnica.
 
-## Criterios para tomar decisiones
+No sustituye la documentación específica de arquitectura, seguridad, API, base de datos, IA, CI/CD o despliegue. Cuando una decisión requiere detalles operativos, estos deben mantenerse en el documento técnico correspondiente.
 
-Las decisiones técnicas deben considerar:
+## Principios para tomar decisiones
 
-- Requisitos funcionales y no funcionales.
-- Seguridad.
-- Integridad de los datos.
-- Mantenibilidad.
-- Testabilidad.
-- Rendimiento.
-- Escalabilidad.
-- Reproducibilidad.
-- Compatibilidad con la arquitectura existente.
-- Complejidad operativa.
-- Evidencia obtenida mediante pruebas y validaciones.
+Las decisiones técnicas deben considerar, según corresponda:
 
-## Registro de decisiones
+1. seguridad;
+2. integridad de los datos;
+3. aislamiento entre empresas;
+4. mantenibilidad;
+5. testabilidad;
+6. rendimiento;
+7. observabilidad;
+8. reproducibilidad;
+9. simplicidad operacional;
+10. compatibilidad con la arquitectura existente;
+11. costo de operación;
+12. impacto sobre funcionalidades existentes.
 
-### ADR-001
+Una decisión no debe evaluarse únicamente por la facilidad inmediata de implementación. También debe considerarse su impacto sobre mantenimiento, pruebas, seguridad y evolución futura.
 
-#### Título
+## Arquitectura web
 
-Estructuración modular del backend.
+### Decisión
 
-#### Fecha
+Mantener una arquitectura web separada entre frontend y backend.
 
-Pendiente de registrar.
+### Contexto
 
-#### Estado
+La plataforma requiere una interfaz de usuario independiente de los servicios de negocio y persistencia.
 
-Aceptada.
+### Implementación actual
 
-#### Contexto
+El frontend utiliza React y Vite.
 
-El backend evolucionó desde una organización con componentes distribuidos en directorios legacy hacia una estructura modular bajo `src/modules` y componentes compartidos bajo `src/shared`.
+El backend utiliza Node.js y Express.
 
-#### Problema
+La comunicación entre ambas capas se realiza mediante una API HTTP bajo el prefijo `/api`.
 
-La coexistencia de componentes legacy y componentes de la arquitectura modular incrementa la duplicación y dificulta determinar cuál implementación constituye la fuente de verdad.
+### Justificación
 
-#### Opciones consideradas
+La separación permite:
 
-- Mantener indefinidamente la estructura anterior.
-- Migrar progresivamente hacia una arquitectura modular.
-- Eliminar componentes legacy sin migrar previamente sus consumidores.
-
-#### Decisión
-
-Adoptar progresivamente la estructura modular bajo `src/modules` y `src/shared`, manteniendo temporalmente componentes legacy únicamente mientras existan consumidores que dependan de ellos.
-
-#### Justificación
-
-La migración progresiva permite reducir el riesgo de regresiones y validar cada cambio mediante las pruebas automatizadas existentes.
-
-#### Consecuencias
-
-- Se requiere migrar consumidores de componentes legacy.
-- Puede existir duplicación temporal durante la transición.
-- Las pruebas deben ejecutarse después de cada migración relevante.
-- La eliminación de código legacy debe realizarse únicamente después de verificar que no existan consumidores.
-
-#### Alternativas descartadas
-
-La eliminación indiscriminada de componentes legacy se descarta debido al riesgo de romper dependencias existentes.
-
----
-
-## Arquitectura
-
-### Decisiones sobre estructura modular
-
-El backend utiliza una estructura modular bajo `src/modules`, complementada por componentes compartidos bajo `src/shared`.
-
-La migración hacia esta estructura se realiza progresivamente.
-
-### Decisiones sobre separación de responsabilidades
-
-Las responsabilidades se separan entre módulos funcionales, componentes compartidos, middleware, validadores, servicios y repositorios.
-
-La separación busca reducir el acoplamiento y facilitar las pruebas y mantenimiento.
-
-### Decisiones sobre módulos
-
-Los módulos representan áreas funcionales del sistema y deben mantener sus responsabilidades delimitadas.
-
-### Decisiones sobre componentes compartidos
-
-Las funcionalidades reutilizables se ubican en `src/shared` cuando su responsabilidad no pertenece exclusivamente a un módulo funcional.
-
-## Backend
-
-### Controllers y handlers
-
-Los controladores y handlers gestionan la entrada de solicitudes y coordinan la ejecución de las operaciones correspondientes.
-
-La lógica de negocio debe mantenerse fuera de los puntos de entrada cuando pueda ser reutilizada o probada independientemente.
-
-### Services
-
-Los servicios concentran operaciones de negocio o integraciones que requieren una responsabilidad independiente de la capa HTTP.
-
-### Repositories
-
-Los repositorios encapsulan operaciones relacionadas con la persistencia cuando la responsabilidad requiere separación respecto de la lógica de negocio.
-
-### Validators
-
-Los validadores verifican la estructura y restricciones de los datos recibidos antes de procesarlos.
-
-Zod forma parte de los mecanismos utilizados para la validación de datos.
-
-### Middleware
-
-Los middleware se utilizan para responsabilidades transversales como autenticación, tenant, seguridad, validación y seguimiento de solicitudes.
+- desacoplar la presentación de la lógica de negocio;
+- probar frontend y backend de manera independiente;
+- evolucionar cada capa con menor acoplamiento;
+- centralizar reglas de seguridad y negocio en el backend;
+- facilitar futuras estrategias de despliegue.
 
 ## Frontend
 
-### Componentes
+### Decisión
 
-El frontend utiliza React y una arquitectura basada en componentes reutilizables.
+Mantener React como tecnología principal de presentación y Vite como herramienta de construcción y desarrollo.
 
-### Hooks
+### Contexto
 
-Los hooks encapsulan lógica reutilizable relacionada con el estado y comportamiento de la interfaz.
+La interfaz requiere componentes reutilizables, manejo de estado, consumo de API y pruebas automatizadas.
 
-### Contextos
+### Criterio
 
-Los contextos se utilizan cuando un estado o servicio requiere ser compartido entre componentes sin acoplar directamente cada componente a su origen.
+La estructura frontend debe mantenerse orientada a componentes y responsabilidades, evitando concentrar lógica de negocio compleja dentro de componentes visuales.
 
-### Servicios
+La obtención y sincronización de datos debe mantenerse separada de la presentación cuando la responsabilidad lo requiera.
 
-Los servicios del frontend encapsulan operaciones de comunicación con el backend y otras responsabilidades reutilizables.
+## Backend
 
-### Comunicación con API
+### Decisión
 
-La comunicación con el backend utiliza Axios y una URL base configurable mediante `VITE_API_URL`, con `/api` como valor utilizado por defecto.
+Mantener Node.js y Express para la capa de servicios HTTP.
 
-Las solicitudes que modifican información utilizan mecanismos de protección CSRF configurados en el cliente.
+### Contexto
 
-## Base de datos
+El backend concentra:
 
-### Modelo de datos
+- autenticación;
+- autorización;
+- validación;
+- reglas de negocio;
+- persistencia;
+- integración con servicios externos;
+- auditoría;
+- observabilidad.
 
-MySQL 8 constituye el sistema gestor de base de datos relacional.
+### Criterio
 
-El modelo utiliza claves primarias, claves foráneas, restricciones, índices y relaciones para preservar la integridad de los datos.
+Las responsabilidades deben mantenerse separadas mediante módulos, controladores, servicios, repositorios, validadores y componentes compartidos cuando corresponda.
 
-### Multi-tenancy
+## Arquitectura modular del backend
 
-Las entidades que requieren aislamiento empresarial utilizan `empresa_id`.
+### Decisión
 
-El backend establece el contexto empresarial mediante middleware de tenant y los accesos a datos deben respetar dicho contexto.
+Adoptar una organización modular bajo `src/modules` y componentes compartidos bajo `src/shared`.
 
-### Integridad
+### Contexto
 
-La integridad se mantiene mediante restricciones de base de datos, claves foráneas, restricciones `CHECK` cuando corresponden y validaciones en la aplicación.
+El proyecto contiene funcionalidades diferenciadas como autenticación, clientes, materiales, proveedores, trabajos, proformas, pedidos, facturación e IA.
 
-### Triggers
+### Criterio
 
-Existen triggers para actualizar automáticamente determinados totales derivados en facturas, pedidos y proformas.
+La organización modular busca reducir el acoplamiento y facilitar:
 
-### Índices
+- pruebas aisladas;
+- evolución funcional;
+- localización de responsabilidades;
+- reutilización controlada;
+- migración progresiva del código legacy.
 
-Los índices se utilizan para facilitar las consultas sobre columnas empleadas frecuentemente en filtros, relaciones y restricciones de unicidad.
+Los módulos no deben introducir dependencias innecesarias entre dominios.
 
-### Soft delete
+## Migración desde arquitectura legacy
 
-Las entidades que incorporan eliminación lógica utilizan campos como `deleted_at`.
+### Decisión
 
-Las consultas correspondientes deben excluir registros eliminados cuando el comportamiento funcional lo requiera.
+Realizar la migración del código legacy de forma progresiva, verificando consumidores y pruebas antes de eliminar componentes antiguos.
+
+### Contexto
+
+El proyecto contiene código histórico fuera de la arquitectura modular actual. Parte de este código puede mantener consumidores, pruebas o dependencias indirectas.
+
+### Criterio
+
+El proceso recomendado es:
+
+1. identificar el componente legacy;
+2. identificar sus consumidores;
+3. identificar duplicaciones;
+4. migrar los consumidores necesarios;
+5. ejecutar pruebas;
+6. eliminar el código obsoleto cuando ya no tenga consumidores;
+7. ejecutar nuevamente pruebas y análisis de calidad;
+8. actualizar documentación relacionada.
+
+No se debe eliminar código únicamente porque tenga una ubicación considerada antigua.
+
+## API
+
+### Decisión
+
+Utilizar una API HTTP bajo `/api` como contrato principal entre frontend y backend.
+
+### Criterio
+
+Los contratos deben definir:
+
+- rutas;
+- métodos;
+- autenticación;
+- autorización;
+- estructura de solicitudes;
+- estructura de respuestas;
+- códigos HTTP;
+- errores;
+- validaciones;
+- requisitos de seguridad.
+
+Los cambios de contrato deben evaluarse también desde el frontend y las pruebas automatizadas.
+
+## Validación de entrada
+
+### Decisión
+
+Utilizar validación mediante esquemas Zod en los puntos donde se reciben datos externos.
+
+### Contexto
+
+Los datos provenientes del cliente no deben considerarse confiables por defecto.
+
+### Criterio
+
+La validación debe realizarse antes de utilizar datos en lógica de negocio o persistencia cuando corresponda.
+
+La validación debe contemplar:
+
+- tipos;
+- formatos;
+- rangos;
+- campos obligatorios;
+- límites de longitud;
+- estructuras anidadas;
+- restricciones específicas del dominio.
+
+La validación de entrada no sustituye las restricciones de la base de datos.
+
+## Persistencia
+
+### Decisión
+
+Mantener MySQL como sistema principal de persistencia relacional.
+
+### Contexto
+
+El dominio contiene relaciones entre empresas, usuarios, clientes, materiales, trabajos, proformas, pedidos, facturas y otras entidades.
+
+### Criterio
+
+La integridad de los datos debe apoyarse tanto en la capa de aplicación como en:
+
+- claves primarias;
+- claves foráneas;
+- índices;
+- restricciones;
+- valores enumerados;
+- verificaciones;
+- transacciones cuando sean necesarias.
+
+La documentación detallada del modelo se mantiene en `docs/Base de Datos/`.
+
+## Multi-tenancy
+
+### Decisión
+
+Mantener el aislamiento lógico de datos mediante `empresa_id`.
+
+### Contexto
+
+La plataforma tiene orientación SaaS y debe diferenciar los datos pertenecientes a cada empresa.
+
+### Criterio
+
+Las consultas y operaciones que trabajen con datos multi-tenant deben considerar el contexto de empresa correspondiente.
+
+El aislamiento no debe depender únicamente de filtros agregados en la interfaz.
+
+Las operaciones administrativas, repositorios, servicios y controladores deben preservar el contexto de tenant según la responsabilidad de cada capa.
 
 ## Autenticación
 
-### Access tokens
+### Decisión
 
-El frontend mantiene el access token en memoria para evitar almacenarlo de forma persistente en el almacenamiento del navegador.
+Mantener autenticación basada en tokens con separación entre access token y refresh token.
 
-### Refresh tokens
+### Implementación actual
 
-El refresh token se gestiona mediante una cookie `httpOnly`.
+El access token se mantiene en memoria en el frontend.
 
-### JWT y JTI
+El refresh token utiliza una cookie `httpOnly`.
 
-Los tokens utilizan JWT y disponen de identificadores `jti` para permitir su identificación individual.
+El backend utiliza identificadores de sesión y mecanismos de invalidación asociados al token.
 
-### Token blacklist
+### Criterio
 
-La revocación de tokens utiliza mecanismos respaldados por Redis y MySQL.
+La arquitectura busca reducir la exposición del refresh token al código JavaScript del navegador y permitir la renovación controlada de sesiones.
 
-### Sesiones
+Las modificaciones relacionadas con autenticación deben considerar también:
 
-Las sesiones de usuario se registran mediante la estructura de sesiones correspondiente y se relacionan con el usuario autenticado.
+- expiración;
+- revocación;
+- logout;
+- renovación;
+- auditoría;
+- aislamiento de empresa;
+- pruebas de seguridad.
 
-### Recuperación de contraseña
+## Revocación de tokens
 
-La recuperación de contraseña utiliza mecanismos específicos para códigos, tokens y expiración.
+### Decisión
 
-## Seguridad
+Utilizar Redis y persistencia asociada para mecanismos de blacklist y control de sesiones.
 
-### Gestión de secretos
+### Contexto
 
-Los secretos y credenciales no deben almacenarse directamente en el código fuente.
+Un token firmado criptográficamente puede continuar siendo válido hasta su expiración si no existe un mecanismo adicional de revocación.
 
-Los valores sensibles deben proporcionarse mediante variables de entorno o mecanismos de gestión de secretos.
+### Criterio
 
-### CSRF
+El identificador único del token y los mecanismos de blacklist permiten invalidar sesiones antes de su expiración normal cuando sea necesario.
 
-El frontend utiliza un token CSRF obtenido mediante cookie y lo envía en las solicitudes que modifican información.
+Las operaciones de logout, revocación y renovación deben mantenerse consistentes con el modelo de sesiones.
 
-### CSP
+## Redis
 
-La aplicación utiliza Content Security Policy mediante la configuración de seguridad HTTP.
+### Decisión
 
-La política debe mantenerse alineada con los recursos y mecanismos realmente utilizados por la aplicación.
+Utilizar Redis para necesidades de almacenamiento temporal y mecanismos que requieren acceso rápido.
 
-### HSTS
+### Usos relacionados con la arquitectura actual
 
-HSTS forma parte de las cabeceras de seguridad configuradas para los entornos donde corresponde utilizar HTTPS.
+Entre los usos se encuentran mecanismos asociados con:
 
-### Trusted Types
+- blacklist de tokens;
+- sesiones;
+- datos temporales;
+- operaciones que requieran almacenamiento de corta duración cuando corresponda.
 
-Trusted Types forma parte de las medidas de seguridad configuradas mediante las políticas HTTP de la aplicación.
+Redis no sustituye a MySQL como fuente principal de datos de negocio.
 
-### Rate limiting
+## Seguridad HTTP
 
-Los endpoints expuestos deben aplicar mecanismos de limitación de solicitudes cuando la operación lo requiera.
+### Decisión
 
-### Auditoría
+Mantener medidas de endurecimiento HTTP mediante Helmet y políticas de seguridad configuradas en el backend.
 
-Las acciones relevantes pueden registrarse mediante la tabla `auditoria_acciones`.
+### Criterio
 
-La información de auditoría debe permitir relacionar la operación con el usuario, empresa y registro afectado cuando corresponda.
+La configuración debe contemplar, según el entorno:
 
-## Persistencia y Redis
+- Content Security Policy;
+- HSTS;
+- Trusted Types;
+- protección de cabeceras;
+- restricciones relacionadas con contenido ejecutable.
 
-### MySQL
+Las políticas deben probarse contra el funcionamiento real de frontend y backend antes de endurecerlas de forma que rompan funcionalidades legítimas.
 
-MySQL constituye la fuente principal de persistencia relacional del sistema.
+## CSRF
 
-### Redis
+### Decisión
 
-Redis se utiliza como almacenamiento temporal y soporte para mecanismos que requieren acceso rápido a información de corta duración.
+Mantener protección CSRF para solicitudes mutables realizadas desde el frontend.
 
-### Uso de caché
+### Implementación actual
 
-El uso de caché debe evaluarse según la naturaleza de cada operación y no debe comprometer la consistencia de los datos empresariales.
+El frontend utiliza una cookie de CSRF y envía el valor correspondiente mediante la cabecera `X-CSRF-Token`.
 
-### Estado temporal
+### Criterio
 
-Redis puede utilizarse para información temporal cuya pérdida pueda ser gestionada sin comprometer la fuente principal de datos.
+Las operaciones que modifiquen estado deben respetar el mecanismo definido por el backend.
 
-## Testing
+Los cambios en autenticación mediante cookies deben revisarse conjuntamente con esta protección.
 
-### Unit Tests
+## Autorización
 
-Vitest se utiliza para las pruebas unitarias del frontend y backend.
+### Decisión
 
-### Integration Tests
+Mantener autorización basada en identidad y rol dentro del backend.
 
-Las pruebas de integración verifican la interacción entre componentes y servicios que deben funcionar conjuntamente.
+### Contexto
 
-### E2E
+El sistema contempla roles como:
 
-Playwright se utiliza para las pruebas end-to-end del frontend.
+- `ADMIN`;
+- `VENDEDOR`;
+- `ALMACEN`;
+- `CLIENTE`.
 
-### Performance
+### Criterio
 
-Las pruebas de rendimiento deben evaluar los flujos críticos y las condiciones de carga relevantes para el sistema.
+La interfaz puede ocultar funcionalidades no permitidas, pero la autorización efectiva debe realizarse en el backend.
 
-### Security Testing
+La existencia de un control visual no debe considerarse una barrera de seguridad suficiente.
 
-Las validaciones de seguridad incluyen análisis estático, pruebas específicas y herramientas de análisis dinámico cuando corresponda.
+## Auditoría
+
+### Decisión
+
+Mantener una entidad específica para registrar acciones relevantes mediante `auditoria_acciones`.
+
+### Contexto
+
+La plataforma necesita trazabilidad de operaciones sensibles como autenticación, cambios de credenciales y determinadas operaciones sobre registros.
+
+### Criterio
+
+La auditoría debe evitar almacenar secretos o información innecesaria.
+
+Los eventos auditables deben seleccionarse de acuerdo con su valor para:
+
+- seguridad;
+- trazabilidad;
+- diagnóstico;
+- control operativo;
+- investigación de incidentes.
+
+## Soft delete
+
+### Decisión
+
+Utilizar eliminación lógica en las entidades que disponen de `deleted_at` y requieren conservar el registro.
+
+### Contexto
+
+La eliminación física puede provocar pérdida de trazabilidad o afectar relaciones históricas.
+
+### Criterio
+
+Las consultas normales deben excluir registros eliminados cuando corresponda.
+
+Las operaciones administrativas que necesiten consultar registros eliminados deben hacerlo de forma explícita y controlada.
+
+## Facturación
+
+### Decisión
+
+Mantener facturación como dominio integrado con clientes, usuarios, materiales y configuración, utilizando estados explícitos para el ciclo de vida de la factura.
+
+### Contexto
+
+La base de datos contempla estados como:
+
+- `BORRADOR`;
+- `EMITIDA`;
+- `AUTORIZADA`;
+- `ANULADA`;
+- `DEVUELTA`;
+- `NO_AUTORIZADA`.
+
+También existen estados relacionados con procesos SRI.
+
+### Criterio
+
+Las transiciones de estado deben respetar las reglas del dominio y evitar modificaciones arbitrarias de documentos que ya hayan alcanzado estados que restrinjan su modificación.
+
+La documentación específica de la integración y operación se mantiene en los documentos de API, base de datos, cumplimiento y despliegue.
+
+## Integridad de totales
+
+### Decisión
+
+Mantener mecanismos de base de datos para actualización de totales en determinadas relaciones de detalle.
+
+### Implementación actual
+
+Existen triggers asociados a:
+
+- `factura_detalle` y `facturas`;
+- `pedido_detalle` y `pedidos`.
+
+### Criterio
+
+Los triggers deben mantenerse simples y documentados.
+
+No se debe asumir que todas las entidades con campos calculados poseen triggers equivalentes. La existencia de un mecanismo debe verificarse directamente en el esquema antes de documentarlo o modificarlo.
+
+## IA
+
+### Decisión
+
+Mantener las integraciones de IA desacopladas de la lógica principal de negocio.
+
+### Servicios actuales
+
+La plataforma contempla integración con:
+
+- Stability AI;
+- Claude Vision;
+- Replicate.
+
+### Criterio
+
+Los proveedores externos deben considerarse dependencias potencialmente no disponibles.
+
+Las operaciones de IA deben contemplar:
+
+- validación;
+- timeouts;
+- errores;
+- reintentos cuando corresponda;
+- trazabilidad;
+- persistencia de solicitudes;
+- control de costos;
+- seguridad;
+- límites de entrada.
+
+Un error de un proveedor externo no debe convertirse automáticamente en un fallo no controlado del backend.
+
+## Idempotencia
+
+### Decisión
+
+La idempotencia debe evaluarse de forma explícita en operaciones que puedan repetirse por reintentos de red, clientes o infraestructura.
+
+### Criterio
+
+Las operaciones sensibles, especialmente aquellas que generen efectos persistentes o externos, deben definir mecanismos adecuados cuando el dominio lo requiera.
+
+La implementación concreta depende del caso de uso y no debe asumirse de forma general para todos los endpoints.
+
+## Observabilidad
+
+### Decisión
+
+Mantener Winston como mecanismo principal de logging del backend.
+
+### Criterio
+
+Los logs deben facilitar:
+
+- diagnóstico;
+- monitoreo;
+- investigación de errores;
+- seguimiento operativo.
+
+No deben registrar contraseñas, tokens, secretos ni información sensible innecesaria.
+
+La auditoría de acciones y los logs operativos cumplen objetivos diferentes y no deben confundirse.
+
+## Gestión de errores
+
+### Decisión
+
+Centralizar el tratamiento de errores de aplicación y HTTP mediante mecanismos compartidos cuando corresponda.
+
+### Criterio
+
+Los errores expuestos al cliente deben contener información suficiente para identificar el problema sin revelar detalles internos innecesarios.
+
+Los errores internos deben conservar información suficiente para diagnóstico mediante logs y observabilidad.
+
+## Pruebas automatizadas
+
+### Decisión
+
+Mantener pruebas unitarias e integración como parte del proceso de calidad.
+
+### Estado actual
+
+El backend dispone de una suite amplia de pruebas automatizadas y cobertura superior al umbral configurado.
+
+El frontend también dispone de pruebas unitarias.
+
+La cobertura no debe utilizarse como único indicador de calidad.
+
+### Criterio
+
+Las pruebas deben cubrir especialmente:
+
+- reglas de negocio;
+- autenticación;
+- autorización;
+- aislamiento multi-tenant;
+- validaciones;
+- persistencia;
+- errores;
+- integraciones críticas;
+- concurrencia cuando corresponda.
+
+## E2E
+
+### Decisión
+
+Utilizar Playwright para pruebas end-to-end.
+
+### Criterio
+
+Las pruebas E2E deben validar flujos funcionales completos desde la perspectiva del usuario y no sustituir las pruebas unitarias o de integración.
+
+Deben priorizarse los flujos críticos del sistema.
+
+## Performance
+
+### Decisión
+
+Evaluar rendimiento mediante métricas reproducibles y pruebas específicas, no únicamente mediante percepción manual.
+
+### Criterio
+
+Las evaluaciones deben considerar, según el componente:
+
+- latencia;
+- tiempo de respuesta;
+- carga;
+- concurrencia;
+- consumo de memoria;
+- consultas de base de datos;
+- rendimiento frontend;
+- operaciones de IA.
+
+Las optimizaciones deben estar respaldadas por mediciones antes y después cuando sea posible.
+
+## Gestión de dependencias
+
+### Decisión
+
+Mantener versiones explícitas y una instalación reproducible mediante `npm ci`.
+
+### Criterio
+
+Los cambios de dependencias deben evaluarse considerando:
+
+- compatibilidad;
+- vulnerabilidades;
+- cambios de comportamiento;
+- impacto sobre pruebas;
+- impacto sobre build;
+- impacto sobre CI/CD.
+
+No se deben aplicar actualizaciones destructivas automáticamente sin revisar sus efectos.
 
 ## CI/CD
 
-### GitHub Actions
+### Decisión
 
-GitHub Actions se utiliza para automatizar las validaciones del proyecto.
+Utilizar GitHub Actions para automatizar controles de calidad del repositorio.
 
-### Quality Gates
+### Controles actuales
 
-Las validaciones de calidad deben impedir que errores críticos de linting, pruebas u otros controles obligatorios avancen en el flujo correspondiente.
+El pipeline contempla procesos relacionados con:
 
-### SonarCloud
+- instalación reproducible;
+- linting;
+- pruebas;
+- cobertura;
+- generación de artefactos.
 
-SonarCloud se utiliza como herramienta de análisis de calidad y seguridad del código.
+### Criterio
 
-Los resultados deben interpretarse considerando la arquitectura actual y la presencia de componentes legacy.
+CI/CD debe funcionar como mecanismo de verificación y prevención de regresiones.
 
-### Artefactos
+Las decisiones arquitectónicas importantes deben permanecer bajo revisión humana y no delegarse exclusivamente al pipeline.
 
-Los workflows pueden conservar reportes y resultados generados durante las validaciones automatizadas.
+## Calidad estática
 
-### Seguridad del pipeline
+### Decisión
 
-Los workflows deben utilizar permisos mínimos, evitar secretos en texto plano y mantener actualizadas las acciones utilizadas.
+Utilizar ESLint para calidad del código y SonarCloud como herramienta adicional de análisis estático y calidad.
 
-## Docker
+### Criterio
 
-### Contenedores
+Los resultados de estas herramientas deben interpretarse dentro del contexto de la arquitectura.
 
-Docker se utilizará para facilitar la ejecución reproducible de los componentes que requieran contenerización.
+Una alerta individual no debe resolverse automáticamente sin verificar:
 
-### Reproducibilidad
+- si el código continúa activo;
+- si pertenece a código legacy;
+- si existe duplicación entre implementaciones;
+- si existe riesgo real;
+- si el cambio puede afectar funcionalidad.
 
-La contenerización debe permitir reproducir el entorno de ejecución independientemente de configuraciones específicas de la máquina del desarrollador.
+## Seguridad estática
 
-### Entornos
+### Decisión
 
-La configuración de contenedores debe distinguir las necesidades de desarrollo, pruebas y ejecución de producción cuando corresponda.
+Priorizar las vulnerabilidades reales y los flujos de riesgo antes de realizar correcciones mecánicas de todas las alertas.
 
-## Arquitectura legacy
+### Criterio
 
-### Motivo de la migración
+Cada hallazgo debe analizarse considerando:
 
-La migración busca reducir duplicación, mejorar la separación de responsabilidades y establecer una estructura modular coherente.
+- contexto;
+- explotabilidad;
+- superficie expuesta;
+- criticidad;
+- consumidores;
+- posibilidad de eliminar el código afectado mediante una migración arquitectónica.
 
-### Arquitectura anterior
-
-La arquitectura anterior contiene controladores, modelos, servicios, middleware y utilidades ubicados en estructuras legacy.
-
-### Arquitectura actual
-
-La arquitectura actual utiliza módulos bajo `src/modules` y componentes compartidos bajo `src/shared`.
-
-### Estrategia de migración
-
-La migración se realiza mediante:
-
-1. Identificación de consumidores.
-2. Definición del componente destino.
-3. Migración de consumidores.
-4. Ejecución de pruebas.
-5. Verificación de referencias restantes.
-6. Eliminación del componente legacy cuando corresponda.
-7. Nueva ejecución de validaciones.
-
-### Eliminación de código legacy
-
-Un componente legacy debe eliminarse únicamente después de verificar que no existan consumidores activos y que las pruebas relevantes continúen funcionando.
-
-## Inteligencia artificial
-
-### Servicios externos
-
-El sistema integra servicios externos de inteligencia artificial para funcionalidades específicas.
-
-La integración incluye servicios relacionados con generación y procesamiento de imágenes.
-
-### Gestión de errores
-
-Las integraciones de IA deben controlar errores de autenticación, disponibilidad, límites, respuestas inválidas y errores específicos del proveedor.
-
-### Límites
-
-Las solicitudes de IA deben respetar límites de tamaño, parámetros y recursos establecidos por la aplicación y por los servicios externos.
-
-### Observabilidad
-
-Las solicitudes de IA pueden registrar información operacional como estado, duración y resultado, evitando almacenar información sensible innecesaria.
-
-## Rendimiento
-
-### Cache
-
-El caché debe utilizarse cuando reduzca operaciones costosas sin comprometer la consistencia requerida por el flujo funcional.
-
-### Consultas
-
-Las consultas deben aprovechar índices, relaciones y filtros adecuados para evitar operaciones innecesariamente costosas.
-
-### Concurrencia
-
-Las operaciones que modifican información crítica deben considerar condiciones de concurrencia, consistencia e idempotencia cuando corresponda.
-
-### Escalabilidad
-
-La arquitectura debe permitir incrementar recursos y distribuir responsabilidades sin introducir dependencias innecesarias entre componentes.
+La eliminación de código obsoleto puede resolver simultáneamente problemas de mantenibilidad, duplicación y seguridad.
 
 ## Documentación
 
-### Documentación técnica
+### Decisión
 
-La documentación se organiza por dominios para describir arquitectura, API, base de datos, CI/CD, despliegue, observabilidad, seguridad y otros aspectos técnicos.
+Mantener documentación técnica organizada por dominio.
 
-### Documentación automática
+### Criterio
 
-Los artefactos generados automáticamente deben mantenerse diferenciados de la documentación mantenida manualmente.
+La documentación debe evolucionar junto con el sistema.
 
-### ADR
+Las decisiones relevantes deben registrarse cuando:
 
-Las decisiones arquitectónicas relevantes deben registrarse mediante ADR cuando su impacto justifique conservar contexto, alternativas y consecuencias.
+- modifican arquitectura;
+- afectan seguridad;
+- introducen dependencias importantes;
+- cambian contratos;
+- modifican persistencia;
+- afectan despliegue;
+- introducen restricciones operativas.
 
-## Cambios de decisiones
+## Evidencia técnica
 
-### Modificación de una decisión existente
+### Decisión
 
-Cuando una decisión existente cambia, debe conservarse su contexto histórico y documentarse la nueva decisión.
+Conservar evidencia de pruebas, análisis y verificaciones relevantes.
 
-### Reemplazo de una decisión
+### Ejemplos
 
-Una decisión puede ser reemplazada cuando una nueva solución técnica resuelve el problema original bajo condiciones diferentes.
+La evidencia puede incluir:
 
-### Decisión obsoleta
+- resultados de pruebas;
+- cobertura;
+- lint;
+- análisis estático;
+- resultados de CI;
+- pruebas E2E;
+- pruebas de rendimiento;
+- verificaciones de seguridad;
+- comprobaciones de despliegue.
 
-Una decisión debe marcarse como obsoleta cuando deje de representar la arquitectura vigente.
+La evidencia no sustituye la documentación de la decisión. Ambas cumplen funciones diferentes.
 
-La decisión original no debe eliminarse si su historial resulta relevante para comprender la evolución del sistema.
+## Revisión de decisiones
 
-## Historial de decisiones
+Las decisiones técnicas deben revisarse cuando cambien significativamente:
 
-| ID | Decisión | Estado |
-|---|---|---|
-| ADR-001 | Estructuración modular del backend | Aceptada |
+- requisitos funcionales;
+- volumen de usuarios;
+- modelo de negocio;
+- arquitectura;
+- infraestructura;
+- proveedores externos;
+- requisitos de seguridad;
+- regulación aplicable;
+- costos operativos.
 
-## Documentación relacionada
+Una decisión técnicamente válida en una etapa del proyecto puede requerir reevaluación posteriormente.
 
-- [Deuda técnica](technical-debt.md)
-- [Arquitectura](../Arquitectura/architecture.md)
-- [API](../API/api-contracts.md)
-- [Base de Datos](../Base%20de%20Datos/database.md)
-- [CI/CD](../CI-CD/ci-cd.md)
-- [Despliegue](../Despliegue/deployment.md)
-- [Observabilidad](../Observabilidad/observability.md)
-- [IA](../IA/ai.md)
-- [Solución de Problemas](../Solucion%20de%20Problemas/troubleshooting.md)
+## Registro de decisiones
+
+Las decisiones relevantes deben poder rastrearse mediante:
+
+- código afectado;
+- pruebas relacionadas;
+- documentación específica;
+- commits;
+- Pull Requests;
+- incidencias técnicas cuando existan.
+
+Cuando una decisión sea reemplazada, no debe eliminarse silenciosamente su contexto histórico. Debe documentarse la nueva decisión y la razón del cambio.
+
+## Estado actual
+
+La arquitectura actual se encuentra en un proceso de consolidación y migración desde componentes legacy hacia una estructura modular.
+
+Por este motivo, algunas decisiones representan el estado objetivo o la dirección arquitectónica mientras determinados componentes históricos continúan existiendo.
+
+La documentación debe distinguir entre:
+
+- arquitectura actualmente utilizada;
+- arquitectura en migración;
+- decisiones propuestas;
+- componentes pendientes de eliminación.
+
+No se debe documentar como existente una capacidad que todavía no haya sido implementada o verificada.
+
+## Relación con otros documentos
+
+Este documento se complementa con:
+
+- `docs/Arquitectura/architecture.md`
+- `docs/API/api-contracts.md`
+- `docs/Base de Datos/database.md`
+- `docs/IA/ai.md`
+- `docs/Observabilidad/observability.md`
+- `docs/CI-CD/ci-cd.md`
+- `docs/Despliegue/deployment.md`
+- `docs/Documentación Legal/compliance.md`
+- `docs/Documentación Legal/contributing.md`
+- `docs/Documentación Legal/release-management.md`
+- `docs/Solucion de Problemas/troubleshooting.md`
+- `docs/Decisiones Técnicas/technical-debt.md`
+
+## Mantenimiento
+
+Este documento debe actualizarse cuando una decisión técnica relevante sea modificada, reemplazada o descartada.
+
+Cada modificación debe mantener coherencia con el código, las pruebas y la documentación específica afectada.
+
+El registro debe priorizar decisiones que tengan impacto arquitectónico, operativo, de seguridad o de mantenimiento sobre detalles de implementación menores.
