@@ -16,6 +16,11 @@ La documentación de este directorio proviene de fuentes técnicas del proyecto 
 ## API
 
 - [Catálogo de endpoints](./api/endpoints.md)
+
+## Proyecto
+
+- [Metadatos del proyecto](./project-metadata.md)
+- [Dependencias](./dependencies.md)
 `;
 
   return writeGeneratedFile(
