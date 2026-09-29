@@ -2,90 +2,91 @@
 
 ## Descripción
 
-La plataforma utiliza mecanismos de observabilidad para supervisar el comportamiento de sus componentes, detectar errores, analizar rendimiento y facilitar el diagnóstico de incidentes.
+Esta documentación centraliza la estrategia de observabilidad de la plataforma ERP/SaaS y organiza los mecanismos utilizados para conocer el estado, comportamiento, rendimiento y seguridad de sus componentes.
 
-La documentación de observabilidad se organiza por responsabilidades específicas para evitar concentrar en un único documento los detalles de logging, métricas, monitoreo, auditoría, trazabilidad y diagnóstico.
+La observabilidad se estructura por responsabilidades para facilitar la consulta, diagnóstico y evolución de cada mecanismo.
 
 ## Índice
 
-- [Descripción](https://github.com/AlejandroMo2005/erp-saas-carpinteria-vidrio-aluminio/blob/main/docs/Observabilidad/observability.md#descripci%C3%B3n)
-- [Logging](https://github.com/AlejandroMo2005/erp-saas-carpinteria-vidrio-aluminio/blob/main/docs/Observabilidad/observability.md#logging)
-- [Métricas](https://github.com/AlejandroMo2005/erp-saas-carpinteria-vidrio-aluminio/blob/main/docs/Observabilidad/observability.md#m%C3%A9tricas)
-- [Health checks](https://github.com/AlejandroMo2005/erp-saas-carpinteria-vidrio-aluminio/blob/main/docs/Observabilidad/observability.md#health-checks)
-- [Monitoreo](https://github.com/AlejandroMo2005/erp-saas-carpinteria-vidrio-aluminio/blob/main/docs/Observabilidad/observability.md#monitoreo)
-- [Alertas](https://github.com/AlejandroMo2005/erp-saas-carpinteria-vidrio-aluminio/blob/main/docs/Observabilidad/observability.md#alertas)
-- [Trazabilidad](https://github.com/AlejandroMo2005/erp-saas-carpinteria-vidrio-aluminio/blob/main/docs/Observabilidad/observability.md#trazabilidad)
-- [Auditoría](https://github.com/AlejandroMo2005/erp-saas-carpinteria-vidrio-aluminio/blob/main/docs/Observabilidad/observability.md#auditor%C3%ADa)
-- [Rendimiento](https://github.com/AlejandroMo2005/erp-saas-carpinteria-vidrio-aluminio/blob/main/docs/Observabilidad/observability.md#rendimiento)
-- [Seguridad](https://github.com/AlejandroMo2005/erp-saas-carpinteria-vidrio-aluminio/blob/main/docs/Observabilidad/observability.md#seguridad)
-- [Diagnóstico](https://github.com/AlejandroMo2005/erp-saas-carpinteria-vidrio-aluminio/blob/main/docs/Observabilidad/observability.md#diagn%C3%B3stico)
-- [Documentación relacionada](https://github.com/AlejandroMo2005/erp-saas-carpinteria-vidrio-aluminio/blob/main/docs/Observabilidad/observability.md#documentaci%C3%B3n-relacionada)
+- [Logging](Logging/logging.md)
+- [Métricas](Metricas/metricas.md)
+- [Health Checks](Health%20Checks/health-checks.md)
+- [Monitoreo](Monitoreo/monitoreo.md)
+- [Alertas](Alertas/alertas.md)
+- [Trazabilidad](Trazabilidad/trazabilidad.md)
+- [Auditoría](Auditoria/auditoria.md)
+- [Rendimiento](Rendimiento/rendimiento.md)
+- [Seguridad](Seguridad/seguridad.md)
+- [Diagnóstico](Diagnostico/diagnostico.md)
 
 ## Logging
 
-La documentación de logging aborda la generación, estructura, niveles, almacenamiento, rotación, retención y protección de los registros de la aplicación.
-
-`Logging/logging.md`
+[Logging](Logging/logging.md) documenta el sistema de registros de la aplicación, sus niveles, contexto, eventos relevantes, protección de información sensible y uso durante el diagnóstico.
 
 ## Métricas
 
-La documentación de métricas aborda las variables cuantificables utilizadas para analizar el comportamiento de frontend, backend, base de datos, Redis, infraestructura y servicios externos.
+[Métricas](Metricas/metricas.md) define los indicadores utilizados para observar el comportamiento del frontend, backend, MySQL, Redis, IA e infraestructura.
 
-`Metricas/metricas.md`
+## Health Checks
 
-## Health checks
-
-La documentación de health checks aborda las comprobaciones de disponibilidad, estado de procesos, dependencias y validaciones posteriores a los despliegues.
-
-`Health Checks/health-checks.md`
+[Health Checks](Health%20Checks/health-checks.md) documenta los mecanismos destinados a verificar la disponibilidad del backend y el estado de sus dependencias.
 
 ## Monitoreo
 
-La documentación de monitoreo aborda la supervisión continua de los componentes de la plataforma, recursos de infraestructura, servicios y comportamiento operativo.
-
-`Monitoreo/monitoreo.md`
+[Monitoreo](Monitoreo/monitoreo.md) establece la estrategia general para supervisar los componentes de la plataforma y relacionar sus diferentes señales operativas.
 
 ## Alertas
 
-La documentación de alertas aborda la detección de condiciones anómalas, definición de umbrales, severidad, notificaciones y respuesta inicial.
-
-`Alertas/alertas.md`
+[Alertas](Alertas/alertas.md) documenta las condiciones que pueden generar alertas, sus niveles de severidad, umbrales, escalamiento y relación con incidentes.
 
 ## Trazabilidad
 
-La documentación de trazabilidad aborda la relación entre solicitudes, usuarios, empresas, operaciones, servicios, errores, versiones y despliegues.
-
-`Trazabilidad/trazabilidad.md`
+[Trazabilidad](Trazabilidad/trazabilidad.md) documenta los mecanismos utilizados para relacionar una operación con los diferentes componentes involucrados en su procesamiento.
 
 ## Auditoría
 
-La documentación de auditoría aborda el registro y seguimiento de acciones relevantes realizadas dentro de la plataforma, diferenciándolo de los logs operativos.
-
-`Auditoria/auditoria.md`
+[Auditoría](Auditoria/auditoria.md) documenta los eventos que requieren persistencia para fines de seguimiento, seguridad y análisis posterior.
 
 ## Rendimiento
 
-La documentación de rendimiento aborda la observación de tiempos de respuesta, latencia, consumo de recursos, rendimiento del frontend, backend, base de datos, Redis y operaciones de IA.
-
-`Rendimiento/rendimiento.md`
+[Rendimiento](Rendimiento/rendimiento.md) documenta los indicadores, líneas base y procedimientos relacionados con el rendimiento de la plataforma.
 
 ## Seguridad
 
-La documentación de seguridad aborda los controles relacionados con la protección de logs, información sensible, eventos de seguridad, autenticación, autorización y detección de comportamientos anómalos.
-
-`Seguridad/seguridad.md`
+[Seguridad](Seguridad/seguridad.md) documenta la observabilidad de autenticación, autorización, sesiones, tokens, aislamiento multiempresa y eventos de seguridad.
 
 ## Diagnóstico
 
-La documentación de diagnóstico aborda el análisis sistemático de errores e incidentes utilizando logs, métricas, health checks, trazabilidad y estado de los servicios.
+[Diagnóstico](Diagnostico/diagnostico.md) documenta los procedimientos utilizados para investigar errores, degradaciones, incidentes y problemas de disponibilidad.
 
-`Diagnostico/diagnostico.md`
+## Estado actual
+
+La plataforma dispone de mecanismos distribuidos de logging, auditoría, health checks, trazabilidad, métricas de frontend, gestión de procesos mediante PM2 y registros específicos para operaciones de IA.
+
+La estrategia de observabilidad se encuentra documentada por responsabilidades para facilitar su evolución y permitir incorporar posteriormente mecanismos adicionales de métricas, alertas, monitoreo y diagnóstico.
+
+## Aspectos pendientes
+
+Queda pendiente consolidar progresivamente:
+
+- Métricas operativas del backend.
+- Métricas de MySQL y Redis.
+- Pruebas de carga y rendimiento.
+- Umbrales basados en líneas base reales.
+- Alertas operativas.
+- Correlación uniforme de solicitudes.
+- Monitoreo centralizado cuando corresponda.
+- Automatización de recopilación de evidencia.
+- Procedimientos operativos de respuesta ante incidentes.
 
 ## Documentación relacionada
 
 | Documento | Relación |
 |---|---|
-| [Logging](./Logging/logging.md) | Registro y gestión de eventos de aplicación. |
-| [Métricas](./Metricas/metricas.md) | Métricas técnicas y operativas. |
-| [Health Checks](./Health%20Checks/health-checks.md) | Estado y disponibilidad de servicios. |
-| [Monitoreo](./Monitoreo/monitoreo.md) | Supervisión de la plataforma. |
+| [Arquitectura](../Arquitectura/architecture.md) | Define los componentes y responsabilidades arquitectónicas de la plataforma. |
+| [API](../API/api-contracts.md) | Define los contratos utilizados por las operaciones observadas. |
+| [Base de Datos](../Base%20de%20Datos/database.md) | Documenta la estructura y comportamiento de la persistencia. |
+| [CI/CD](../CI-CD/ci-cd.md) | Define los controles automatizados relacionados con integración y entrega. |
+| [Despliegue](../Despliegue/deployment.md) | Documenta la operación de la plataforma en sus diferentes entornos. |
+| [Decisiones técnicas](../Decisiones%20Técnicas/decisions.md) | Registra decisiones que pueden afectar la observabilidad y operación. |
+| [Deuda técnica](../Decisiones%20Técnicas/technical-debt.md) | Registra aspectos pendientes que pueden afectar la mantenibilidad y operación. |
