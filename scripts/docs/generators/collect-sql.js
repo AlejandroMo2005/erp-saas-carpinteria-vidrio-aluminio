@@ -9,7 +9,6 @@ const EXCLUDED_DIRECTORIES = new Set([
   'build',
   '.vite',
   '.next',
-  'docs/generated',
 ]);
 
 function collectSqlFiles(directory, files = []) {
