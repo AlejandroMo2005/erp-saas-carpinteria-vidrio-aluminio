@@ -22,7 +22,9 @@ function collectGeneratedFiles(directory, rootDirectory, files = []) {
       entry.name.endsWith('.md') &&
       fullPath !== path.join(rootDirectory, MANIFEST_FILE)
     ) {
-      files.push(path.relative(rootDirectory, fullPath).replaceAll(path.sep, '/'));
+      files.push(
+        path.relative(rootDirectory, fullPath).replaceAll(path.sep, '/'),
+      );
     }
   }
 
@@ -59,3 +61,10 @@ function generateDocumentationManifest(rootDir) {
 module.exports = {
   generateDocumentationManifest,
 };
+```
+
+Commit title  
+`fix(docs): evitar autorreferencia del manifiesto`
+
+Commit description  
+`Excluye documentation-manifest.md del listado que genera el propio manifiesto para mantener resultados deterministas entre ejecuciones.`
