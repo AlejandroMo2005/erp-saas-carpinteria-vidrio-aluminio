@@ -1,64 +1,95 @@
 const fs = require('node:fs');
-const os = require('node:os');
 const path = require('node:path');
+const os = require('node:os');
 
-const GENERATED_FILES = [
-  'docs/generated/README.md',
-  'docs/generated/api/endpoints.md',
-  'docs/generated/architecture/project-structure.md',
-];
+const {
+  validateGeneratedConsistency,
+} = require('../validate-generated-consistency');
 
-describe('documentación generada', () => {
-  let tempDirectory;
+describe('validateGeneratedConsistency', () => {
+  let temporaryRoot;
 
   beforeEach(() => {
-    tempDirectory = fs.mkdtempSync(
+    temporaryRoot = fs.mkdtempSync(
       path.join(os.tmpdir(), 'docs-validation-'),
+    );
+
+    fs.mkdirSync(
+      path.join(temporaryRoot, 'docs/generated'),
+      { recursive: true },
     );
   });
 
   afterEach(() => {
-    fs.rmSync(tempDirectory, {
+    fs.rmSync(temporaryRoot, {
       recursive: true,
       force: true,
     });
   });
 
-  it('considera válidos los documentos Markdown con contenido y título', () => {
-    const generatedDirectory = path.join(
-      tempDirectory,
-      'docs',
-      'generated',
+  it('valida correctamente documentación generada válida', () => {
+    const filePath = path.join(
+      temporaryRoot,
+      'docs/generated/example.md',
     );
 
-    fs.mkdirSync(generatedDirectory, { recursive: true });
+    fs.writeFileSync(
+      filePath,
+      '# Documento generado\n\n> Este archivo es generado automáticamente.\n',
+    );
 
-    for (const relativePath of GENERATED_FILES) {
-      const filePath = path.join(tempDirectory, relativePath);
+    const result = validateGeneratedConsistency(temporaryRoot);
 
-      fs.mkdirSync(path.dirname(filePath), { recursive: true });
-      fs.writeFileSync(
-        filePath,
-        '# Documento generado\n\nContenido.',
-        'utf8',
-      );
-    }
-
-    const files = GENERATED_FILES.filter((relativePath) => {
-      const filePath = path.join(tempDirectory, relativePath);
-      return fs.existsSync(filePath);
+    expect(result).toEqual({
+      valid: true,
+      files: 1,
     });
+  });
 
-    expect(files).toHaveLength(3);
-    expect(
-      files.every((relativePath) => {
-        const content = fs.readFileSync(
-          path.join(tempDirectory, relativePath),
-          'utf8',
-        );
+  it('detecta archivos sin título de nivel 1', () => {
+    const filePath = path.join(
+      temporaryRoot,
+      'docs/generated/example.md',
+    );
 
-        return content.trim() && content.startsWith('# ');
-      }),
-    ).toBe(true);
+    fs.writeFileSync(
+      filePath,
+      'Contenido\n\n> Este archivo es generado automáticamente.\n',
+    );
+
+    expect(() => validateGeneratedConsistency(temporaryRoot))
+      .toThrow('falta un título Markdown de nivel 1.');
+  });
+
+  it('detecta archivos sin marca de generación automática', () => {
+    const filePath = path.join(
+      temporaryRoot,
+      'docs/generated/example.md',
+    );
+
+    fs.writeFileSync(
+      filePath,
+      '# Documento generado\n\nContenido.\n',
+    );
+
+    expect(() => validateGeneratedConsistency(temporaryRoot))
+      .toThrow('falta la marca de generación automática.');
+  });
+
+  it('devuelve cero archivos cuando no existe documentación generada', () => {
+    fs.rmSync(
+      path.join(temporaryRoot, 'docs/generated'),
+      {
+        recursive: true,
+        force: true,
+      },
+    );
+
+    const result = validateGeneratedConsistency(temporaryRoot);
+
+    expect(result).toEqual({
+      valid: true,
+      files: 0,
+    });
   });
 });
