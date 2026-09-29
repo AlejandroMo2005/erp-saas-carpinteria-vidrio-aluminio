@@ -2,450 +2,467 @@
 
 ## Descripción
 
-Esta documentación centraliza la arquitectura, funcionamiento, configuración, observabilidad y consideraciones operativas relacionadas con las capacidades de inteligencia artificial de la plataforma ERP/SaaS.
+Este documento describe la integración de capacidades de inteligencia artificial utilizadas por el ERP/SaaS, incluyendo su propósito, arquitectura, servicios externos, configuración, manejo de errores, seguridad, trazabilidad y consideraciones operativas.
 
-La plataforma integra servicios externos de inteligencia artificial para operaciones relacionadas con el procesamiento y generación de referencias visuales utilizadas en los trabajos de carpintería de vidrio y aluminio.
+La documentación debe reflejar únicamente las capacidades actualmente presentes en el sistema.
 
-## Propósito
+## Objetivo
 
-El propósito es documentar el uso de inteligencia artificial dentro de la plataforma, diferenciando las responsabilidades de la aplicación de las capacidades proporcionadas por servicios externos.
+Establecer criterios para:
 
-La documentación también establece criterios para controlar errores, tiempos de respuesta, costos operativos, seguridad y trazabilidad de las solicitudes.
+- integrar servicios de IA;
+- gestionar modelos y proveedores;
+- validar entradas;
+- controlar errores y timeouts;
+- proteger credenciales;
+- registrar solicitudes;
+- gestionar resultados;
+- mantener trazabilidad;
+- controlar cambios en las integraciones.
 
 ## Alcance
 
-Comprende:
+Este documento contempla las funcionalidades de IA relacionadas con:
 
-- Solicitudes de inteligencia artificial.
-- Procesamiento de imágenes.
-- Generación o transformación de referencias visuales.
-- Modelos utilizados.
-- Proveedores externos.
-- Configuración.
-- Manejo de errores.
-- Timeouts.
-- Registro de solicitudes.
-- Rendimiento.
-- Seguridad.
-- Protección de información.
-- Observabilidad.
-- Limitaciones de los servicios externos.
+- generación o transformación de imágenes;
+- procesamiento de referencias;
+- visión por computadora;
+- servicios externos de generación;
+- almacenamiento de metadatos de solicitudes;
+- manejo de errores;
+- observabilidad.
 
-## Arquitectura de IA
+No establece capacidades futuras como funcionalidades existentes.
 
-La funcionalidad de inteligencia artificial se encuentra integrada en el backend y utiliza servicios externos para ejecutar determinadas operaciones.
+## Arquitectura
 
-La plataforma contempla integración con servicios asociados a:
+La integración de IA se encuentra separada de la lógica principal de negocio.
 
-- Stability AI.
-- Claude Vision.
-- Replicate.
-- Modelos de generación o procesamiento de imágenes.
+El flujo conceptual es:
 
-La aplicación actúa como intermediario entre el usuario y los servicios externos, aplicando validaciones, configuración, manejo de errores y registro de las operaciones.
+```text
+Frontend
+   │
+   ▼
+Backend
+   │
+   ▼
+Servicio de IA
+   │
+   ├────────► Proveedor externo de IA
+   │
+   └────────► Persistencia de metadatos
+```
 
-## Flujo general
+La aplicación mantiene la responsabilidad de validar las solicitudes, controlar el acceso, gestionar errores y registrar la información necesaria para la trazabilidad.
 
-El flujo general de una operación de IA comprende:
+## Servicios utilizados
 
-1. El usuario solicita una operación desde el frontend.
-2. El frontend envía la solicitud al backend.
-3. El backend valida los datos recibidos.
-4. Se determina el tipo de trabajo y configuración correspondiente.
-5. Se prepara la solicitud para el proveedor externo.
-6. Se ejecuta la operación.
-7. Se procesa la respuesta.
-8. Se registra información operativa de la solicitud.
-9. Se devuelve el resultado al frontend.
-10. El frontend presenta el resultado al usuario.
+La integración actual contempla proveedores y modelos externos para diferentes operaciones de IA.
 
-Los detalles concretos pueden variar según el proveedor y el tipo de operación.
+Entre los servicios utilizados se encuentran componentes relacionados con:
 
-## Tipos de operaciones
-
-Las operaciones de IA están relacionadas principalmente con trabajos visuales y procesamiento de referencias.
-
-La información de cada solicitud puede asociarse con un tipo de trabajo mediante el campo `trabajo_tipo` de `ia_requests`.
-
-No se debe asumir un catálogo cerrado de operaciones mientras este no se encuentre definido explícitamente en la implementación.
-
-## Modelos
-
-La tabla `ia_requests` registra el modelo utilizado mediante el campo `modelo`.
-
-El esquema establece como valor predeterminado:
-
-`runwayml/stable-diffusion-inpainting`
-
-La configuración efectiva del modelo puede depender del flujo y del proveedor utilizado.
-
-Los modelos deben considerarse configurables y sujetos a cambios, por lo que el modelo utilizado debe conservarse como parte de la información de la solicitud cuando corresponda.
-
-## Proveedores externos
-
-Las operaciones de IA dependen de servicios externos.
-
-Entre los proveedores o servicios integrados se encuentran:
-
-- Stability AI.
-- Claude Vision.
+- Stability AI;
+- Claude Vision;
 - Replicate.
 
-La disponibilidad, latencia, límites de uso, costos y respuestas de estos servicios están fuera del control directo de la plataforma.
+Los modelos concretos pueden variar según la operación y la configuración vigente.
 
-Por esta razón, los errores externos deben diferenciarse de los errores propios del backend.
-
-## Stability AI
-
-Stability AI forma parte de los servicios utilizados para determinadas operaciones de generación o procesamiento visual.
-
-Las operaciones deben considerar:
-
-- Disponibilidad del proveedor.
-- Credenciales.
-- Modelo configurado.
-- Tiempo de respuesta.
-- Código HTTP.
-- Errores del servicio.
-- Límites del proveedor.
-- Resultado obtenido.
-
-Se ha contemplado el manejo de respuestas de error del proveedor, incluyendo situaciones en las que el servicio puede responder con HTTP 402.
-
-Un error de este tipo debe interpretarse según la respuesta real del proveedor y no como un error genérico de infraestructura de la plataforma.
-
-## Claude Vision
-
-Claude Vision forma parte de las capacidades utilizadas para análisis visual.
-
-Las operaciones que dependen de visión deben considerar:
-
-- Imagen de entrada.
-- Solicitud enviada.
-- Respuesta del modelo.
-- Tiempo de procesamiento.
-- Errores del proveedor.
-- Límites del servicio.
-- Información registrada para diagnóstico.
-
-La aplicación debe evitar almacenar información sensible innecesaria asociada con las imágenes procesadas.
-
-## Replicate
-
-Replicate se utiliza como proveedor externo para determinadas operaciones de procesamiento de imágenes.
-
-Su integración debe contemplar:
-
-- Modelo utilizado.
-- Solicitud enviada.
-- Estado del procesamiento.
-- Tiempo de espera.
-- Resultado.
-- Errores.
-- Disponibilidad del proveedor.
-
-Las operaciones asincrónicas o de duración variable deben manejarse considerando los límites de tiempo y estados proporcionados por el servicio.
-
-## Imágenes de entrada
-
-Las imágenes constituyen uno de los principales datos utilizados por las operaciones de IA.
-
-El procesamiento debe considerar:
-
-- Formato.
-- Tamaño.
-- Dimensiones.
-- Validación.
-- Límites de contenido.
-- Almacenamiento temporal.
-- Protección de información.
-
-La tabla `ia_requests` registra `imagen_input_hash`, permitiendo asociar una solicitud con una representación de la imagen de entrada sin requerir almacenar necesariamente la imagen completa dentro del registro.
-
-## Imágenes de salida
-
-Los resultados visuales pueden registrarse mediante `resultado_url` en `ia_requests`.
-
-Las URLs de resultados deben manejarse considerando:
-
-- Disponibilidad del recurso.
-- Expiración cuando aplique.
-- Seguridad de acceso.
-- Persistencia.
-- Privacidad.
-- Dependencia del proveedor.
-
-No debe asumirse que una URL proporcionada por un servicio externo es permanente.
-
-## Validación de solicitudes
-
-Las solicitudes de IA deben validarse antes de enviarse a los proveedores externos.
-
-Entre los controles relevantes se encuentran:
-
-- Tipo de operación.
-- Datos requeridos.
-- Dimensiones de imagen.
-- Tamaño del contenido.
-- Parámetros permitidos.
-- Límites de entrada.
-- Formato esperado.
-
-Las validaciones deben ejecutarse antes de consumir recursos externos cuando sea posible.
-
-## Límites de contenido
-
-Las rutas relacionadas con IA y referencias deben considerar límites sobre el tamaño del contenido recibido.
-
-Esto permite:
-
-- Evitar solicitudes excesivamente grandes.
-- Reducir consumo de memoria.
-- Limitar abuso.
-- Prevenir procesamiento innecesario.
-- Controlar costos asociados a servicios externos.
-
-Los límites deben mantenerse alineados con las necesidades reales de las operaciones.
-
-## Seguridad
-
-Las operaciones de IA deben respetar los controles generales de seguridad de la plataforma.
-
-Se deben considerar:
-
-- Autenticación.
-- Autorización.
-- Aislamiento por `empresa_id`.
-- Validación de entrada.
-- Protección de credenciales.
-- Protección de imágenes.
-- Protección de resultados.
-- Límites de solicitudes.
-- Registro seguro.
-
-Las credenciales de proveedores externos no deben almacenarse en el código fuente ni exponerse al frontend.
-
-## Aislamiento multiempresa
-
-Las solicitudes de IA deben ejecutarse dentro del contexto de la empresa correspondiente.
-
-La tabla `ia_requests` contiene `empresa_id`, lo que permite asociar cada solicitud con su empresa.
-
-Las operaciones deben impedir que una empresa consulte o utilice información generada para otra empresa sin autorización.
-
-## Registro de solicitudes
-
-La tabla `ia_requests` permite conservar información operativa de las solicitudes.
-
-Entre los campos relevantes se encuentran:
-
-- `empresa_id`.
-- `usuario_id`.
-- `trabajo_tipo`.
-- `prompt`.
-- `imagen_input_hash`.
-- `resultado_url`.
-- `modelo`.
-- `duracion_ms`.
-- `status`.
-- `created_at`.
-
-Esta información permite relacionar una operación con su contexto y analizar posteriormente su comportamiento.
-
-## Estados de las solicitudes
-
-El campo `status` utiliza los siguientes estados:
-
-- `OK`.
-- `ERROR`.
-- `TIMEOUT`.
-
-Estos estados permiten distinguir entre una operación completada correctamente, una operación que produjo un error y una operación que excedió el tiempo establecido.
-
-## Rendimiento
-
-Las operaciones de IA pueden presentar una latencia superior a las operaciones normales de la API debido a la dependencia de servicios externos.
-
-El campo `duracion_ms` permite registrar la duración de una solicitud.
-
-Las métricas relevantes incluyen:
-
-- Duración.
-- Tasa de éxito.
-- Tasa de error.
-- Timeouts.
-- Respuestas del proveedor.
-- Frecuencia de uso.
-
-Las mediciones deben utilizarse para establecer líneas base antes de definir umbrales de rendimiento.
-
-## Timeouts
-
-Las operaciones de IA deben disponer de mecanismos para evitar que una solicitud externa bloquee indefinidamente una operación del backend.
-
-Cuando una operación supera el límite establecido debe registrarse como `TIMEOUT` cuando corresponda.
-
-El timeout debe diferenciarse de un error explícito devuelto por el proveedor.
-
-## Manejo de errores
-
-Los errores pueden originarse en:
-
-- Validación local.
-- Backend.
-- Credenciales.
-- Red.
-- Proveedor externo.
-- Modelo.
-- Tiempo de espera.
-- Procesamiento de imágenes.
-- Recursos externos.
-
-El sistema debe clasificar el error de forma que permita determinar si requiere reintento, corrección de entrada o intervención operativa.
-
-## Reintentos
-
-Los reintentos deben utilizarse únicamente cuando la operación pueda repetirse de forma segura.
-
-No todos los errores deben generar reintentos automáticos.
-
-Antes de reintentar se debe considerar:
-
-- Tipo de error.
-- Estado del proveedor.
-- Idempotencia.
-- Costo.
-- Tiempo transcurrido.
-- Número de intentos.
-
-Los reintentos excesivos pueden incrementar el consumo de recursos y los costos del proveedor.
-
-## Costos
-
-Las operaciones de IA pueden generar costos asociados al uso de proveedores externos.
-
-El diseño debe permitir observar:
-
-- Cantidad de solicitudes.
-- Tipo de operación.
-- Modelo.
-- Duración.
-- Errores.
-- Uso por empresa.
-
-No se debe asumir un costo específico mientras no exista información contractual o tarifaria verificable del proveedor correspondiente.
-
-## Observabilidad
-
-Las operaciones de IA forman parte de la estrategia general de observabilidad.
-
-La información registrada en `ia_requests` puede relacionarse con:
-
-- Logs.
-- Métricas.
-- Trazabilidad.
-- Auditoría cuando corresponda.
-- Alertas.
-- Diagnóstico.
-
-La duración y el estado de cada solicitud permiten identificar degradaciones o incrementos de errores.
-
-## Auditoría
-
-No toda solicitud de IA constituye automáticamente un evento de auditoría.
-
-La auditoría debe reservarse para eventos que requieran persistencia por motivos de seguridad, control o trazabilidad administrativa.
-
-Los registros operativos de IA deben diferenciarse de los eventos persistentes de auditoría.
-
-## Protección de información
-
-Los prompts, imágenes y resultados pueden contener información proporcionada por los usuarios.
-
-La plataforma debe evitar:
-
-- Exposición innecesaria.
-- Registro de información sensible en logs.
-- Inclusión de credenciales en prompts.
-- Acceso entre empresas.
-- Almacenamiento innecesario.
-
-La información enviada a proveedores externos debe limitarse a lo necesario para ejecutar la operación solicitada.
-
-## Disponibilidad de proveedores
-
-La disponibilidad de un servicio de IA externo no está completamente bajo control de la plataforma.
-
-La aplicación debe contemplar:
-
-- Errores temporales.
-- Timeouts.
-- Respuestas inválidas.
-- Límites del proveedor.
-- Cambios de modelo.
-- Indisponibilidad.
-- Errores de autenticación.
-
-Cuando sea posible, estos eventos deben registrarse de forma diferenciada.
-
-## Dependencia externa
-
-La funcionalidad de IA debe considerarse una dependencia externa del sistema.
-
-Una falla del proveedor no debe provocar una degradación innecesaria de funcionalidades que no dependen de IA.
-
-La arquitectura debe mantener separadas las operaciones de IA de los procesos esenciales que pueden funcionar independientemente.
+Los nombres de modelos y proveedores deben mantenerse en configuración cuando sea posible, evitando acoplar credenciales o configuraciones sensibles directamente al código.
 
 ## Configuración
 
-Las configuraciones relacionadas con IA deben mantenerse fuera del código cuando correspondan a:
+Las credenciales de proveedores externos deben configurarse mediante variables de entorno o el mecanismo de secretos disponible en el entorno de ejecución.
 
-- Credenciales.
-- URLs de servicios.
-- Identificadores de modelos.
-- Límites.
-- Timeouts.
-- Parámetros dependientes del entorno.
+No se deben almacenar:
 
-Los secretos deben gestionarse mediante las configuraciones de entorno correspondientes.
+- API keys;
+- tokens;
+- credenciales;
+- claves privadas;
+- secretos de proveedores
 
-## Estado actual
+dentro del repositorio.
 
-La plataforma dispone de integración con servicios de inteligencia artificial para operaciones relacionadas con imágenes y referencias.
+La documentación debe describir el nombre y finalidad de las variables sin exponer sus valores.
 
-La tabla `ia_requests` proporciona persistencia de información operativa sobre las solicitudes, incluyendo modelo, duración y estado.
+## Flujo de una solicitud
 
-También existe manejo de errores de proveedores externos y consideración de escenarios de timeout.
+El flujo general de una operación de IA es:
 
-## Aspectos pendientes
+```text
+Solicitud del usuario
+        ↓
+Autenticación
+        ↓
+Autorización
+        ↓
+Validación de entrada
+        ↓
+Validación de límites
+        ↓
+Preparación de solicitud
+        ↓
+Proveedor de IA
+        ↓
+Procesamiento de respuesta
+        ↓
+Persistencia de metadatos
+        ↓
+Respuesta al cliente
+```
 
-Queda pendiente:
+Los pasos exactos dependen del servicio utilizado.
 
-- Definir formalmente los contratos de cada proveedor.
-- Establecer líneas base de rendimiento de IA.
-- Definir métricas operativas específicas.
-- Establecer umbrales de alertas.
-- Documentar límites por proveedor.
-- Definir políticas formales de retención de resultados.
-- Documentar estrategias de fallback por operación.
-- Revisar periódicamente modelos y proveedores.
-- Evaluar costos reales de operación.
-- Incorporar pruebas de rendimiento específicas para IA.
+## Validación de entradas
+
+Las entradas utilizadas por los servicios de IA deben validarse antes de ser procesadas.
+
+La validación debe considerar, según la operación:
+
+- tipo de contenido;
+- tamaño;
+- formato;
+- longitud;
+- parámetros permitidos;
+- referencias existentes;
+- identificadores válidos.
+
+Los límites deben impedir que entradas excesivamente grandes produzcan consumo innecesario de recursos o errores del proveedor.
+
+## Prompts
+
+Los prompts deben tratarse como entradas controladas por la aplicación.
+
+Cuando una operación utilice prompts base asociados a un trabajo, estos deben gestionarse mediante la configuración correspondiente.
+
+Los prompts no deben contener secretos ni información sensible innecesaria.
+
+Cuando se almacenen prompts como parte de la trazabilidad, debe evaluarse si su contenido contiene información que requiera protección adicional.
+
+## Procesamiento de imágenes
+
+Las operaciones que trabajen con imágenes deben validar:
+
+- formato;
+- tamaño;
+- dimensiones;
+- origen;
+- contenido permitido;
+- límites de procesamiento.
+
+El procesamiento debe evitar aceptar archivos que superen los límites establecidos por la aplicación o por el proveedor externo.
+
+Cuando una operación requiera redimensionamiento o transformación de una imagen, esta debe realizarse antes de enviarla al servicio externo cuando corresponda.
+
+## Referencias
+
+El sistema contempla referencias asociadas a trabajos para apoyar determinadas operaciones de IA.
+
+Las referencias pueden incluir información como:
+
+- archivo;
+- descriptores;
+- peso;
+- estado de actividad;
+- relación con el trabajo.
+
+La selección de referencias debe respetar el contexto de la operación y las restricciones de acceso correspondientes.
+
+## Persistencia
+
+Las solicitudes de IA se registran en la tabla:
+
+```text
+ia_requests
+```
+
+La tabla mantiene información relacionada con la ejecución de una solicitud, incluyendo:
+
+- empresa;
+- usuario;
+- tipo de trabajo;
+- prompt;
+- hash de imagen de entrada;
+- URL del resultado;
+- modelo;
+- duración;
+- estado;
+- fecha de creación.
+
+Esta información permite conservar trazabilidad sobre las operaciones realizadas.
+
+## Multi-tenancy
+
+Las operaciones de IA deben respetar el aislamiento por empresa.
+
+Las solicitudes y referencias relacionadas con una empresa no deben quedar disponibles para otra empresa mediante consultas que omitan el contexto de tenant.
+
+El contexto de `empresa_id` debe conservarse durante el flujo correspondiente.
+
+## Autenticación y autorización
+
+Las operaciones de IA deben ejecutarse dentro del modelo de autenticación y autorización de la aplicación.
+
+La existencia de una ruta de IA no implica que cualquier usuario autenticado pueda ejecutar todas las operaciones.
+
+Las autorizaciones deben determinarse según la funcionalidad y el rol correspondiente.
+
+## Errores
+
+Los proveedores externos pueden producir errores por diferentes causas, entre ellas:
+
+- credenciales inválidas;
+- límites de uso;
+- solicitudes rechazadas;
+- contenido inválido;
+- indisponibilidad;
+- timeout;
+- respuestas inesperadas;
+- errores internos del proveedor.
+
+El backend debe transformar estos errores en respuestas controladas para el cliente sin exponer información sensible de infraestructura.
+
+## Errores de facturación o cuota
+
+Algunos proveedores pueden rechazar solicitudes cuando la cuenta no dispone de crédito o cuando se alcanza un límite de uso.
+
+Por ejemplo, una respuesta HTTP `402` puede indicar un problema relacionado con pago o crédito del proveedor.
+
+Este escenario debe diferenciarse de:
+
+- una entrada inválida;
+- un error interno;
+- un timeout;
+- una indisponibilidad temporal.
+
+La aplicación debe registrar el error de forma suficiente para diagnosticarlo sin exponer credenciales.
+
+## Timeouts
+
+Las solicitudes externas deben disponer de límites de tiempo adecuados.
+
+Un proveedor que no responda dentro del tiempo esperado no debe bloquear indefinidamente el proceso del backend.
+
+Los timeouts deben producir un resultado controlado y permitir registrar la duración y estado de la operación cuando corresponda.
+
+## Reintentos
+
+Los reintentos deben utilizarse únicamente cuando el tipo de error pueda beneficiarse de ellos.
+
+No se deben repetir automáticamente operaciones cuando:
+
+- la solicitud no es idempotente;
+- el proveedor rechazó permanentemente el contenido;
+- las credenciales son inválidas;
+- se agotó una cuota;
+- repetir la operación puede generar costos o efectos duplicados.
+
+Cuando se utilicen reintentos, deben existir límites claros.
+
+## Idempotencia
+
+Las operaciones que puedan generar costos, recursos o efectos externos deben analizarse desde el punto de vista de idempotencia.
+
+Antes de introducir reintentos automáticos se debe determinar si una misma solicitud puede producir más de un resultado o generar cargos adicionales.
+
+Cuando una operación requiera garantías de idempotencia, estas deben implementarse explícitamente y documentarse.
+
+## Trazabilidad
+
+La aplicación debe conservar información suficiente para relacionar una operación de IA con:
+
+- usuario;
+- empresa;
+- tipo de trabajo;
+- modelo;
+- resultado;
+- duración;
+- estado.
+
+La trazabilidad no debe implicar registrar secretos ni información innecesaria.
+
+## Hash de entrada
+
+Cuando una solicitud utilice una imagen de entrada, el sistema puede almacenar un hash para facilitar la identificación de entradas sin necesidad de conservar directamente todo el contenido original como parte del registro de la solicitud.
+
+El hash no debe considerarse una sustitución de los mecanismos de control de acceso.
+
+## Resultados
+
+Los resultados generados por proveedores externos deben procesarse y almacenarse de acuerdo con el flujo de la aplicación.
+
+Las URL de resultados deben tratarse como datos de aplicación y no como credenciales.
+
+Cuando un proveedor utilice URLs temporales, debe considerarse su duración y disponibilidad antes de depender de ellas para procesos posteriores.
+
+## Seguridad
+
+Las integraciones de IA deben considerar:
+
+- protección de credenciales;
+- validación de entradas;
+- límites de contenido;
+- aislamiento multi-tenant;
+- autorización;
+- control de archivos;
+- protección de logs;
+- manejo de errores;
+- timeouts;
+- dependencias externas.
+
+No se debe confiar en que el proveedor externo valide todos los requisitos de seguridad propios de la aplicación.
+
+## Datos personales
+
+Antes de enviar información a un proveedor externo se debe determinar si contiene datos personales o información sensible.
+
+Solo deben enviarse los datos necesarios para la finalidad de la operación.
+
+El uso de proveedores externos debe mantenerse alineado con las consideraciones documentadas en:
+
+`docs/Documentación Legal/compliance.md`
+
+## Disponibilidad de proveedores
+
+Los proveedores externos representan dependencias fuera del control directo de la aplicación.
+
+La aplicación debe contemplar la posibilidad de:
+
+- indisponibilidad;
+- latencia elevada;
+- cambios de API;
+- cambios de modelos;
+- límites de uso;
+- errores;
+- cambios de precios o condiciones.
+
+Una dependencia externa no debe considerarse equivalente a un componente interno del sistema.
+
+## Costos
+
+Las operaciones de IA pueden generar consumo de recursos o costos asociados al proveedor.
+
+Los cambios que incrementen significativamente:
+
+- frecuencia de solicitudes;
+- tamaño de imágenes;
+- cantidad de referencias;
+- resolución;
+- número de reintentos;
+- modelos utilizados
+
+deben revisarse antes de incorporarse.
+
+## Observabilidad
+
+Las operaciones de IA deben integrarse con los mecanismos generales de observabilidad del sistema.
+
+Cuando sea relevante, deben poder analizarse:
+
+- cantidad de solicitudes;
+- estados;
+- duración;
+- errores;
+- timeouts;
+- proveedor;
+- modelo;
+- consumo de recursos.
+
+La información de observabilidad no debe exponer secretos.
+
+## Pruebas
+
+Los servicios de IA deben probarse utilizando mocks o mecanismos equivalentes cuando una prueba no requiera consumir realmente un proveedor externo.
+
+Las pruebas deben contemplar, según corresponda:
+
+- respuesta exitosa;
+- entrada inválida;
+- error del proveedor;
+- timeout;
+- respuesta inesperada;
+- proveedor sin crédito;
+- fallo de procesamiento;
+- persistencia de la solicitud;
+- aislamiento por empresa.
+
+Las pruebas contra proveedores reales deben utilizarse únicamente cuando sean necesarias y bajo una configuración controlada.
+
+## Cambios de proveedor o modelo
+
+Un cambio de proveedor o modelo debe analizar:
+
+- formato de entrada;
+- formato de salida;
+- calidad esperada;
+- límites;
+- latencia;
+- costos;
+- errores;
+- configuración;
+- credenciales;
+- pruebas;
+- impacto sobre los consumidores.
+
+El cambio debe documentarse cuando afecte el comportamiento observable del sistema.
+
+## Gestión de versiones
+
+Los modelos externos pueden cambiar su comportamiento aunque la aplicación no cambie su código.
+
+Cuando la estabilidad del resultado sea importante, se debe identificar el modelo utilizado y registrar su configuración cuando sea posible.
+
+Las actualizaciones de modelos deben validarse antes de incorporarse al entorno de producción.
+
+## CI/CD
+
+Las pruebas relacionadas con IA deben formar parte del pipeline cuando no requieran acceso real a proveedores externos.
+
+Las credenciales reales no deben incluirse en los archivos del repositorio ni en configuraciones de prueba.
+
+Cuando una integración externa requiera credenciales durante una ejecución controlada de CI/CD, estas deben proporcionarse mediante secretos del entorno correspondiente.
+
+## Incidentes
+
+Cuando una integración de IA provoque un incidente, se debe registrar:
+
+- proveedor;
+- modelo;
+- operación;
+- versión desplegada;
+- tipo de error;
+- duración;
+- impacto;
+- respuesta aplicada;
+- resultado.
+
+Los incidentes relevantes deben utilizarse para mejorar pruebas, observabilidad y documentación.
+
+## Mantenimiento
+
+Este documento debe actualizarse cuando cambien:
+
+- proveedores;
+- modelos;
+- flujos de IA;
+- límites de entrada;
+- almacenamiento;
+- variables de entorno;
+- mecanismos de autenticación;
+- pruebas;
+- estrategia de observabilidad.
+
+La documentación debe reflejar las integraciones realmente disponibles.
 
 ## Documentación relacionada
 
-| Documento | Relación |
-|---|---|
-| [Arquitectura](../Arquitectura/architecture.md) | Contexto arquitectónico de la plataforma. |
-| [API](../API/api-contracts.md) | Contratos de las operaciones expuestas por el backend. |
-| [Observabilidad](../Observabilidad/observability.md) | Estrategia general de observabilidad. |
-| [Métricas](../Observabilidad/Metricas/metricas.md) | Indicadores relacionados con las operaciones de IA. |
-| [Logging](../Observabilidad/Logging/logging.md) | Registro de eventos y errores. |
-| [Trazabilidad](../Observabilidad/Trazabilidad/trazabilidad.md) | Correlación de solicitudes y operaciones. |
-| [Rendimiento](../Observabilidad/Rendimiento/rendimiento.md) | Análisis de latencia y rendimiento. |
-| [Seguridad](../Observabilidad/Seguridad/seguridad.md) | Controles y observabilidad de seguridad. |
-| [Diagnóstico](../Observabilidad/Diagnostico/diagnostico.md) | Investigación de errores y fallos. |
-| [Variables de entorno](../Despliegue/Configuracion/variables-entorno.md) | Configuración dependiente del entorno. |
-| [Secretos](../Despliegue/Configuracion/secretos.md) | Protección de credenciales. |
-| [Seguridad del despliegue](../Despliegue/Seguridad/seguridad-despliegue.md) | Controles de seguridad del entorno. |
-| [Base de Datos](../Base%20de%20Datos/database.md) | Persistencia de las solicitudes de IA. |
+- `docs/Arquitectura/architecture.md`
+- `docs/API/api-contracts.md`
+- `docs/Base de Datos/database.md`
+- `docs/Base de Datos/Entidades/ia-requests.md`
+- `docs/CI-CD/ci-cd.md`
+- `docs/Documentación Legal/compliance.md`
+- `docs/Observabilidad/observability.md`
+- `docs/Solucion de Problemas/troubleshooting.md`
+- `docs/Decisiones Técnicas/decisions.md`
