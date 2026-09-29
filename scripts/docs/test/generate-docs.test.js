@@ -4,7 +4,7 @@ const path = require('node:path');
 
 const {
   generateDocumentation,
-} = require('../generators/generate-docs');
+} = require('../generate-docs');
 
 describe('generación de documentación', () => {
   let tempDirectory;
@@ -19,6 +19,11 @@ describe('generación de documentación', () => {
       { recursive: true },
     );
 
+    fs.mkdirSync(
+      path.join(tempDirectory, 'database'),
+      { recursive: true },
+    );
+
     fs.writeFileSync(
       path.join(
         tempDirectory,
@@ -28,6 +33,36 @@ describe('generación de documentación', () => {
         'example.js',
       ),
       "router.get('/example', handler);",
+      'utf8',
+    );
+
+    fs.writeFileSync(
+      path.join(tempDirectory, 'database', 'schema.sql'),
+      `CREATE TABLE \`clientes\` (
+  \`id\` INT NOT NULL,
+  \`nombre\` VARCHAR(100) NOT NULL,
+  PRIMARY KEY (\`id\`)
+);
+
+CREATE TABLE \`proformas\` (
+  \`id\` INT NOT NULL,
+  \`cliente_id\` INT NOT NULL,
+  PRIMARY KEY (\`id\`),
+  CONSTRAINT \`fk_proforma_cliente\`
+    FOREIGN KEY (\`cliente_id\`)
+    REFERENCES \`clientes\` (\`id\`)
+);
+
+CREATE TRIGGER \`trg_cliente\`
+BEFORE INSERT ON \`clientes\`
+FOR EACH ROW
+SET NEW.nombre = TRIM(NEW.nombre);
+
+CREATE PROCEDURE \`sp_clientes\`()
+BEGIN
+  SELECT * FROM clientes;
+END;
+`,
       'utf8',
     );
   });
@@ -42,41 +77,138 @@ describe('generación de documentación', () => {
   it('genera los documentos esperados', () => {
     const generatedFiles = generateDocumentation(tempDirectory);
 
-    expect(generatedFiles).toHaveLength(3);
+    expect(generatedFiles).toHaveLength(15);
 
-    expect(
-      fs.existsSync(
-        path.join(
-          tempDirectory,
-          'docs',
-          'generated',
-          'README.md',
-        ),
-      ),
-    ).toBe(true);
+    const expectedFiles = [
+      'docs/generated/README.md',
+      'docs/generated/api/endpoints.md',
+      'docs/generated/architecture/project-structure.md',
+      'docs/generated/database/schema.md',
+      'docs/generated/database/entities.md',
+      'docs/generated/database/relations.md',
+      'docs/generated/database/indexes.md',
+      'docs/generated/database/programability.md',
+      'docs/generated/dependencies.md',
+      'docs/generated/documentation-manifest.md',
+      'docs/generated/project-metadata.md',
+      'docs/generated/quality/lint-evidence.md',
+      'docs/generated/quality/test-evidence.md',
+      'docs/generated/quality/tests.md',
+      'docs/generated/repository/git-info.md',
+    ];
 
-    expect(
-      fs.existsSync(
-        path.join(
-          tempDirectory,
-          'docs',
-          'generated',
-          'api',
-          'endpoints.md',
+    for (const relativePath of expectedFiles) {
+      expect(
+        fs.existsSync(
+          path.join(tempDirectory, relativePath),
         ),
-      ),
-    ).toBe(true);
+      ).toBe(true);
+    }
+  });
 
-    expect(
-      fs.existsSync(
-        path.join(
-          tempDirectory,
-          'docs',
-          'generated',
-          'architecture',
-          'project-structure.md',
-        ),
-      ),
-    ).toBe(true);
+  it('genera correctamente el esquema de base de datos', () => {
+    generateDocumentation(tempDirectory);
+
+    const schemaPath = path.join(
+      tempDirectory,
+      'docs',
+      'generated',
+      'database',
+      'schema.md',
+    );
+
+    const content = fs.readFileSync(schemaPath, 'utf8');
+
+    expect(content).toContain('clientes');
+    expect(content).toContain('proformas');
+    expect(content).toContain('trg_cliente');
+    expect(content).toContain('sp_clientes');
+  });
+
+  it('genera las relaciones de base de datos', () => {
+    generateDocumentation(tempDirectory);
+
+    const relationsPath = path.join(
+      tempDirectory,
+      'docs',
+      'generated',
+      'database',
+      'relations.md',
+    );
+
+    const content = fs.readFileSync(relationsPath, 'utf8');
+
+    expect(content).toContain('fk_proforma_cliente');
+    expect(content).toContain('clientes');
+    expect(content).toContain('cliente_id');
+  });
+
+  it('genera las entidades y columnas de base de datos', () => {
+    generateDocumentation(tempDirectory);
+
+    const entitiesPath = path.join(
+      tempDirectory,
+      'docs',
+      'generated',
+      'database',
+      'entities.md',
+    );
+
+    const content = fs.readFileSync(entitiesPath, 'utf8');
+
+    expect(content).toContain('## clientes');
+    expect(content).toContain('`id`');
+    expect(content).toContain('`nombre`');
+    expect(content).toContain('## proformas');
+  });
+
+  it('genera los índices de base de datos', () => {
+    generateDocumentation(tempDirectory);
+
+    const indexesPath = path.join(
+      tempDirectory,
+      'docs',
+      'generated',
+      'database',
+      'indexes.md',
+    );
+
+    const content = fs.readFileSync(indexesPath, 'utf8');
+
+    expect(content).toContain('PRIMARY');
+  });
+
+  it('genera el inventario de programabilidad', () => {
+    generateDocumentation(tempDirectory);
+
+    const programabilityPath = path.join(
+      tempDirectory,
+      'docs',
+      'generated',
+      'database',
+      'programability.md',
+    );
+
+    const content = fs.readFileSync(programabilityPath, 'utf8');
+
+    expect(content).toContain('trg_cliente');
+    expect(content).toContain('sp_clientes');
+  });
+
+  it('genera el manifiesto de documentación', () => {
+    generateDocumentation(tempDirectory);
+
+    const manifestPath = path.join(
+      tempDirectory,
+      'docs',
+      'generated',
+      'documentation-manifest.md',
+    );
+
+    const content = fs.readFileSync(manifestPath, 'utf8');
+
+    expect(content).toContain('docs/generated/database/schema.md');
+    expect(content).toContain('docs/generated/database/entities.md');
+    expect(content).toContain('docs/generated/database/relations.md');
   });
 });
