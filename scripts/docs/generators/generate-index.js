@@ -1,39 +1,88 @@
+const fs = require('node:fs');
 const path = require('node:path');
 
 const { writeGeneratedFile } = require('./write-file');
 
-function generateDocumentationIndex(rootDir) {
-  const content = `# Documentación generada
+const GENERATED_DIR = 'docs/generated';
 
-> Este archivo es generado automáticamente. No editar manualmente.
+function collectMarkdownFiles(directory, rootDirectory, files = []) {
+  if (!fs.existsSync(directory)) {
+    return files;
+  }
 
-La documentación de este directorio proviene de fuentes técnicas del proyecto y puede regenerarse mediante el flujo automatizado.
+  for (const entry of fs.readdirSync(directory, {
+    withFileTypes: true,
+  })) {
+    const fullPath = path.join(directory, entry.name);
 
-## Arquitectura
+    if (entry.isDirectory()) {
+      collectMarkdownFiles(
+        fullPath,
+        rootDirectory,
+        files,
+      );
+      continue;
+    }
 
-- [Estructura del proyecto](./architecture/project-structure.md)
+    if (
+      entry.isFile() &&
+      entry.name.endsWith('.md') &&
+      fullPath !== path.join(
+        rootDirectory,
+        'README.md',
+      )
+    ) {
+      files.push(
+        path.relative(rootDirectory, fullPath)
+          .replaceAll(path.sep, '/'),
+      );
+    }
+  }
 
-## API
+  return files.sort();
+}
 
-- [Catálogo de endpoints](./api/endpoints.md)
+function generateIndex(rootDir) {
+  const generatedDirectory = path.join(
+    rootDir,
+    GENERATED_DIR,
+  );
 
-## Proyecto
+  const files = collectMarkdownFiles(
+    generatedDirectory,
+    generatedDirectory,
+  );
 
-- [Metadatos del proyecto](./project-metadata.md)
-- [Dependencias](./dependencies.md)
+  const lines = [
+    '# Documentación generada',
+    '',
+    'Índice principal de la documentación técnica generada automáticamente.',
+    '',
+    '## Documentos',
+    '',
+  ];
 
-## Calidad
+  if (files.length === 0) {
+    lines.push(
+      'No existen documentos generados disponibles.',
+    );
+  } else {
+    for (const file of files) {
+      lines.push(
+        `- [${file}](${file})`,
+      );
+    }
+  }
 
-- [Evidencia automática de pruebas](./quality/tests.md)
-`;
+  lines.push('');
 
   return writeGeneratedFile(
     rootDir,
-    path.join('docs', 'generated', 'README.md'),
-    content,
+    'docs/generated/README.md',
+    lines.join('\n'),
   );
 }
 
 module.exports = {
-  generateDocumentationIndex,
+  generateIndex,
 };
