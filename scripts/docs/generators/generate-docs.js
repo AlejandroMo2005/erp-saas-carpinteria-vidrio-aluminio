@@ -2,6 +2,9 @@ const {
   generateApiCatalog,
 } = require('./generate-api-catalog');
 const {
+  generateDependencies,
+} = require('./generate-dependencies');
+const {
   generateDocumentationIndex,
 } = require('./generate-index');
 const {
@@ -19,6 +22,7 @@ function generateDocumentation(rootDir) {
 
   return [
     generateApiCatalog(rootDir),
+    generateDependencies(rootDir),
     generateDocumentationIndex(rootDir),
     generateProjectMetadata(rootDir),
     writeGeneratedFile(
