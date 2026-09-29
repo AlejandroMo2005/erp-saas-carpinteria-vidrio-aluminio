@@ -14,6 +14,9 @@ const {
   generateProjectStructure,
 } = require('./generate-project-structure');
 const {
+  generateTestsReport,
+} = require('./generate-tests-report');
+const {
   writeGeneratedFile,
 } = require('./write-file');
 
@@ -25,6 +28,7 @@ function generateDocumentation(rootDir) {
     generateDependencies(rootDir),
     generateDocumentationIndex(rootDir),
     generateProjectMetadata(rootDir),
+    generateTestsReport(rootDir),
     writeGeneratedFile(
       rootDir,
       projectStructure.relativePath,
