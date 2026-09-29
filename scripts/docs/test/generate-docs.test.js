@@ -41,13 +41,15 @@ describe('generación de documentación', () => {
       `CREATE TABLE \`clientes\` (
   \`id\` INT NOT NULL,
   \`nombre\` VARCHAR(100) NOT NULL,
-  PRIMARY KEY (\`id\`)
+  PRIMARY KEY (\`id\`),
+  UNIQUE KEY \`uq_cliente_nombre\` (\`nombre\`)
 );
 
 CREATE TABLE \`proformas\` (
   \`id\` INT NOT NULL,
   \`cliente_id\` INT NOT NULL,
   PRIMARY KEY (\`id\`),
+  KEY \`idx_proforma_cliente\` (\`cliente_id\`),
   CONSTRAINT \`fk_proforma_cliente\`
     FOREIGN KEY (\`cliente_id\`)
     REFERENCES \`clientes\` (\`id\`)
@@ -176,6 +178,8 @@ END;
     const content = fs.readFileSync(indexesPath, 'utf8');
 
     expect(content).toContain('PRIMARY');
+    expect(content).toContain('uq_cliente_nombre');
+    expect(content).toContain('idx_proforma_cliente');
   });
 
   it('genera el inventario de programabilidad', () => {
@@ -210,5 +214,27 @@ END;
     expect(content).toContain('docs/generated/database/schema.md');
     expect(content).toContain('docs/generated/database/entities.md');
     expect(content).toContain('docs/generated/database/relations.md');
+  });
+
+  it('mantiene estable el manifiesto al regenerar', () => {
+    generateDocumentation(tempDirectory);
+
+    const manifestPath = path.join(
+      tempDirectory,
+      'docs',
+      'generated',
+      'documentation-manifest.md',
+    );
+
+    const firstContent = fs.readFileSync(manifestPath, 'utf8');
+
+    generateDocumentation(tempDirectory);
+
+    const secondContent = fs.readFileSync(manifestPath, 'utf8');
+
+    expect(secondContent).toBe(firstContent);
+    expect(secondContent).not.toContain(
+      'documentation-manifest.md](documentation-manifest.md)',
+    );
   });
 });
