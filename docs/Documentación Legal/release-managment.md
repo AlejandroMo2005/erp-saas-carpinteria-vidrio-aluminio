@@ -1,322 +1,483 @@
-# Gestión de Versiones y Releases
+# Gestión de releases
 
-## 1. Propósito
+## Descripción
 
-Este documento define los criterios y procedimientos para gestionar versiones, releases y cambios publicables de la plataforma ERP/SaaS para negocios de carpintería de vidrio y aluminio.
+Este documento define las prácticas para preparar, verificar, documentar y publicar versiones del ERP/SaaS. Su objetivo es mantener trazabilidad sobre los cambios y reducir el riesgo de introducir regresiones durante la integración o el despliegue.
 
-La gestión de releases debe permitir identificar qué versión se publica, qué cambios contiene, qué validaciones fueron ejecutadas y qué componentes pueden verse afectados.
+## Objetivo
 
-El proceso debe mantener trazabilidad entre cambios de código, pruebas, artefactos, documentación y despliegues.
+Establecer un proceso controlado para:
 
-## 2. Alcance
+- preparar releases;
+- verificar cambios;
+- identificar la versión;
+- revisar dependencias;
+- ejecutar pruebas;
+- validar documentación;
+- registrar cambios relevantes;
+- gestionar incidencias posteriores a una release;
+- conservar evidencia del proceso.
 
-La gestión de releases contempla:
+## Alcance
 
-- código fuente del frontend;
-- código fuente del backend;
-- estructura y cambios de base de datos;
+Aplica a releases que involucren:
+
+- frontend;
+- backend;
+- base de datos;
+- API;
 - configuración;
-- dependencias;
-- documentación técnica;
-- pruebas automatizadas;
-- artefactos de construcción;
-- imágenes Docker cuando se adopte el despliegue mediante contenedores;
-- workflows de CI/CD;
-- cambios de seguridad;
-- correcciones de errores;
-- cambios funcionales;
-- procedimientos de rollback.
+- infraestructura;
+- CI/CD;
+- integraciones externas;
+- servicios de IA;
+- documentación asociada.
 
-## 3. Identificación de versiones
+## Principios
 
-Cada release debe poder asociarse de forma inequívoca con una versión concreta del código fuente.
+La gestión de releases debe seguir estos principios:
 
-La identificación debe considerar como mínimo:
+- trazabilidad entre cambios, commits y versión;
+- reproducibilidad del proceso;
+- validación automatizada;
+- cambios controlados;
+- documentación actualizada;
+- separación entre desarrollo y producción;
+- capacidad de identificar y revertir cambios cuando sea técnicamente posible.
 
-- commit asociado;
-- rama de origen;
-- versión publicada;
-- fecha de release;
-- cambios incluidos;
-- resultado de las validaciones;
-- artefactos generados;
-- entorno de destino.
+Una release no debe considerarse lista únicamente porque el código compile.
 
-El versionado definitivo debe establecerse de manera consistente antes de automatizar las publicaciones en producción.
+## Flujo general
 
-## 4. Relación entre Git y releases
+El flujo recomendado es:
 
-Git constituye la fuente de trazabilidad del código.
+```text
+Cambios integrados
+        ↓
+Revisión del estado del repositorio
+        ↓
+Validación de CI/CD
+        ↓
+Pruebas
+        ↓
+Revisión de seguridad y calidad
+        ↓
+Revisión de base de datos/API
+        ↓
+Actualización de documentación
+        ↓
+Preparación de release
+        ↓
+Identificación de versión
+        ↓
+Registro de cambios
+        ↓
+Despliegue
+        ↓
+Verificación posterior
+        ↓
+Registro de evidencia
+```
 
-Cada release debe poder relacionarse con:
+## Criterios previos
 
-1. commits incluidos;
-2. pull requests correspondientes;
-3. validaciones ejecutadas;
-4. artefactos generados;
-5. configuración utilizada;
-6. despliegue realizado.
+Antes de preparar una release se debe comprobar:
 
-No se debe considerar un release únicamente como una modificación manual del servidor.
+- que los cambios previstos estén integrados;
+- que no existan cambios locales no controlados que formen parte accidentalmente de la release;
+- que CI/CD haya ejecutado las verificaciones requeridas;
+- que las pruebas relevantes hayan pasado;
+- que no existan bloqueos conocidos sin una decisión explícita;
+- que la documentación afectada esté actualizada;
+- que las variables de entorno requeridas estén identificadas;
+- que los cambios de base de datos estén preparados;
+- que los cambios de API sean compatibles con sus consumidores.
 
-La versión desplegada debe poder determinarse posteriormente para facilitar diagnóstico, auditoría y rollback.
+## Versionado
 
-## 5. Convenciones de commits
+Las versiones deben utilizar una estrategia consistente y documentada.
 
-Los cambios del proyecto utilizan mensajes de commit orientados a identificar la naturaleza del cambio.
+Cuando el proyecto utilice Semantic Versioning, el formato será:
 
-Entre las categorías utilizadas se encuentran:
+```text
+MAJOR.MINOR.PATCH
+```
 
-- `feat`: nueva funcionalidad;
-- `fix`: corrección;
-- `refactor`: modificación estructural sin cambio funcional intencional;
-- `test`: incorporación o modificación de pruebas;
-- `docs`: documentación;
-- `ci`: cambios relacionados con integración o automatización;
-- `chore`: tareas de mantenimiento.
+De forma general:
 
-Los commits relacionados con releases deben conservar una descripción suficientemente precisa para identificar el alcance del cambio.
+- `MAJOR`: cambios incompatibles con versiones anteriores;
+- `MINOR`: funcionalidades compatibles nuevas;
+- `PATCH`: correcciones compatibles.
 
-## 6. Pull Requests
+La clasificación debe considerar el impacto real del cambio sobre los consumidores y no únicamente el tamaño del commit.
 
-Los cambios que formen parte de un release deben pasar por el flujo de integración definido para el repositorio.
+## Cambios incompatibles
 
-Antes de incorporar cambios se deben revisar, según corresponda:
+Antes de publicar un cambio incompatible se debe identificar:
 
-- pruebas unitarias;
-- pruebas de integración;
-- pruebas E2E;
-- lint;
-- cobertura;
-- análisis de seguridad;
-- análisis estático;
-- construcción del proyecto;
-- compatibilidad con cambios de base de datos.
+- endpoints afectados;
+- consumidores afectados;
+- cambios de esquema;
+- cambios de configuración;
+- cambios de autenticación;
+- cambios de comportamiento;
+- estrategia de migración;
+- necesidad de compatibilidad temporal.
 
-Las validaciones definitivas dependerán del estado de implementación del pipeline CI/CD.
+Los cambios incompatibles deben documentarse explícitamente en las notas de release.
 
-## 7. Criterios previos a un release
+## Preparación de la release
 
-Antes de publicar una versión se debe comprobar que:
+La preparación debe incluir una revisión del conjunto de cambios desde la versión anterior.
 
-- los cambios esperados están incorporados;
-- no existen cambios locales no controlados que afecten al release;
-- las pruebas correspondientes finalizan correctamente;
-- el frontend puede construirse;
-- el backend puede ejecutarse con su configuración correspondiente;
-- las migraciones requeridas están identificadas;
-- las variables de entorno necesarias están documentadas;
-- los secretos no forman parte del repositorio;
-- las modificaciones de seguridad fueron revisadas;
-- la documentación afectada está actualizada;
-- existe una estrategia de rollback cuando el cambio lo requiera.
-
-No debe asumirse que una versión está lista únicamente porque las pruebas unitarias sean exitosas.
-
-## 8. Release notes
-
-Cada release debe registrar de forma resumida los cambios relevantes.
-
-Las notas deben permitir identificar:
+Se deben identificar:
 
 - nuevas funcionalidades;
 - correcciones;
-- cambios de comportamiento;
-- modificaciones de seguridad;
+- refactorizaciones relevantes;
+- cambios de seguridad;
 - cambios de base de datos;
+- cambios de API;
 - cambios de configuración;
 - cambios de dependencias;
-- cambios incompatibles;
-- limitaciones conocidas;
-- acciones requeridas durante el despliegue.
+- cambios de infraestructura;
+- cambios documentales.
 
-Los cambios deben describirse de manera técnica y verificable, evitando afirmar funcionalidades que no hayan sido implementadas.
+Los cambios que no tengan impacto funcional directo también deben registrarse cuando puedan afectar operación, seguridad o mantenimiento.
 
-## 9. Cambios de base de datos
+## Pruebas de release
 
-Los cambios de esquema requieren un tratamiento independiente del código de aplicación.
+Las pruebas deben corresponder al alcance del cambio.
 
-Un release que modifique MySQL debe identificar:
+Pueden incluir:
+
+- pruebas unitarias;
+- pruebas de integración;
+- pruebas de API;
+- pruebas E2E;
+- pruebas de rendimiento;
+- pruebas de concurrencia;
+- pruebas de seguridad;
+- validaciones de base de datos.
+
+Las pruebas ejecutadas y su resultado deben quedar disponibles como evidencia del proceso.
+
+## Calidad y seguridad
+
+Antes de una release se deben revisar las verificaciones de calidad disponibles en CI/CD.
+
+Cuando corresponda, deben considerarse:
+
+- ESLint;
+- cobertura;
+- análisis estático;
+- análisis de dependencias;
+- DAST;
+- pruebas de seguridad;
+- resultados de SonarCloud;
+- vulnerabilidades conocidas;
+- configuración de seguridad.
+
+Un resultado no bloqueante no debe interpretarse automáticamente como ausencia de riesgo. Las decisiones sobre aceptación de riesgos deben quedar registradas cuando sean relevantes.
+
+## Cambios de base de datos
+
+Las releases que incluyan modificaciones de base de datos deben identificar:
 
 - tablas afectadas;
-- columnas modificadas;
+- columnas afectadas;
 - índices;
 - restricciones;
 - triggers;
 - procedimientos;
 - migraciones;
-- posibles incompatibilidades;
-- impacto sobre datos existentes;
-- estrategia de reversión.
+- compatibilidad con la versión anterior;
+- necesidad de datos de transición.
 
-Las migraciones potencialmente destructivas deben evaluarse antes de ser ejecutadas en producción.
+Las migraciones deben ejecutarse mediante un procedimiento controlado.
 
-Cuando una modificación no sea reversible directamente, el procedimiento de recuperación debe depender de un respaldo válido y de un plan de restauración previamente definido.
+Cuando un cambio no sea reversible automáticamente, la estrategia de recuperación debe definirse antes del despliegue.
 
-## 10. Compatibilidad entre frontend y backend
+## Cambios de API
 
-Las versiones del frontend y backend deben mantenerse compatibles.
+Una release que modifique la API debe verificar:
 
-Cuando exista un cambio de contrato de API se debe identificar:
-
-- endpoint afectado;
-- método HTTP;
-- estructura de solicitud;
-- estructura de respuesta;
-- autenticación requerida;
+- endpoints nuevos;
+- endpoints modificados;
+- endpoints eliminados;
+- parámetros;
+- esquemas de entrada;
+- respuestas;
 - códigos de error;
-- consumidores afectados;
-- versión compatible.
+- autenticación;
+- autorización;
+- compatibilidad con frontend y otros consumidores.
 
-Los cambios incompatibles no deben publicarse sin considerar el orden de despliegue necesario.
+Los cambios relevantes deben reflejarse en `docs/API/api-contracts.md`.
 
-## 11. Dependencias
+## Variables de entorno
 
-Los cambios de dependencias deben formar parte del control del release.
+Antes de publicar una release se debe verificar si se agregaron, eliminaron o modificaron variables de entorno.
 
-Antes de actualizar una dependencia relevante se debe comprobar:
+La documentación debe identificar:
 
+- nombre de la variable;
+- finalidad;
+- si es obligatoria;
+- entorno en el que se utiliza;
+- dependencia externa relacionada.
+
+Nunca se deben incluir valores reales de secretos en la documentación, commits o artefactos públicos.
+
+## Dependencias
+
+Las actualizaciones de dependencias deben revisarse antes de una release.
+
+La revisión debe considerar:
+
+- cambios incompatibles;
+- vulnerabilidades;
+- licencias;
+- impacto en el tamaño de la aplicación;
 - compatibilidad con Node.js;
-- compatibilidad con el proyecto;
-- impacto en pruebas;
-- impacto en seguridad;
-- cambios de API;
-- cambios de configuración;
-- tamaño o rendimiento cuando resulte relevante.
+- impacto sobre frontend y backend;
+- resultados de las pruebas.
 
-Las dependencias deben quedar registradas mediante los archivos de bloqueo correspondientes.
+No se debe actualizar una dependencia crítica automáticamente durante una release sin revisar sus posibles efectos.
 
-No se deben introducir actualizaciones automáticas destructivas como parte de un release sin revisión.
+## Notas de release
 
-## 12. Seguridad del release
+Cada release debe disponer de un registro de cambios suficientemente claro para identificar qué se modificó.
 
-Los releases deben conservar los controles de seguridad existentes.
+Una estructura posible es:
 
-Entre ellos:
+```markdown
+# Release X.Y.Z
 
-- gestión separada de secretos;
-- variables de entorno por ambiente;
+## Nuevas funcionalidades
+
+- ...
+
+## Correcciones
+
+- ...
+
+## Seguridad
+
+- ...
+
+## Base de datos
+
+- ...
+
+## API
+
+- ...
+
+## Infraestructura
+
+- ...
+
+## Documentación
+
+- ...
+
+## Cambios incompatibles
+
+- ...
+
+## Migraciones requeridas
+
+- ...
+
+## Verificaciones
+
+- ...
+
+## Observaciones
+
+- ...
+```
+
+Las notas deben describir cambios reales. No se deben registrar funcionalidades que no hayan sido incorporadas.
+
+## Evidencia
+
+Cuando sea posible, una release debe conservar evidencia de:
+
+- commit o referencia de versión;
+- ejecución de CI/CD;
+- pruebas;
+- análisis de calidad;
+- análisis de seguridad;
+- migraciones;
+- artefactos generados;
+- notas de release;
+- resultado de la verificación posterior al despliegue.
+
+La evidencia debe permitir reconstruir qué versión fue evaluada y publicada.
+
+## Despliegue
+
+El despliegue debe seguir el procedimiento definido en:
+
+`docs/Despliegue/deployment.md`
+
+Antes del despliegue se debe confirmar que la versión preparada corresponde a la versión que será desplegada.
+
+Cuando existan migraciones de base de datos, estas deben ejecutarse en el orden definido por el procedimiento de despliegue.
+
+## Verificación posterior
+
+Después del despliegue se debe verificar como mínimo:
+
+- disponibilidad de la aplicación;
+- estado del backend;
+- conectividad con dependencias críticas;
 - autenticación;
-- autorización;
-- aislamiento por `empresa_id`;
-- protección CSRF;
-- CORS;
-- cabeceras de seguridad;
-- rate limiting;
-- validación de entradas;
-- protección de sesiones y tokens;
-- blacklist de tokens mediante Redis;
-- registro de eventos de seguridad.
+- endpoints críticos;
+- acceso a base de datos;
+- operaciones principales;
+- logs relevantes;
+- errores inesperados.
 
-Las credenciales, tokens, claves privadas y otros secretos no deben incluirse en commits, artefactos públicos ni logs.
+Cuando el sistema disponga de health checks, estos deben utilizarse como parte de la verificación.
 
-## 13. Artefactos
+## Rollback
 
-Los artefactos de release deben poder relacionarse con la versión que los produjo.
+Debe existir una estrategia de recuperación para releases que presenten problemas críticos.
 
-Dependiendo del mecanismo de despliegue, pueden incluir:
+La estrategia puede incluir:
 
-- build del frontend;
-- paquete del backend;
-- reportes de pruebas;
-- reportes de cobertura;
-- resultados de análisis estático;
-- imágenes Docker;
-- documentación generada;
-- archivos de configuración no sensibles.
+- restauración de la versión anterior;
+- reversión de código;
+- restauración de configuración;
+- procedimiento específico para base de datos;
+- desactivación temporal de una funcionalidad;
+- corrección urgente mediante una nueva release.
 
-La generación y conservación de artefactos debe integrarse progresivamente al pipeline CI/CD.
+No se debe asumir que una migración de base de datos puede revertirse automáticamente.
 
-## 14. Ambientes
+Los cambios irreversibles deben identificarse antes del despliegue.
 
-El release debe avanzar por ambientes controlados.
+## Hotfix
 
-La estrategia documentada contempla:
+Un hotfix debe utilizarse para corregir problemas que requieran una liberación independiente del ciclo normal.
 
-- desarrollo;
-- testing;
-- staging;
-- producción.
+El proceso debe mantener:
 
-Los valores de configuración y secretos deben permanecer separados entre ambientes.
+- alcance reducido;
+- pruebas específicas;
+- revisión;
+- trazabilidad;
+- registro de la causa;
+- integración posterior con la línea principal cuando corresponda.
 
-Un artefacto validado debe poder identificarse antes de promoverse al siguiente ambiente.
+El hotfix no debe utilizarse como mecanismo habitual para evitar las verificaciones normales.
 
-## 15. Despliegue
+## Incidentes posteriores a una release
 
-El proceso de release debe separar:
+Cuando una release provoque un incidente, se debe registrar:
 
-1. preparación;
-2. validación;
-3. construcción;
-4. publicación del artefacto;
-5. despliegue;
-6. validación post-despliegue;
-7. confirmación;
-8. rollback cuando corresponda.
+- versión afectada;
+- fecha y hora;
+- componente afectado;
+- síntoma;
+- impacto;
+- causa identificada, cuando sea conocida;
+- acción aplicada;
+- resultado;
+- seguimiento requerido.
 
-Los health checks deben utilizarse para verificar el estado de los servicios después del despliegue.
+Los incidentes relevantes deben alimentar las decisiones de mantenimiento y deuda técnica.
 
-La documentación específica del despliegue se encuentra en `docs/Despliegue/`.
+## Release y documentación
 
-## 16. Rollback
+Una release debe mantener alineados:
 
-Todo release que pueda afectar la disponibilidad o integridad de la plataforma debe tener una estrategia de reversión adecuada.
-
-El rollback puede involucrar:
-
-- frontend;
-- backend;
+- código;
 - configuración;
-- imagen Docker;
-- dependencias;
+- API;
 - base de datos;
-- Redis;
-- infraestructura.
-
-Los cambios de base de datos requieren especial atención porque no todos son reversibles.
-
-El procedimiento detallado se encuentra en:
-
-`docs/Despliegue/Recuperacion/rollback.md`
-
-## 17. Releases con cambios críticos
-
-Los cambios que afecten directamente a:
-
-- autenticación;
-- autorización;
-- aislamiento multiempresa;
-- inventario;
-- proformas;
-- pedidos;
-- facturación;
-- secuencias de comprobantes;
-- integridad de datos;
+- arquitectura;
 - seguridad;
-- persistencia;
+- CI/CD;
+- despliegue;
+- notas de release.
 
-deben recibir una validación adicional antes de producción.
+Si una release modifica una de estas áreas, la documentación correspondiente debe revisarse.
 
-El criterio de validación debe considerar el impacto funcional y técnico del cambio, no únicamente la existencia de pruebas automatizadas.
+## Release y cumplimiento
 
-## 18. Trazabilidad
+Las releases que afecten datos personales, facturación, auditoría, autenticación o seguridad deben considerar los requisitos documentados en:
 
-Para cada release debe ser posible reconstruir al menos la siguiente relación:
+`docs/Documentación Legal/compliance.md`
+
+La existencia de un proceso de release no constituye por sí misma una certificación de cumplimiento legal.
+
+Los requisitos regulatorios específicos deben validarse conforme al contexto y normativa aplicable.
+
+## Responsabilidades
+
+La preparación de una release debe tener responsables identificables para:
+
+- revisión técnica;
+- validación de pruebas;
+- revisión de seguridad cuando corresponda;
+- cambios de base de datos;
+- despliegue;
+- verificación posterior;
+- documentación.
+
+Las responsabilidades concretas pueden variar según el tamaño del equipo y el entorno de despliegue.
+
+## Checklist de release
 
 ```text
-Release
-   ↓
-Versión / commit
-   ↓
-Cambios incorporados
-   ↓
-Pruebas y análisis
-   ↓
-Artefacto
-   ↓
-Ambiente
-   ↓
-Despliegue
-   ↓
-Validación post-despliegue
+[ ] Los cambios incluidos fueron identificados.
+[ ] El repositorio se encuentra en el estado esperado.
+[ ] CI/CD pasó las verificaciones requeridas.
+[ ] Las pruebas relevantes pasan.
+[ ] Se revisaron cambios de seguridad.
+[ ] Se revisaron dependencias.
+[ ] Se revisaron cambios de API.
+[ ] Se revisaron cambios de base de datos.
+[ ] Las migraciones requeridas están preparadas.
+[ ] Las variables de entorno fueron verificadas.
+[ ] La documentación afectada está actualizada.
+[ ] La versión fue identificada.
+[ ] Las notas de release fueron preparadas.
+[ ] La estrategia de rollback fue revisada cuando aplica.
+[ ] Se realizó el despliegue siguiendo el procedimiento correspondiente.
+[ ] Se ejecutaron verificaciones posteriores.
+[ ] Se conservó la evidencia disponible.
+```
+
+## Mantenimiento del proceso
+
+Este documento debe actualizarse cuando cambien:
+
+- la estrategia de versionado;
+- el pipeline de CI/CD;
+- el procedimiento de despliegue;
+- la estrategia de migraciones;
+- las herramientas de calidad;
+- las herramientas de seguridad;
+- la arquitectura;
+- la estrategia de recuperación.
+
+Los cambios deben reflejar el procedimiento realmente utilizado por el proyecto.
+
+## Documentación relacionada
+
+- `docs/Arquitectura/architecture.md`
+- `docs/API/api-contracts.md`
+- `docs/Base de Datos/database.md`
+- `docs/CI-CD/ci-cd.md`
+- `docs/Documentación Legal/compliance.md`
+- `docs/Documentación Legal/contributing.md`
+- `docs/Despliegue/deployment.md`
+- `docs/Observabilidad/observability.md`
+- `docs/Solucion de Problemas/troubleshooting.md`
+- `docs/Decisiones Técnicas/decisions.md`
+- `docs/Decisiones Técnicas/technical-debt.md`
