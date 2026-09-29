@@ -445,3 +445,15 @@ La decisión original no debe eliminarse si su historial resulta relevante para 
 | ID | Decisión | Estado |
 |---|---|---|
 | ADR-001 | Estructuración modular del backend | Aceptada |
+
+## Documentación relacionada
+
+- [Deuda técnica](technical-debt.md)
+- [Arquitectura](../Arquitectura/architecture.md)
+- [API](../API/api-contracts.md)
+- [Base de Datos](../Base%20de%20Datos/database.md)
+- [CI/CD](../CI-CD/ci-cd.md)
+- [Despliegue](../Despliegue/deployment.md)
+- [Observabilidad](../Observabilidad/observability.md)
+- [IA](../IA/ai.md)
+- [Solución de Problemas](../Solucion%20de%20Problemas/troubleshooting.md)
