@@ -39,6 +39,7 @@
     "e2e:report": "playwright show-report",
     "docs:generate": "node scripts/docs/generate-docs.js",
     "docs:validate": "node scripts/docs/validate-generated.js",
+    "docs:check": "npm run docs: generate && npm run docs:validate",
   },
   "devDependencies": {
     "@playwright/test": "^1.61.0",
