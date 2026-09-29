@@ -5,6 +5,9 @@ const {
   generateDocumentationIndex,
 } = require('./generate-index');
 const {
+  generateProjectMetadata,
+} = require('./generate-project-metadata');
+const {
   generateProjectStructure,
 } = require('./generate-project-structure');
 const {
@@ -17,6 +20,7 @@ function generateDocumentation(rootDir) {
   return [
     generateApiCatalog(rootDir),
     generateDocumentationIndex(rootDir),
+    generateProjectMetadata(rootDir),
     writeGeneratedFile(
       rootDir,
       projectStructure.relativePath,
