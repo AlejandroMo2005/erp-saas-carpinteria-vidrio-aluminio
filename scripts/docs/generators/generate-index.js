@@ -21,6 +21,10 @@ La documentación de este directorio proviene de fuentes técnicas del proyecto 
 
 - [Metadatos del proyecto](./project-metadata.md)
 - [Dependencias](./dependencies.md)
+
+## Calidad
+
+- [Evidencia automática de pruebas](./quality/tests.md)
 `;
 
   return writeGeneratedFile(
