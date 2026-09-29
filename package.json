@@ -36,7 +36,8 @@
     "e2e:ui": "playwright test --ui",
     "e2e:debug": "playwright test --debug",
     "e2e:headed": "playwright test --headed",
-    "e2e:report": "playwright show-report"
+    "e2e:report": "playwright show-report",
+    "docs:generate": "node scripts/docs/generate-docs.js"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.0",
