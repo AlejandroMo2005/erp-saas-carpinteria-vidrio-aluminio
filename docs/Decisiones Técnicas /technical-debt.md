@@ -233,3 +233,15 @@ Una deuda técnica puede considerarse resuelta cuando:
 El estado de la deuda debe actualizarse conforme avance la migración y las validaciones del proyecto.
 
 Los elementos resueltos deben conservarse como historial cuando permitan comprender decisiones o cambios relevantes de la arquitectura.
+
+## Documentación relacionada
+
+- [Decisiones técnicas](decisions.md)
+- [Arquitectura](../Arquitectura/architecture.md)
+- [Base de Datos](../Base%20de%20Datos/database.md)
+- [API](../API/api-contracts.md)
+- [CI/CD](../CI-CD/ci-cd.md)
+- [Despliegue](../Despliegue/deployment.md)
+- [Observabilidad](../Observabilidad/observability.md)
+- [IA](../IA/ai.md)
+- [Solución de Problemas](../Solucion%20de%20Problemas/troubleshooting.md)
