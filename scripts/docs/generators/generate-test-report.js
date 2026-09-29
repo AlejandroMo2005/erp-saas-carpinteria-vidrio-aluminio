@@ -3,39 +3,43 @@ const path = require('node:path');
 
 const { writeGeneratedFile } = require('./write-file');
 
-function findCoverageSummary(rootDir) {
+function findCoverageSummaries(rootDir) {
   const candidates = [
-    path.join(rootDir, 'coverage', 'coverage-summary.json'),
-    path.join(rootDir, 'backend', 'coverage', 'coverage-summary.json'),
+    {
+      name: 'Frontend',
+      path: path.join(rootDir, 'coverage', 'coverage-summary.json'),
+    },
+    {
+      name: 'Backend',
+      path: path.join(
+        rootDir,
+        'backend',
+        'coverage',
+        'coverage-summary.json',
+      ),
+    },
   ];
 
-  for (const filePath of candidates) {
-    if (fs.existsSync(filePath)) {
-      return JSON.parse(fs.readFileSync(filePath, 'utf8'));
-    }
-  }
-
-  return null;
+  return candidates
+    .filter(({ path: filePath }) => fs.existsSync(filePath))
+    .map(({ name, path: filePath }) => ({
+      name,
+      data: JSON.parse(fs.readFileSync(filePath, 'utf8')),
+    }));
 }
 
 function formatMetric(metric) {
-  if (!metric) {
+  if (!metric || metric.pct === undefined) {
     return 'No disponible';
   }
 
   return `${metric.pct}%`;
 }
 
-function generateTestsReport(rootDir) {
-  const coverage = findCoverageSummary(rootDir);
+function formatSummary(summary) {
+  const total = summary.data.total;
 
-  const total = coverage?.total;
-
-  const content = `# Evidencia automática de pruebas
-
-> Este archivo es generado automáticamente. No editar manualmente.
-
-## Cobertura
+  return `## ${summary.name}
 
 | Métrica | Resultado |
 |---|---:|
@@ -43,16 +47,27 @@ function generateTestsReport(rootDir) {
 | Branches | ${formatMetric(total?.branches)} |
 | Functions | ${formatMetric(total?.functions)} |
 | Lines | ${formatMetric(total?.lines)} |
+`;
+}
+
+function generateTestsReport(rootDir) {
+  const summaries = findCoverageSummaries(rootDir);
+
+  const content = `# Evidencia automática de pruebas
+
+> Este archivo es generado automáticamente. No editar manualmente.
+
+${summaries.length > 0
+    ? summaries.map(formatSummary).join('\n')
+    : 'No se encontraron reportes de cobertura disponibles.'}
 
 ## Fuente
 
-La información se obtiene del resumen de cobertura generado por Vitest.
+La información se obtiene de los archivos \`coverage-summary.json\`
+generados por Vitest.
 
-${
-  coverage
-    ? 'Se encontró un reporte de cobertura disponible en el repositorio.'
-    : 'No se encontró un reporte de cobertura. Ejecute las pruebas con cobertura antes de generar esta sección.'
-}
+La ausencia de un reporte no se interpreta como cobertura cero; indica
+que todavía no existe evidencia de cobertura disponible para ese entorno.
 `;
 
   return writeGeneratedFile(
