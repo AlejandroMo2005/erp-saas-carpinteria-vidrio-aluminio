@@ -1,9 +1,10 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const { writeGeneratedFile } = require('./write-file');
+const GENERATED_DIR = 'docs/generated';
+const MANIFEST_FILE = 'documentation-manifest.md';
 
-function collectGeneratedFiles(directory, rootDir, files = []) {
+function collectGeneratedFiles(directory, rootDirectory, files = []) {
   if (!fs.existsSync(directory)) {
     return files;
   }
@@ -12,14 +13,16 @@ function collectGeneratedFiles(directory, rootDir, files = []) {
     const fullPath = path.join(directory, entry.name);
 
     if (entry.isDirectory()) {
-      collectGeneratedFiles(fullPath, rootDir, files);
+      collectGeneratedFiles(fullPath, rootDirectory, files);
       continue;
     }
 
-    if (entry.isFile() && entry.name.endsWith('.md')) {
-      files.push(
-        path.relative(rootDir, fullPath).replaceAll(path.sep, '/'),
-      );
+    if (
+      entry.isFile() &&
+      entry.name.endsWith('.md') &&
+      fullPath !== path.join(rootDirectory, MANIFEST_FILE)
+    ) {
+      files.push(path.relative(rootDirectory, fullPath).replaceAll(path.sep, '/'));
     }
   }
 
@@ -27,34 +30,30 @@ function collectGeneratedFiles(directory, rootDir, files = []) {
 }
 
 function generateDocumentationManifest(rootDir) {
-  const generatedDir = path.join(rootDir, 'docs/generated');
-  const files = collectGeneratedFiles(generatedDir, rootDir);
+  const generatedDirectory = path.join(rootDir, GENERATED_DIR);
+  const manifestPath = path.join(generatedDirectory, MANIFEST_FILE);
 
-  const rows = files.length
-    ? files
-        .map((file) => `| \`${file}\` |`)
-        .join('\n')
-    : '| — |';
+  fs.mkdirSync(generatedDirectory, { recursive: true });
 
-  const content = `# Manifiesto automático de documentación
-
-> Este archivo es generado automáticamente. No editar manualmente.
-
-| Archivo generado |
-|---|
-${rows}
-
-## Resumen
-
-- Archivos Markdown generados: ${files.length}
-- Directorio raíz: \`docs/generated\`
-`;
-
-  return writeGeneratedFile(
-    rootDir,
-    'docs/generated/documentation-manifest.md',
-    content,
+  const files = collectGeneratedFiles(
+    generatedDirectory,
+    generatedDirectory,
   );
+
+  const content = [
+    '# Índice de documentación generada',
+    '',
+    'Este archivo se genera automáticamente a partir de los documentos disponibles en `docs/generated`.',
+    '',
+    '## Archivos generados',
+    '',
+    ...files.map((file) => `- [${file}](${file})`),
+    '',
+  ].join('\n');
+
+  fs.writeFileSync(manifestPath, content, 'utf8');
+
+  return manifestPath;
 }
 
 module.exports = {
