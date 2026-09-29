@@ -40,7 +40,7 @@
     "docs:generate": "node scripts/docs/generate-docs.js",
     "docs:validate": "node scripts/docs/validate-generated.js",
     "docs:validate-links": "node scripts/docs/validate-docs.js",
-    "docs:check": "npm run docs: generate && npm run docs:validate",
+    "docs:check": "npm run docs:generate && npm run docs:validate && npm run docs:validate-links"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.0",
