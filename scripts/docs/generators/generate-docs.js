@@ -7,6 +7,7 @@ const { generateDatabaseProgrammability } = require('./generators/generate-datab
 const { generateDatabaseRelations } = require('./generators/generate-database-relations');
 const { generateDatabaseSchema } = require('./generators/generate-database-schema');
 const { generateDependencies } = require('./generators/generate-dependencies');
+const { generateDocumentationManifest } = require('./generators/generate-documentation-manifest');
 const { generateGitInfo } = require('./generators/generate-git-info');
 const { generateIndex } = require('./generators/generate-index');
 const { generateLintEvidence } = require('./generators/generate-lint-evidence');
@@ -33,6 +34,7 @@ function generateDocumentation() {
   generatedFiles.push(generateProjectStructure(ROOT_DIR));
   generatedFiles.push(generateTestEvidence(ROOT_DIR));
   generatedFiles.push(generateTestsReport(ROOT_DIR));
+  generatedFiles.push(generateDocumentationManifest(ROOT_DIR));
   generatedFiles.push(generateIndex(ROOT_DIR));
 
   return generatedFiles;
