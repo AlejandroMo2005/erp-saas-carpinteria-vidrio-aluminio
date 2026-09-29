@@ -1,32 +1,32 @@
-#!/usr/bin/env node
-
 const path = require('node:path');
 
-const { generateApiCatalog } = require('./generators/generate-api-catalog');
-const { generateDocumentationIndex } = require('./generators/generate-index');
+const { generateApiCatalog } = require('./generate-api-catalog');
+const { generateDocumentationIndex } = require('./generate-index');
+const {
+  generateProjectStructure,
+} = require('./generate-project-structure');
+const { writeGeneratedFile } = require('./write-file');
 
-const ROOT_DIR = path.resolve(__dirname, '../..');
-
-function main() {
-  console.log('Iniciando generación de documentación...');
-
+function generateDocumentation(rootDir) {
   const generatedFiles = [
-    generateApiCatalog(ROOT_DIR),
-    generateDocumentationIndex(ROOT_DIR),
+    generateApiCatalog(rootDir),
+    generateDocumentationIndex(rootDir),
+    generateProjectStructure(rootDir),
   ];
 
-  console.log('\nDocumentación generada:');
+  const projectStructure = generateProjectStructure(rootDir);
 
-  for (const filePath of generatedFiles) {
-    console.log(`- ${filePath}`);
-  }
+  generatedFiles.push(
+    writeGeneratedFile(
+      rootDir,
+      projectStructure.relativePath,
+      projectStructure.content,
+    ),
+  );
 
-  console.log('\nGeneración completada.');
+  return generatedFiles;
 }
 
-main();
-```
-
-feat(docs): integrar índice en generación automática
-
-Integra la generación del índice de documentación con el flujo principal para que el catálogo y el índice se actualicen en una misma ejecución.
+module.exports = {
+  generateDocumentation,
+};
