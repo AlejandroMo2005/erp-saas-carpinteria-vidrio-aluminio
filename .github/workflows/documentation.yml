@@ -1,0 +1,48 @@
+name: Documentation
+
+on:
+  push:
+    branches:
+      - main
+      - develop
+  pull_request:
+    branches:
+      - main
+      - develop
+
+permissions:
+  contents: read
+
+jobs:
+  documentation:
+    name: Generate and validate documentation
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.19.4
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Generate documentation
+        run: npm run docs:generate
+
+      - name: Validate documentation
+        run: npm run docs:validate
+
+      - name: Validate documentation links
+        run: npm run docs:validate-links
+
+      - name: Upload generated documentation
+        uses: actions/upload-artifact@v4
+        with:
+          name: generated-documentation
+          path: docs/generated/
+          if-no-files-found: error
