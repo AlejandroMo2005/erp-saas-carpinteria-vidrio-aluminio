@@ -3,6 +3,8 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
+const { validateLinks } = require('./validate-links');
+
 const ROOT_DIR = path.resolve(__dirname, '../..');
 const GENERATED_DIR = path.join(ROOT_DIR, 'docs', 'generated');
 
@@ -45,6 +47,14 @@ function validateGeneratedDocumentation() {
         `El archivo no contiene un título Markdown válido: ${filePath}`,
       );
     }
+  }
+
+  const linkErrors = validateLinks(ROOT_DIR);
+
+  if (linkErrors.length > 0) {
+    throw new Error(
+      `Se encontraron ${linkErrors.length} enlaces internos inválidos.`,
+    );
   }
 
   console.log(
