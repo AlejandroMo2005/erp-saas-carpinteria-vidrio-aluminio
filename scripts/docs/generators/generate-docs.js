@@ -8,6 +8,9 @@ const {
   generateDocumentationIndex,
 } = require('./generate-index');
 const {
+  generateGitInfo,
+} = require('./generate-git-info');
+const {
   generateProjectMetadata,
 } = require('./generate-project-metadata');
 const {
@@ -27,6 +30,7 @@ function generateDocumentation(rootDir) {
     generateApiCatalog(rootDir),
     generateDependencies(rootDir),
     generateDocumentationIndex(rootDir),
+    generateGitInfo(rootDir),
     generateProjectMetadata(rootDir),
     generateTestsReport(rootDir),
     writeGeneratedFile(
