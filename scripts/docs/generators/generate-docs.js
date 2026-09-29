@@ -1,44 +1,36 @@
-const {
-  generateApiCatalog,
-} = require('./generate-api-catalog');
-const {
-  generateDependencies,
-} = require('./generate-dependencies');
-const {
-  generateDocumentationIndex,
-} = require('./generate-index');
-const {
-  generateGitInfo,
-} = require('./generate-git-info');
-const {
-  generateProjectMetadata,
-} = require('./generate-project-metadata');
-const {
-  generateProjectStructure,
-} = require('./generate-project-structure');
-const {
-  generateTestsReport,
-} = require('./generate-tests-report');
-const {
-  writeGeneratedFile,
-} = require('./write-file');
+const path = require('node:path');
 
-function generateDocumentation(rootDir) {
-  const projectStructure = generateProjectStructure(rootDir);
+const { generateApiCatalog } = require('./generators/generate-api-catalog');
+const { generateDatabaseEntities } = require('./generators/generate-database-entities');
+const { generateDatabaseSchema } = require('./generators/generate-database-schema');
+const { generateDependencies } = require('./generators/generate-dependencies');
+const { generateGitInfo } = require('./generators/generate-git-info');
+const { generateIndex } = require('./generators/generate-index');
+const { generateProjectMetadata } = require('./generators/generate-project-metadata');
+const { generateProjectStructure } = require('./generators/generate-project-structure');
+const { generateTestsReport } = require('./generators/generate-tests-report');
 
-  return [
-    generateApiCatalog(rootDir),
-    generateDependencies(rootDir),
-    generateDocumentationIndex(rootDir),
-    generateGitInfo(rootDir),
-    generateProjectMetadata(rootDir),
-    generateTestsReport(rootDir),
-    writeGeneratedFile(
-      rootDir,
-      projectStructure.relativePath,
-      projectStructure.content,
-    ),
-  ];
+const ROOT_DIR = path.resolve(__dirname, '../..');
+
+function generateDocumentation() {
+  const generatedFiles = [];
+
+  generatedFiles.push(generateApiCatalog(ROOT_DIR));
+  generatedFiles.push(generateDatabaseSchema(ROOT_DIR));
+  generatedFiles.push(generateDatabaseEntities(ROOT_DIR));
+  generatedFiles.push(generateDependencies(ROOT_DIR));
+  generatedFiles.push(generateGitInfo(ROOT_DIR));
+  generatedFiles.push(generateProjectMetadata(ROOT_DIR));
+  generatedFiles.push(generateProjectStructure(ROOT_DIR));
+  generatedFiles.push(generateTestsReport(ROOT_DIR));
+  generatedFiles.push(generateIndex(ROOT_DIR));
+
+  return generatedFiles;
+}
+
+if (require.main === module) {
+  generateDocumentation();
+  console.log('Documentación generada correctamente.');
 }
 
 module.exports = {
