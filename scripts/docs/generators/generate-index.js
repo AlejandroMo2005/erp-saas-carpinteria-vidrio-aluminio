@@ -9,9 +9,13 @@ function generateDocumentationIndex(rootDir) {
 
 La documentación de este directorio proviene de fuentes técnicas del proyecto y puede regenerarse mediante el flujo automatizado.
 
-## Catálogos
+## Arquitectura
 
-- [API](./api/endpoints.md)
+- [Estructura del proyecto](./architecture/project-structure.md)
+
+## API
+
+- [Catálogo de endpoints](./api/endpoints.md)
 `;
 
   return writeGeneratedFile(
