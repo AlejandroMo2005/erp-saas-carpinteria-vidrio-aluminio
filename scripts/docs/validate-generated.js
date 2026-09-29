@@ -9,7 +9,7 @@ const {
 } = require('./validate-generated-consistency');
 
 const ROOT_DIR = path.resolve(__dirname, '../..');
-const GENERATED_DIR = path.join(ROOT_DIR, 'docs', 'generated');
+const GENERATED_DIR_NAME = path.join('docs', 'generated');
 
 function findMarkdownFiles(directory) {
   if (!fs.existsSync(directory)) {
@@ -27,8 +27,9 @@ function findMarkdownFiles(directory) {
   });
 }
 
-function validateGeneratedDocumentation() {
-  const files = findMarkdownFiles(GENERATED_DIR);
+function validateGeneratedDocumentation(rootDir = ROOT_DIR) {
+  const generatedDirectory = path.join(rootDir, GENERATED_DIR_NAME);
+  const files = findMarkdownFiles(generatedDirectory);
 
   if (files.length === 0) {
     throw new Error(
@@ -52,7 +53,7 @@ function validateGeneratedDocumentation() {
     }
   }
 
-  const consistencyResult = validateGeneratedConsistency(ROOT_DIR);
+  const consistencyResult = validateGeneratedConsistency(rootDir);
 
   if (!consistencyResult.valid) {
     throw new Error(
@@ -60,7 +61,7 @@ function validateGeneratedDocumentation() {
     );
   }
 
-  const linkErrors = validateLinks(ROOT_DIR);
+  const linkErrors = validateLinks(rootDir);
 
   if (linkErrors.length > 0) {
     throw new Error(
@@ -71,11 +72,24 @@ function validateGeneratedDocumentation() {
   console.log(
     `Documentación generada válida: ${files.length} archivo(s).`,
   );
+
+  return {
+    valid: true,
+    files: files.length,
+  };
 }
 
-try {
-  validateGeneratedDocumentation();
-} catch (error) {
-  console.error(`Validación de documentación fallida: ${error.message}`);
-  process.exit(1);
+if (require.main === module) {
+  try {
+    validateGeneratedDocumentation();
+  } catch (error) {
+    console.error(
+      `Validación de documentación fallida: ${error.message}`,
+    );
+    process.exit(1);
+  }
 }
+
+module.exports = {
+  validateGeneratedDocumentation,
+};
