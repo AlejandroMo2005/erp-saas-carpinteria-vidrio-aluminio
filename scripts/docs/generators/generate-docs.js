@@ -2,6 +2,9 @@ const path = require('node:path');
 
 const { generateApiCatalog } = require('./generators/generate-api-catalog');
 const { generateDatabaseEntities } = require('./generators/generate-database-entities');
+const { generateDatabaseIndexes } = require('./generators/generate-database-indexes');
+const { generateDatabaseProgrammability } = require('./generators/generate-database-programmability');
+const { generateDatabaseRelations } = require('./generators/generate-database-relations');
 const { generateDatabaseSchema } = require('./generators/generate-database-schema');
 const { generateDependencies } = require('./generators/generate-dependencies');
 const { generateGitInfo } = require('./generators/generate-git-info');
@@ -18,6 +21,9 @@ function generateDocumentation() {
   generatedFiles.push(generateApiCatalog(ROOT_DIR));
   generatedFiles.push(generateDatabaseSchema(ROOT_DIR));
   generatedFiles.push(generateDatabaseEntities(ROOT_DIR));
+  generatedFiles.push(generateDatabaseRelations(ROOT_DIR));
+  generatedFiles.push(generateDatabaseIndexes(ROOT_DIR));
+  generatedFiles.push(generateDatabaseProgrammability(ROOT_DIR));
   generatedFiles.push(generateDependencies(ROOT_DIR));
   generatedFiles.push(generateGitInfo(ROOT_DIR));
   generatedFiles.push(generateProjectMetadata(ROOT_DIR));
