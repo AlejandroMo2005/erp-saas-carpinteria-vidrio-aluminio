@@ -9,8 +9,10 @@ const { generateDatabaseSchema } = require('./generators/generate-database-schem
 const { generateDependencies } = require('./generators/generate-dependencies');
 const { generateGitInfo } = require('./generators/generate-git-info');
 const { generateIndex } = require('./generators/generate-index');
+const { generateLintEvidence } = require('./generators/generate-lint-evidence');
 const { generateProjectMetadata } = require('./generators/generate-project-metadata');
 const { generateProjectStructure } = require('./generators/generate-project-structure');
+const { generateTestEvidence } = require('./generators/generate-test-evidence');
 const { generateTestsReport } = require('./generators/generate-tests-report');
 
 const ROOT_DIR = path.resolve(__dirname, '../..');
@@ -26,8 +28,10 @@ function generateDocumentation() {
   generatedFiles.push(generateDatabaseProgrammability(ROOT_DIR));
   generatedFiles.push(generateDependencies(ROOT_DIR));
   generatedFiles.push(generateGitInfo(ROOT_DIR));
+  generatedFiles.push(generateLintEvidence(ROOT_DIR));
   generatedFiles.push(generateProjectMetadata(ROOT_DIR));
   generatedFiles.push(generateProjectStructure(ROOT_DIR));
+  generatedFiles.push(generateTestEvidence(ROOT_DIR));
   generatedFiles.push(generateTestsReport(ROOT_DIR));
   generatedFiles.push(generateIndex(ROOT_DIR));
 
