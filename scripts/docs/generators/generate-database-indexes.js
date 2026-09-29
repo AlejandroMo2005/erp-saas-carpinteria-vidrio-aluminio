@@ -6,15 +6,35 @@ const { writeGeneratedFile } = require('./write-file');
 
 function extractIndexes(content) {
   const indexes = [];
+  const tableMatches = content.matchAll(
+    /CREATE\s+TABLE\s+(?:IF\s+NOT\s+EXISTS\s+)?`?([A-Za-z0-9_]+)`?\s*\(([\s\S]*?)\)\s*(?:ENGINE|;)/gi,
+  );
 
-  const pattern =
-    /(?:KEY|INDEX)\s+`([^`]+)`\s*\(([^)]+)\)/gi;
+  for (const tableMatch of tableMatches) {
+    const tableName = tableMatch[1];
+    const tableDefinition = tableMatch[2];
 
-  for (const match of content.matchAll(pattern)) {
-    indexes.push({
-      name: match[1],
-      columns: match[2].trim().replaceAll('`', ''),
-    });
+    const indexMatches = tableDefinition.matchAll(
+      /(?:PRIMARY\s+KEY|UNIQUE\s+(?:KEY|INDEX)|(?:KEY|INDEX))\s*(?:`([^`]+)`\s*)?\(([^)]+)\)/gi,
+    );
+
+    for (const indexMatch of indexMatches) {
+      const type = indexMatch[0]
+        .trim()
+        .split(/\s+/)
+        .slice(0, 2)
+        .join(' ');
+
+      indexes.push({
+        table: tableName,
+        name: indexMatch[1] || 'PRIMARY',
+        type,
+        columns: indexMatch[2]
+          .split(',')
+          .map((column) => column.trim().replace(/`/g, ''))
+          .filter(Boolean),
+      });
+    }
   }
 
   return indexes;
@@ -24,53 +44,43 @@ function generateDatabaseIndexes(rootDir) {
   const sources = collectDatabaseSources(rootDir);
   const indexes = [];
 
-  for (const source of sources) {
-    const content = fs.readFileSync(source, 'utf8');
-    const relativePath = path.relative(rootDir, source).replaceAll(path.sep, '/');
+  for (const sourcePath of sources) {
+    const content = fs.readFileSync(sourcePath, 'utf8');
 
     for (const index of extractIndexes(content)) {
       indexes.push({
         ...index,
-        source: relativePath,
+        source: path.relative(rootDir, sourcePath).replaceAll(path.sep, '/'),
       });
     }
   }
 
-  const uniqueIndexes = [
-    ...new Map(
-      indexes.map((index) => [
-        `${index.name}:${index.columns}:${index.source}`,
-        index,
-      ]),
-    ).values(),
+  const lines = [
+    '# Índices de base de datos',
+    '',
+    'Este archivo se genera automáticamente a partir de las fuentes SQL del proyecto.',
+    '',
   ];
 
-  const rows = uniqueIndexes.length
-    ? uniqueIndexes
-        .map(
-          (index) =>
-            `| \`${index.name}\` | \`${index.columns}\` | \`${index.source}\` |`,
-        )
-        .join('\n')
-    : '| — | — | — |';
+  if (indexes.length === 0) {
+    lines.push('No se encontraron índices definidos en las fuentes SQL.');
+  } else {
+    lines.push('| Tabla | Índice | Tipo | Columnas | Fuente |');
+    lines.push('|---|---|---|---|---|');
 
-  const content = `# Índices automáticos de base de datos
+    for (const index of indexes) {
+      lines.push(
+        `| \`${index.table}\` | \`${index.name}\` | ${index.type} | ${index.columns.map((column) => `\`${column}\``).join(', ')} | \`${index.source}\` |`,
+      );
+    }
+  }
 
-> Este archivo es generado automáticamente. No editar manualmente.
-
-| Índice | Columnas | Fuente |
-|---|---|---|
-${rows}
-
-## Resumen
-
-- Índices detectados: ${uniqueIndexes.length}
-`;
+  lines.push('');
 
   return writeGeneratedFile(
     rootDir,
     'docs/generated/database/indexes.md',
-    content,
+    lines.join('\n'),
   );
 }
 
