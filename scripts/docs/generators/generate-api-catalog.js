@@ -4,8 +4,6 @@ const { collectRouteFiles } = require('./collect-routes');
 const { parseRouteFiles } = require('./parse-routes');
 const { writeGeneratedFile } = require('./write-file');
 
-const ROOT_DIR = path.resolve(__dirname, '../../..');
-
 function formatRoutes(routes) {
   if (routes.length === 0) {
     return 'No se encontraron rutas HTTP en los archivos analizados.';
@@ -24,13 +22,13 @@ function formatRoutes(routes) {
   return sortedRoutes
     .map(
       ({ method, path: routePath }) =>
-        `| \`${method}\` | \`${routePath}\` | |`,
+        `| \`${method}\` | \`${routePath}\` |`,
     )
     .join('\n');
 }
 
-function generateApiCatalog() {
-  const routeFiles = collectRouteFiles();
+function generateApiCatalog(rootDir) {
+  const routeFiles = collectRouteFiles(rootDir);
   const routes = parseRouteFiles(routeFiles);
 
   const content = `# Catálogo automático de endpoints
@@ -39,8 +37,8 @@ function generateApiCatalog() {
 
 ## Endpoints detectados
 
-| Método | Ruta | Descripción |
-|---|---|---|
+| Método | Ruta |
+|---|---|
 ${formatRoutes(routes)}
 
 ## Fuente
@@ -52,12 +50,12 @@ Los endpoints se obtienen mediante análisis estático de los archivos de rutas 
 `;
 
   return writeGeneratedFile(
-    ROOT_DIR,
+    rootDir,
     'docs/generated/api/endpoints.md',
     content,
   );
 }
 
-const outputPath = generateApiCatalog();
-
-console.log(`Catálogo API generado: ${outputPath}`);
+module.exports = {
+  generateApiCatalog,
+};
