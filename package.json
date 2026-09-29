@@ -37,7 +37,8 @@
     "e2e:debug": "playwright test --debug",
     "e2e:headed": "playwright test --headed",
     "e2e:report": "playwright show-report",
-    "docs:generate": "node scripts/docs/generate-docs.js"
+    "docs:generate": "node scripts/docs/generate-docs.js",
+    "docs:validate": "node scripts/docs/validate-generated.js",
   },
   "devDependencies": {
     "@playwright/test": "^1.61.0",
