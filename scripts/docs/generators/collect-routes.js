@@ -1,12 +1,9 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const ROOT_DIR = path.resolve(__dirname, '../../..');
-const BACKEND_DIR = path.join(ROOT_DIR, 'backend');
-
 const ROUTE_DIRECTORIES = [
-  path.join(BACKEND_DIR, 'src', 'modules'),
-  path.join(BACKEND_DIR, 'src', 'routes'),
+  ['backend', 'src', 'modules'],
+  ['backend', 'src', 'routes'],
 ];
 
 function findJavaScriptFiles(directory) {
@@ -14,29 +11,23 @@ function findJavaScriptFiles(directory) {
     return [];
   }
 
-  const entries = fs.readdirSync(directory, { withFileTypes: true });
-  const files = [];
-
-  for (const entry of entries) {
+  return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
     const entryPath = path.join(directory, entry.name);
 
     if (entry.isDirectory()) {
-      files.push(...findJavaScriptFiles(entryPath));
-      continue;
+      return findJavaScriptFiles(entryPath);
     }
 
-    if (/\.(js|cjs|mjs)$/.test(entry.name)) {
-      files.push(entryPath);
-    }
-  }
-
-  return files;
+    return /\.(js|cjs|mjs)$/.test(entry.name) ? [entryPath] : [];
+  });
 }
 
-function collectRouteFiles() {
-  return ROUTE_DIRECTORIES
-    .flatMap(findJavaScriptFiles)
-    .filter((filePath, index, files) => files.indexOf(filePath) === index);
+function collectRouteFiles(rootDir) {
+  const files = ROUTE_DIRECTORIES.flatMap((segments) =>
+    findJavaScriptFiles(path.join(rootDir, ...segments)),
+  );
+
+  return [...new Set(files)];
 }
 
 module.exports = {
