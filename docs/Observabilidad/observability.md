@@ -83,15 +83,9 @@ La documentación de diagnóstico aborda el análisis sistemático de errores e 
 
 ## Documentación relacionada
 
-| **Documento** | **Contenido** |
-| ------------------------------ | ------------------------------ |
-| `Logging/logging.md` | Gestión de logs y registros de aplicación. |
-| `Metricas/metricas.md` | Métricas técnicas y operativas. |
-| `Health Checks/health-checks.md` | Comprobaciones de disponibilidad y estado. |
-| `Monitoreo/monitoreo.md` | Supervisión de componentes e infraestructura. |
-| `Alertas/alertas.md` | Alertas, umbrales y severidad. |
-| `Trazabilidad/trazabilidad.md` | Correlación y seguimiento de operaciones. |
-| `Auditoria/auditoria.md` | Auditoría de acciones relevantes. |
-| `Rendimiento/rendimiento.md` | Observación del rendimiento del sistema. |
-| `Seguridad/seguridad.md` | Seguridad aplicada a la observabilidad. |
-| `Diagnostico/diagnostico.md` | Diagnóstico de errores e incidentes. |
+| Documento | Relación |
+|---|---|
+| [Logging](./Logging/logging.md) | Registro y gestión de eventos de aplicación. |
+| [Métricas](./Metricas/metricas.md) | Métricas técnicas y operativas. |
+| [Health Checks](./Health%20Checks/health-checks.md) | Estado y disponibilidad de servicios. |
+| [Monitoreo](./Monitoreo/monitoreo.md) | Supervisión de la plataforma. |
