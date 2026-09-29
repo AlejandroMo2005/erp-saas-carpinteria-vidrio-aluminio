@@ -1,141 +1,56 @@
 # Observabilidad
 
-## Descripción
-
-## Objetivo
-
-## Principios de observabilidad
-
-## Logging
-
-### Objetivo
-
-### Winston
-
-### Niveles de log
-
-### Formato de logs
-
-### Contexto de las solicitudes
-
-### Request ID
-
-### Correlation ID
-
-## Eventos del sistema
-
-### Autenticación
-
-### Autorización
-
-### Operaciones de negocio
-
-### Errores
-
-### Integraciones externas
-
-### Inteligencia artificial
-
-### Base de datos
-
-## Auditoría
-
-### Objetivo
-
-### Acciones auditables
-
-### Datos registrados
-
-### Datos que no deben registrarse
-
-## Manejo de errores
-
-### Errores controlados
-
-### Errores inesperados
-
-### Errores de servicios externos
-
-### Errores de persistencia
-
-## Métricas
-
-### Tiempo de respuesta
-
-### Tasa de errores
-
-### Solicitudes
-
-### Base de datos
-
-### Redis
-
-### Servicios externos
-
-### Inteligencia artificial
-
-### Recursos del sistema
-
-## Health Checks
-
-### Aplicación
-
-### Base de datos
-
-### Redis
-
-### Dependencias externas
-
-## Rendimiento
-
-### Latencia
-
-### CPU
-
-### Memoria
-
-### Concurrencia
-
-### Consultas SQL
-
-## Monitoreo
-
-### Desarrollo
-
-### Testing
-
-### Producción
-
-## Alertas
-
-### Errores críticos
-
-### Disponibilidad
-
-### Rendimiento
-
-### Seguridad
-
-### Dependencias externas
-
-## Observabilidad y multi-tenancy
-
-## Observabilidad y seguridad
-
-## Retención de logs
-
-## Rotación de logs
-
-## Protección de información sensible
-
-## Integración con CI/CD
-
-## Reportes
-
-## Diagnóstico de incidentes
-
-## Procedimiento de análisis de fallos
-
-## Reglas para nuevos logs
-
-## Historial de cambios de observabilidad
+## 1. Propósito
+
+Este documento define los principios y mecanismos de observabilidad de la plataforma ERP/SaaS.
+
+La observabilidad permite conocer el estado interno del sistema a partir de señales operativas como logs, métricas, health checks, errores, tiempos de respuesta, eventos de seguridad y comportamiento de los servicios.
+
+Su objetivo es facilitar la detección, diagnóstico y seguimiento de incidentes sin depender exclusivamente de la inspección manual del código o de la base de datos.
+
+## 2. Alcance
+
+La observabilidad contempla:
+
+- frontend;
+- backend;
+- MySQL;
+- Redis;
+- servicios externos;
+- inteligencia artificial;
+- autenticación;
+- autorización;
+- multi-tenancy;
+- rendimiento;
+- errores;
+- logs;
+- health checks;
+- auditoría;
+- infraestructura;
+- CI/CD;
+- despliegues;
+- recuperación ante fallos.
+
+## 3. Principios
+
+La observabilidad debe cumplir los siguientes principios:
+
+- registrar información suficiente para diagnosticar problemas;
+- evitar registrar secretos o información sensible innecesaria;
+- diferenciar errores de aplicación, infraestructura y servicios externos;
+- relacionar eventos con usuarios y empresas cuando sea necesario;
+- mantener separación entre logs operativos y auditoría;
+- conservar trazabilidad entre despliegues e incidentes;
+- evitar generar información excesiva que dificulte el análisis;
+- utilizar señales objetivas para evaluar el estado del sistema.
+
+## 4. Señales principales
+
+La plataforma debe considerar tres señales principales:
+
+```text
+Logs
+  +
+Métricas
+  +
+Health checks
