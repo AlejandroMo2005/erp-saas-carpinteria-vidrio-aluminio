@@ -1,5 +1,4 @@
 const fs = require('node:fs');
-const path = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 
@@ -37,12 +36,12 @@ describe('validateGeneratedDocumentation', () => {
   it('valida correctamente documentación generada válida', () => {
     fs.writeFileSync(
       path.join(generatedDirectory, 'README.md'),
-      '# Documentación generada\n\nContenido.\n',
+      '# Documentación generada\n\n> Este archivo es generado automáticamente.\n',
       'utf8',
     );
 
     expect(() => {
-      validateGeneratedDocumentation();
+      validateGeneratedDocumentation(temporaryRoot);
     }).not.toThrow();
   });
 
@@ -53,7 +52,7 @@ describe('validateGeneratedDocumentation', () => {
     });
 
     expect(() => {
-      validateGeneratedDocumentation();
+      validateGeneratedDocumentation(temporaryRoot);
     }).toThrow(
       'No se encontraron archivos de documentación generada.',
     );
@@ -67,7 +66,7 @@ describe('validateGeneratedDocumentation', () => {
     );
 
     expect(() => {
-      validateGeneratedDocumentation();
+      validateGeneratedDocumentation(temporaryRoot);
     }).toThrow(
       'El archivo de documentación está vacío',
     );
@@ -81,7 +80,7 @@ describe('validateGeneratedDocumentation', () => {
     );
 
     expect(() => {
-      validateGeneratedDocumentation();
+      validateGeneratedDocumentation(temporaryRoot);
     }).toThrow(
       'El archivo no contiene un título Markdown válido',
     );
@@ -95,7 +94,7 @@ describe('validateGeneratedDocumentation', () => {
 
     fs.writeFileSync(
       path.join(generatedDirectory, 'README.md'),
-      '# Documentación\n\nContenido.\n',
+      '# Documentación\n\n> Este archivo es generado automáticamente.\n',
       'utf8',
     );
 
@@ -105,12 +104,12 @@ describe('validateGeneratedDocumentation', () => {
         'api',
         'endpoints.md',
       ),
-      '# Endpoints\n\nContenido.\n',
+      '# Endpoints\n\n> Este archivo es generado automáticamente.\n',
       'utf8',
     );
 
     expect(() => {
-      validateGeneratedDocumentation();
+      validateGeneratedDocumentation(temporaryRoot);
     }).not.toThrow();
   });
 });
