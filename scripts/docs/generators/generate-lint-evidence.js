@@ -27,58 +27,84 @@ function findLintReport(rootDir) {
     );
 }
 
+function readLintReport(report) {
+  try {
+    return JSON.parse(
+      fs.readFileSync(
+        report.absolutePath,
+        'utf8',
+      ),
+    );
+  } catch {
+    return null;
+  }
+}
+
+function calculateLintMetrics(data) {
+  if (!Array.isArray(data)) {
+    return null;
+  }
+
+  return {
+    files: data.length,
+    errors: data.reduce(
+      (total, item) =>
+        total + (item.errorCount ?? 0),
+      0,
+    ),
+    warnings: data.reduce(
+      (total, item) =>
+        total + (item.warningCount ?? 0),
+      0,
+    ),
+  };
+}
+
+function formatLintSummary(
+  report,
+  metrics,
+) {
+  return [
+    `Fuente: ${formatCode(
+      report.relativePath,
+    )}`,
+    '',
+    formatTable(
+      ['Métrica', 'Resultado'],
+      [
+        [
+          'Archivos analizados',
+          metrics.files,
+        ],
+        [
+          'Errores',
+          metrics.errors,
+        ],
+        [
+          'Advertencias',
+          metrics.warnings,
+        ],
+      ],
+    ),
+  ].join('\n');
+}
+
 function generateLintEvidence(rootDir) {
   const report = findLintReport(rootDir);
 
-  let summary = [
-    'No se encontró un informe ESLint en el repositorio.',
-  ].join('\n');
+  let summary =
+    'No se encontró un informe ESLint en el repositorio.';
 
   if (report) {
-    try {
-      const data = JSON.parse(
-        fs.readFileSync(
-          report.absolutePath,
-          'utf8',
-        ),
-      );
+    const data = readLintReport(report);
+    const metrics = calculateLintMetrics(data);
 
-      const files = data.length;
-      const errors = data.reduce(
-        (total, item) =>
-          total + (item.errorCount ?? 0),
-        0,
+    if (metrics) {
+      summary = formatLintSummary(
+        report,
+        metrics,
       );
-      const warnings = data.reduce(
-        (total, item) =>
-          total + (item.warningCount ?? 0),
-        0,
-      );
-
-      summary = [
-        `Fuente: ${formatCode(
-          report.relativePath,
-        )}`,
-        '',
-        formatTable(
-          ['Métrica', 'Resultado'],
-          [
-            [
-              'Archivos analizados',
-              files,
-            ],
-            [
-              'Errores',
-              errors,
-            ],
-            [
-              'Advertencias',
-              warnings,
-            ],
-          ],
-        ),
-      ].join('\n');
-    } catch {
+    } else {
       summary = [
         `El informe ${formatCode(
           report.relativePath,
@@ -110,5 +136,8 @@ function generateLintEvidence(rootDir) {
 module.exports = {
   REPORT_PATHS,
   findLintReport,
+  readLintReport,
+  calculateLintMetrics,
+  formatLintSummary,
   generateLintEvidence,
 };
