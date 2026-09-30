@@ -4,16 +4,25 @@ const path = require('node:path');
 const { writeGeneratedFile } = require('./write-file');
 
 const GENERATED_DIR = 'docs/generated';
+const INDEX_FILE = 'README.md';
 
-function collectMarkdownFiles(directory, rootDirectory, files = []) {
+function collectMarkdownFiles(
+  directory,
+  rootDirectory,
+  files = [],
+) {
   if (!fs.existsSync(directory)) {
     return files;
   }
 
-  for (const entry of fs.readdirSync(directory, {
-    withFileTypes: true,
-  })) {
-    const fullPath = path.join(directory, entry.name);
+  for (const entry of fs.readdirSync(
+    directory,
+    { withFileTypes: true },
+  )) {
+    const fullPath = path.join(
+      directory,
+      entry.name,
+    );
 
     if (entry.isDirectory()) {
       collectMarkdownFiles(
@@ -29,12 +38,15 @@ function collectMarkdownFiles(directory, rootDirectory, files = []) {
       entry.name.endsWith('.md') &&
       fullPath !== path.join(
         rootDirectory,
-        'README.md',
-      )
+        INDEX_FILE,
+      ) &&
+      entry.name !== 'documentation-manifest.md'
     ) {
       files.push(
-        path.relative(rootDirectory, fullPath)
-          .replaceAll(path.sep, '/'),
+        path.relative(
+          rootDirectory,
+          fullPath,
+        ).replaceAll(path.sep, '/'),
       );
     }
   }
@@ -78,11 +90,15 @@ function generateIndex(rootDir) {
 
   return writeGeneratedFile(
     rootDir,
-    'docs/generated/README.md',
+    path.join(
+      GENERATED_DIR,
+      INDEX_FILE,
+    ),
     lines.join('\n'),
   );
 }
 
 module.exports = {
+  collectMarkdownFiles,
   generateIndex,
 };
