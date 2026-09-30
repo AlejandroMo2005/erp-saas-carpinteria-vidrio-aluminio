@@ -1,22 +1,52 @@
-function escapeMarkdownTableCell(value) {
-  return String(value ?? '')
-    .replace(/\|/g, '\\|')
-    .replace(/\r?\n/g, ' ');
+function escapeMarkdown(value) {
+  return String(value)
+    .replaceAll('\\', '\\\\')
+    .replaceAll('|', '\\|')
+    .replaceAll('\r\n', '\n')
+    .replaceAll('\r', '\n');
 }
 
-function createMarkdownTable(headers, rows) {
-  const header = `| ${headers.join(' | ')} |`;
-  const separator = `| ${headers.map(() => '---').join(' | ')} |`;
+function formatTableRow(values) {
+  return `| ${values
+    .map((value) => escapeMarkdown(value))
+    .join(' | ')} |`;
+}
 
-  const body = rows.map(
-    (row) =>
-      `| ${row.map(escapeMarkdownTableCell).join(' | ')} |`,
+function formatTable(headers, rows = []) {
+  const headerRow = formatTableRow(headers);
+  const separatorRow = formatTableRow(
+    headers.map(() => '---'),
   );
 
-  return [header, separator, ...body].join('\n');
+  const dataRows = rows.map((row) =>
+    formatTableRow(row),
+  );
+
+  return [
+    headerRow,
+    separatorRow,
+    ...dataRows,
+  ].join('\n');
+}
+
+function formatList(items = []) {
+  if (items.length === 0) {
+    return '';
+  }
+
+  return items
+    .map((item) => `- ${escapeMarkdown(item)}`)
+    .join('\n');
+}
+
+function formatCode(value) {
+  return `\`${String(value).replaceAll('`', '\\`')}\``;
 }
 
 module.exports = {
-  createMarkdownTable,
-  escapeMarkdownTableCell,
+  escapeMarkdown,
+  formatTableRow,
+  formatTable,
+  formatList,
+  formatCode,
 };
