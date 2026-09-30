@@ -11,22 +11,42 @@ const EXCLUDED_DIRECTORIES = new Set([
   '.next',
 ]);
 
-function collectSqlFiles(directory, files = []) {
+function collectSqlFiles(
+  directory,
+  files = [],
+) {
   if (!fs.existsSync(directory)) {
     return files;
   }
 
-  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-    const fullPath = path.join(directory, entry.name);
+  for (const entry of fs.readdirSync(
+    directory,
+    { withFileTypes: true },
+  )) {
+    const fullPath = path.join(
+      directory,
+      entry.name,
+    );
 
     if (entry.isDirectory()) {
-      if (!EXCLUDED_DIRECTORIES.has(entry.name)) {
-        collectSqlFiles(fullPath, files);
+      if (
+        !EXCLUDED_DIRECTORIES.has(
+          entry.name,
+        )
+      ) {
+        collectSqlFiles(
+          fullPath,
+          files,
+        );
       }
+
       continue;
     }
 
-    if (entry.isFile() && entry.name.toLowerCase().endsWith('.sql')) {
+    if (
+      entry.isFile() &&
+      entry.name.toLowerCase().endsWith('.sql')
+    ) {
       files.push(fullPath);
     }
   }
@@ -39,5 +59,7 @@ function collectDatabaseSources(rootDir) {
 }
 
 module.exports = {
+  EXCLUDED_DIRECTORIES,
+  collectSqlFiles,
   collectDatabaseSources,
 };
