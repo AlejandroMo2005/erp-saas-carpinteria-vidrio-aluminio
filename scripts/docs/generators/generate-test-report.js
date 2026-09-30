@@ -1,30 +1,49 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
+const {
+  formatTable,
+  formatCode,
+} = require('./format-markdown');
 const { writeGeneratedFile } = require('./write-file');
 
-function findCoverageSummaries(rootDir) {
-  const candidates = [
-    {
-      name: 'Frontend',
-      path: path.join(rootDir, 'coverage', 'coverage-summary.json'),
-    },
-    {
-      name: 'Backend',
-      path: path.join(
-        rootDir,
-        'backend',
-        'coverage',
-        'coverage-summary.json',
-      ),
-    },
-  ];
+const COVERAGE_SUMMARIES = [
+  {
+    name: 'Frontend',
+    relativePath: 'coverage/coverage-summary.json',
+  },
+  {
+    name: 'Backend',
+    relativePath: 'backend/coverage/coverage-summary.json',
+  },
+];
 
-  return candidates
-    .filter(({ path: filePath }) => fs.existsSync(filePath))
-    .map(({ name, path: filePath }) => ({
+function findCoverageSummaries(rootDir) {
+  return COVERAGE_SUMMARIES
+    .map(({ name, relativePath }) => ({
       name,
-      data: JSON.parse(fs.readFileSync(filePath, 'utf8')),
+      relativePath,
+      filePath: path.join(
+        rootDir,
+        relativePath,
+      ),
+    }))
+    .filter(({ filePath }) =>
+      fs.existsSync(filePath),
+    )
+    .map(({
+      name,
+      relativePath,
+      filePath,
+    }) => ({
+      name,
+      relativePath,
+      data: JSON.parse(
+        fs.readFileSync(
+          filePath,
+          'utf8',
+        ),
+      ),
     }));
 }
 
@@ -39,36 +58,60 @@ function formatMetric(metric) {
 function formatSummary(summary) {
   const total = summary.data.total;
 
-  return `## ${summary.name}
-
-| Métrica | Resultado |
-|---|---:|
-| Statements | ${formatMetric(total?.statements)} |
-| Branches | ${formatMetric(total?.branches)} |
-| Functions | ${formatMetric(total?.functions)} |
-| Lines | ${formatMetric(total?.lines)} |
-`;
+  return [
+    `## ${summary.name}`,
+    '',
+    `Fuente: ${formatCode(
+      summary.relativePath,
+    )}`,
+    '',
+    formatTable(
+      ['Métrica', 'Resultado'],
+      [
+        [
+          'Statements',
+          formatMetric(total?.statements),
+        ],
+        [
+          'Branches',
+          formatMetric(total?.branches),
+        ],
+        [
+          'Functions',
+          formatMetric(total?.functions),
+        ],
+        [
+          'Lines',
+          formatMetric(total?.lines),
+        ],
+      ],
+    ),
+    '',
+  ].join('\n');
 }
 
-function generateTestsReport(rootDir) {
-  const summaries = findCoverageSummaries(rootDir);
+function generateTestReport(rootDir) {
+  const summaries =
+    findCoverageSummaries(rootDir);
 
-  const content = `# Evidencia automática de pruebas
-
-> Este archivo es generado automáticamente. No editar manualmente.
-
-${summaries.length > 0
-    ? summaries.map(formatSummary).join('\n')
-    : 'No se encontraron reportes de cobertura disponibles.'}
-
-## Fuente
-
-La información se obtiene de los archivos \`coverage-summary.json\`
-generados por Vitest.
-
-La ausencia de un reporte no se interpreta como cobertura cero; indica
-que todavía no existe evidencia de cobertura disponible para ese entorno.
-`;
+  const content = [
+    '# Evidencia automática de pruebas',
+    '',
+    '> Este archivo es generado automáticamente. No editar manualmente.',
+    '',
+    summaries.length > 0
+      ? summaries.map(formatSummary).join('\n')
+      : 'No se encontraron reportes de cobertura disponibles.',
+    '',
+    '## Fuente',
+    '',
+    `La información se obtiene de los archivos ${formatCode(
+      'coverage-summary.json',
+    )} generados por Vitest.`,
+    '',
+    'La ausencia de un reporte no se interpreta como cobertura cero; indica que todavía no existe evidencia de cobertura disponible para ese entorno.',
+    '',
+  ].join('\n');
 
   return writeGeneratedFile(
     rootDir,
@@ -78,5 +121,9 @@ que todavía no existe evidencia de cobertura disponible para ese entorno.
 }
 
 module.exports = {
-  generateTestsReport,
+  COVERAGE_SUMMARIES,
+  findCoverageSummaries,
+  formatMetric,
+  formatSummary,
+  generateTestReport,
 };
