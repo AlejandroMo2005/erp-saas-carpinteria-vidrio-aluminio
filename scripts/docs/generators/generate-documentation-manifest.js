@@ -1,13 +1,20 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
+const {
+  formatList,
+} = require('./format-markdown');
 const { writeGeneratedFile } = require('./write-file');
 
 const GENERATED_DIR = 'docs/generated';
 const MANIFEST_FILE = 'documentation-manifest.md';
 const INDEX_FILE = 'README.md';
 
-function collectGeneratedFiles(directory, files = []) {
+function collectGeneratedFiles(
+  directory,
+  rootDirectory = directory,
+  files = [],
+) {
   if (!fs.existsSync(directory)) {
     return files;
   }
@@ -24,6 +31,7 @@ function collectGeneratedFiles(directory, files = []) {
     if (entry.isDirectory()) {
       collectGeneratedFiles(
         fullPath,
+        rootDirectory,
         files,
       );
       continue;
@@ -37,7 +45,7 @@ function collectGeneratedFiles(directory, files = []) {
     ) {
       files.push(
         path.relative(
-          directory,
+          rootDirectory,
           fullPath,
         ).replaceAll(path.sep, '/'),
       );
@@ -57,28 +65,24 @@ function generateDocumentationManifest(rootDir) {
     generatedDirectory,
   );
 
-  const lines = [
+  const fileLinks = files.map(
+    (file) => `[${file}](${file})`,
+  );
+
+  const documentList = files.length > 0
+    ? formatList(fileLinks)
+    : 'No existen documentos generados disponibles.';
+
+  const content = [
     '# Índice de documentación generada',
     '',
     'Este archivo se genera automáticamente a partir de los documentos disponibles en `docs/generated`.',
     '',
     '## Archivos generados',
     '',
-  ];
-
-  if (files.length === 0) {
-    lines.push(
-      'No existen documentos generados disponibles.',
-    );
-  } else {
-    for (const file of files) {
-      lines.push(
-        `- [${file}](${file})`,
-      );
-    }
-  }
-
-  lines.push('');
+    documentList,
+    '',
+  ].join('\n');
 
   return writeGeneratedFile(
     rootDir,
@@ -86,11 +90,14 @@ function generateDocumentationManifest(rootDir) {
       GENERATED_DIR,
       MANIFEST_FILE,
     ),
-    lines.join('\n'),
+    content,
   );
 }
 
 module.exports = {
+  GENERATED_DIR,
+  MANIFEST_FILE,
+  INDEX_FILE,
   collectGeneratedFiles,
   generateDocumentationManifest,
 };
