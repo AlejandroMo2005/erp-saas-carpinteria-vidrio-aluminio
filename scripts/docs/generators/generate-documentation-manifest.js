@@ -1,11 +1,51 @@
+const fs = require('node:fs');
 const path = require('node:path');
 
-const { collectGeneratedFiles } = require('./collect-files');
 const { writeGeneratedFile } = require('./write-file');
 
 const GENERATED_DIR = 'docs/generated';
 const MANIFEST_FILE = 'documentation-manifest.md';
 const INDEX_FILE = 'README.md';
+
+function collectGeneratedFiles(directory, files = []) {
+  if (!fs.existsSync(directory)) {
+    return files;
+  }
+
+  for (const entry of fs.readdirSync(
+    directory,
+    { withFileTypes: true },
+  )) {
+    const fullPath = path.join(
+      directory,
+      entry.name,
+    );
+
+    if (entry.isDirectory()) {
+      collectGeneratedFiles(
+        fullPath,
+        files,
+      );
+      continue;
+    }
+
+    if (
+      entry.isFile() &&
+      entry.name.endsWith('.md') &&
+      entry.name !== MANIFEST_FILE &&
+      entry.name !== INDEX_FILE
+    ) {
+      files.push(
+        path.relative(
+          directory,
+          fullPath,
+        ).replaceAll(path.sep, '/'),
+      );
+    }
+  }
+
+  return files.sort();
+}
 
 function generateDocumentationManifest(rootDir) {
   const generatedDirectory = path.join(
@@ -15,26 +55,30 @@ function generateDocumentationManifest(rootDir) {
 
   const files = collectGeneratedFiles(
     generatedDirectory,
-    {
-      exclude: new Set([
-        MANIFEST_FILE,
-        INDEX_FILE,
-      ]),
-    },
   );
 
-  const content = [
+  const lines = [
     '# Índice de documentación generada',
     '',
     'Este archivo se genera automáticamente a partir de los documentos disponibles en `docs/generated`.',
     '',
     '## Archivos generados',
     '',
-    files.length > 0
-      ? ...files.map((file) => `- [${file}](${file})`)
-      : 'No existen documentos generados disponibles.',
-    '',
-  ].join('\n');
+  ];
+
+  if (files.length === 0) {
+    lines.push(
+      'No existen documentos generados disponibles.',
+    );
+  } else {
+    for (const file of files) {
+      lines.push(
+        `- [${file}](${file})`,
+      );
+    }
+  }
+
+  lines.push('');
 
   return writeGeneratedFile(
     rootDir,
@@ -42,10 +86,11 @@ function generateDocumentationManifest(rootDir) {
       GENERATED_DIR,
       MANIFEST_FILE,
     ),
-    content,
+    lines.join('\n'),
   );
 }
 
 module.exports = {
+  collectGeneratedFiles,
   generateDocumentationManifest,
 };
