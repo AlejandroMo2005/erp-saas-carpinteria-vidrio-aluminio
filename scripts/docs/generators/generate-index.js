@@ -1,14 +1,18 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
+const {
+  formatList,
+} = require('./format-markdown');
 const { writeGeneratedFile } = require('./write-file');
 
 const GENERATED_DIR = 'docs/generated';
 const INDEX_FILE = 'README.md';
+const MANIFEST_FILE = 'documentation-manifest.md';
 
 function collectMarkdownFiles(
   directory,
-  rootDirectory,
+  rootDirectory = directory,
   files = [],
 ) {
   if (!fs.existsSync(directory)) {
@@ -36,11 +40,8 @@ function collectMarkdownFiles(
     if (
       entry.isFile() &&
       entry.name.endsWith('.md') &&
-      fullPath !== path.join(
-        rootDirectory,
-        INDEX_FILE,
-      ) &&
-      entry.name !== 'documentation-manifest.md'
+      entry.name !== INDEX_FILE &&
+      entry.name !== MANIFEST_FILE
     ) {
       files.push(
         path.relative(
@@ -62,31 +63,26 @@ function generateIndex(rootDir) {
 
   const files = collectMarkdownFiles(
     generatedDirectory,
-    generatedDirectory,
   );
 
-  const lines = [
+  const documentList = files.length > 0
+    ? formatList(
+        files.map(
+          (file) => `[${file}](${file})`,
+        ),
+      )
+    : 'No existen documentos generados disponibles.';
+
+  const content = [
     '# Documentación generada',
     '',
     'Índice principal de la documentación técnica generada automáticamente.',
     '',
     '## Documentos',
     '',
-  ];
-
-  if (files.length === 0) {
-    lines.push(
-      'No existen documentos generados disponibles.',
-    );
-  } else {
-    for (const file of files) {
-      lines.push(
-        `- [${file}](${file})`,
-      );
-    }
-  }
-
-  lines.push('');
+    documentList,
+    '',
+  ].join('\n');
 
   return writeGeneratedFile(
     rootDir,
@@ -94,11 +90,14 @@ function generateIndex(rootDir) {
       GENERATED_DIR,
       INDEX_FILE,
     ),
-    lines.join('\n'),
+    content,
   );
 }
 
 module.exports = {
+  GENERATED_DIR,
+  INDEX_FILE,
+  MANIFEST_FILE,
   collectMarkdownFiles,
   generateIndex,
 };
