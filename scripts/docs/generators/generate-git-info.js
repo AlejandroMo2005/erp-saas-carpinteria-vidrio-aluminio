@@ -70,9 +70,10 @@ function generateGitInfo(rootDir) {
     '',
     '## Cambios pendientes',
     '',
-    '```text',
-    status || 'Sin cambios pendientes.',
-    '```',
+    formatCode(
+      status || 'Sin cambios pendientes.',
+      'text',
+    ),
     '',
   ].join('\n');
 
