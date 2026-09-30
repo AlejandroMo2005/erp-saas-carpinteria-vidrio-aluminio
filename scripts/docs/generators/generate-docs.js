@@ -12,7 +12,7 @@ const { generateLintEvidence } = require('./generate-lint-evidence');
 const { generateProjectMetadata } = require('./generate-project-metadata');
 const { generateProjectStructure } = require('./generate-project-structure');
 const { generateTestEvidence } = require('./generate-test-evidence');
-const { generateTestsReport } = require('./generate-tests-report');
+const { generateTestsReport } = require('./generate-test-report');
 
 function generateDocumentation(rootDir) {
   const generatedFiles = [];
