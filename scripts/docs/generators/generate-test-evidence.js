@@ -1,6 +1,10 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
+const {
+  formatTable,
+  formatCode,
+} = require('./format-markdown');
 const { writeGeneratedFile } = require('./write-file');
 
 const REPORT_PATHS = [
@@ -10,49 +14,99 @@ const REPORT_PATHS = [
 
 function readCoverageSummary(rootDir) {
   for (const relativePath of REPORT_PATHS) {
-    const filePath = path.join(rootDir, relativePath);
+    const filePath = path.join(
+      rootDir,
+      relativePath,
+    );
 
-    if (fs.existsSync(filePath)) {
-      try {
-        return {
-          path: relativePath,
-          data: JSON.parse(fs.readFileSync(filePath, 'utf8')),
-        };
-      } catch {
-        return null;
-      }
+    if (!fs.existsSync(filePath)) {
+      continue;
+    }
+
+    try {
+      return {
+        path: relativePath,
+        data: JSON.parse(
+          fs.readFileSync(
+            filePath,
+            'utf8',
+          ),
+        ),
+      };
+    } catch {
+      return null;
     }
   }
 
   return null;
 }
 
-function generateTestEvidence(rootDir) {
-  const coverage = readCoverageSummary(rootDir);
-
-  const content = `# Evidencia automática de pruebas
-
-> Este archivo es generado automáticamente. No editar manualmente.
-
-## Cobertura
-
-${
-  coverage
-    ? `Fuente: \`${coverage.path}\`
-
-| Métrica | Porcentaje |
-|---|---:|
-| Statements | ${coverage.data.total?.statements?.pct ?? 'N/D'}% |
-| Branches | ${coverage.data.total?.branches?.pct ?? 'N/D'}% |
-| Functions | ${coverage.data.total?.functions?.pct ?? 'N/D'}% |
-| Lines | ${coverage.data.total?.lines?.pct ?? 'N/D'}% |`
-    : 'No se encontró un informe de cobertura disponible.'
+function getCoverageValue(
+  coverage,
+  metric,
+) {
+  return coverage?.data?.total?.[metric]?.pct ??
+    'N/D';
 }
 
-## Evidencia
+function generateTestEvidence(rootDir) {
+  const coverage =
+    readCoverageSummary(rootDir);
 
-La información anterior se obtiene de los artefactos de cobertura existentes en el repositorio. La ejecución de las pruebas y la generación de cobertura deben realizarse mediante los scripts definidos en el proyecto.
-`;
+  const coverageContent = coverage
+    ? [
+        `Fuente: ${formatCode(
+          coverage.path,
+        )}`,
+        '',
+        formatTable(
+          ['Métrica', 'Porcentaje'],
+          [
+            [
+              'Statements',
+              `${getCoverageValue(
+                coverage,
+                'statements',
+              )}%`,
+            ],
+            [
+              'Branches',
+              `${getCoverageValue(
+                coverage,
+                'branches',
+              )}%`,
+            ],
+            [
+              'Functions',
+              `${getCoverageValue(
+                coverage,
+                'functions',
+              )}%`,
+            ],
+            [
+              'Lines',
+              `${getCoverageValue(
+                coverage,
+                'lines',
+              )}%`,
+            ],
+          ],
+        ),
+      ].join('\n')
+    : 'No se encontró un informe de cobertura disponible.';
+
+  const content = [
+    '# Evidencia automática de pruebas',
+    '',
+    '## Cobertura',
+    '',
+    coverageContent,
+    '',
+    '## Evidencia',
+    '',
+    'La información anterior se obtiene de los artefactos de cobertura existentes en el repositorio. La ejecución de las pruebas y la generación de cobertura deben realizarse mediante los scripts definidos en el proyecto.',
+    '',
+  ].join('\n');
 
   return writeGeneratedFile(
     rootDir,
@@ -62,5 +116,8 @@ La información anterior se obtiene de los artefactos de cobertura existentes en
 }
 
 module.exports = {
+  REPORT_PATHS,
+  readCoverageSummary,
+  getCoverageValue,
   generateTestEvidence,
 };
