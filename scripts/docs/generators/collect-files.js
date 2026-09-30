@@ -1,31 +1,83 @@
 const fs = require('node:fs');
 const path = require('node:path');
 
-const DEFAULT_EXTENSIONS = ['.js', '.cjs', '.mjs'];
+const EXCLUDED_DIRECTORIES = new Set([
+  '.git',
+  'node_modules',
+  'coverage',
+  'dist',
+  'build',
+  '.vite',
+  '.next',
+]);
 
-function collectFiles(directory, extensions = DEFAULT_EXTENSIONS) {
+function collectFiles(
+  directory,
+  {
+    extensions = null,
+    excludeDirectories = EXCLUDED_DIRECTORIES,
+  } = {},
+  files = [],
+) {
   if (!fs.existsSync(directory)) {
-    return [];
+    return files;
   }
 
-  const files = [];
-
-  for (const entry of fs.readdirSync(directory, { withFileTypes: true })) {
-    const entryPath = path.join(directory, entry.name);
+  for (const entry of fs.readdirSync(
+    directory,
+    { withFileTypes: true },
+  )) {
+    const fullPath = path.join(
+      directory,
+      entry.name,
+    );
 
     if (entry.isDirectory()) {
-      files.push(...collectFiles(entryPath, extensions));
+      if (!excludeDirectories.has(entry.name)) {
+        collectFiles(
+          fullPath,
+          {
+            extensions,
+            excludeDirectories,
+          },
+          files,
+        );
+      }
+
       continue;
     }
 
-    if (extensions.includes(path.extname(entry.name))) {
-      files.push(entryPath);
+    if (!entry.isFile()) {
+      continue;
     }
+
+    if (
+      extensions &&
+      !extensions.some((extension) =>
+        entry.name.endsWith(extension)
+      )
+    ) {
+      continue;
+    }
+
+    files.push(fullPath);
   }
 
-  return files;
+  return files.sort();
+}
+
+function collectProjectFiles(
+  rootDir,
+  options = {},
+) {
+  return collectFiles(
+    rootDir,
+    options,
+  );
 }
 
 module.exports = {
+  EXCLUDED_DIRECTORIES,
   collectFiles,
+  collectProjectFiles,
 };
