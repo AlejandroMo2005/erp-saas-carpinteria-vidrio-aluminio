@@ -1,10 +1,8 @@
-const path = require('node:path');
-
-const { collectRouteFiles } = require('./collect-routes');
+const { collectRoutesSources } = require('./collect-routes');
 const { parseRouteFiles } = require('./parse-routes');
 const { writeGeneratedFile } = require('./write-file');
 
-function formatRoutes(routes) {
+function formatRoutes(routes, rootDir) {
   if (routes.length === 0) {
     return 'No se encontraron rutas HTTP en los archivos analizados.';
   }
@@ -16,20 +14,34 @@ function formatRoutes(routes) {
       return pathComparison;
     }
 
-    return a.method.localeCompare(b.method);
+    const methodComparison = a.method.localeCompare(b.method);
+
+    if (methodComparison !== 0) {
+      return methodComparison;
+    }
+
+    return a.file.localeCompare(b.file);
   });
 
   return sortedRoutes
     .map(
-      ({ method, path: routePath }) =>
-        `| \`${method}\` | \`${routePath}\` |`,
+      ({ method, path: routePath, file }) =>
+        `| \`${method}\` | \`${routePath}\` | \`${file}\` |`,
     )
     .join('\n');
 }
 
 function generateApiCatalog(rootDir) {
-  const routeFiles = collectRouteFiles(rootDir);
-  const routes = parseRouteFiles(routeFiles);
+  const routeSources = collectRoutesSources(rootDir);
+  const routes = parseRouteFiles(routeSources);
+
+  const formattedRoutes = routes.map((route) => ({
+    ...route,
+    file: require('./parse-routes').formatRouteFile(
+      rootDir,
+      route.file,
+    ),
+  }));
 
   const content = `# Catálogo automático de endpoints
 
@@ -37,15 +49,15 @@ function generateApiCatalog(rootDir) {
 
 ## Endpoints detectados
 
-| Método | Ruta |
-|---|---|
-${formatRoutes(routes)}
+| Método | Ruta | Fuente |
+|---|---|---|
+${formatRoutes(formattedRoutes, rootDir)}
 
 ## Fuente
 
-Los endpoints se obtienen mediante análisis estático de los archivos de rutas del backend.
+Los endpoints se obtienen mediante análisis estático de las declaraciones de rutas Express del proyecto.
 
-- Archivos de rutas analizados: ${routeFiles.length}
+- Fuentes de rutas analizadas: ${routeSources.length}
 - Endpoints detectados: ${routes.length}
 `;
 
