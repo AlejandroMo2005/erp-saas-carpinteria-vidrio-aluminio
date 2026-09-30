@@ -1,51 +1,80 @@
 const { execFileSync } = require('node:child_process');
 
+const {
+  formatTable,
+  formatCode,
+} = require('./format-markdown');
 const { writeGeneratedFile } = require('./write-file');
 
 function runGitCommand(rootDir, args) {
   try {
-    return execFileSync('git', args, {
-      cwd: rootDir,
-      encoding: 'utf8',
-    }).trim();
+    return execFileSync(
+      'git',
+      args,
+      {
+        cwd: rootDir,
+        encoding: 'utf8',
+      },
+    ).trim();
   } catch {
     return 'No disponible';
   }
 }
 
 function generateGitInfo(rootDir) {
-  const branch = runGitCommand(rootDir, [
-    'branch',
-    '--show-current',
-  ]);
+  const branch = runGitCommand(
+    rootDir,
+    ['branch', '--show-current'],
+  );
 
-  const commit = runGitCommand(rootDir, [
-    'rev-parse',
-    '--short',
-    'HEAD',
-  ]);
+  const commit = runGitCommand(
+    rootDir,
+    ['rev-parse', '--short', 'HEAD'],
+  );
 
-  const status = runGitCommand(rootDir, [
-    'status',
-    '--short',
-  ]);
+  const status = runGitCommand(
+    rootDir,
+    ['status', '--short'],
+  );
 
-  const content = `# Información automática del repositorio
+  const branchValue =
+    branch || 'No disponible';
 
-> Este archivo es generado automáticamente. No editar manualmente.
+  const commitValue =
+    commit || 'No disponible';
 
-| Campo | Valor |
-|---|---|
-| Rama | \`${branch || 'No disponible'}\` |
-| Commit | \`${commit || 'No disponible'}\` |
-| Estado | \`${status ? 'Con cambios' : 'Limpio'}\` |
+  const statusValue = status
+    ? 'Con cambios'
+    : 'Limpio';
 
-## Cambios pendientes
-
-\`\`\`text
-${status || 'Sin cambios pendientes.'}
-\`\`\`
-`;
+  const content = [
+    '# Información automática del repositorio',
+    '',
+    formatTable(
+      ['Campo', 'Valor'],
+      [
+        [
+          'Rama',
+          formatCode(branchValue),
+        ],
+        [
+          'Commit',
+          formatCode(commitValue),
+        ],
+        [
+          'Estado',
+          formatCode(statusValue),
+        ],
+      ],
+    ),
+    '',
+    '## Cambios pendientes',
+    '',
+    '```text',
+    status || 'Sin cambios pendientes.',
+    '```',
+    '',
+  ].join('\n');
 
   return writeGeneratedFile(
     rootDir,
@@ -55,5 +84,6 @@ ${status || 'Sin cambios pendientes.'}
 }
 
 module.exports = {
+  runGitCommand,
   generateGitInfo,
 };
