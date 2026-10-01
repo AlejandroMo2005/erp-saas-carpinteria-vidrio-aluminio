@@ -6,20 +6,39 @@ const {
   generateDocumentation,
 } = require('./generators/generate-docs');
 
-const ROOT_DIR = path.resolve(__dirname, '../..');
+const ROOT_DIR = path.resolve(
+  __dirname,
+  '../..',
+);
 
 function main() {
-  console.log('Iniciando generación de documentación...');
+  console.log(
+    'Iniciando generación de documentación...',
+  );
 
-  const generatedFiles = generateDocumentation(ROOT_DIR);
+  const generatedFiles =
+    generateDocumentation(ROOT_DIR);
 
-  console.log('\nDocumentación generada:');
+  console.log(
+    '\nDocumentación generada:',
+  );
 
   for (const filePath of generatedFiles) {
     console.log(`- ${filePath}`);
   }
 
-  console.log('\nGeneración completada.');
+  console.log(
+    '\nGeneración completada.',
+  );
 }
 
-main();
+try {
+  main();
+} catch (error) {
+  console.error(
+    '\nError durante la generación de documentación:',
+  );
+  console.error(error.message);
+
+  process.exitCode = 1;
+}
