@@ -2,23 +2,21 @@ const fs = require('node:fs');
 const path = require('node:path');
 
 const GENERATED_MARKER =
-  '> Este archivo es generado automáticamente. No editar manualmente.\n';
+  '> Este archivo es generado automáticamente. No editar manualmente.';
 
 function ensureGeneratedMarker(content) {
-  const normalizedContent = content.trimEnd();
+  const normalizedContent = String(
+    content ?? '',
+  ).trimEnd();
 
-  if (
-    normalizedContent.includes(
-      'generado automáticamente',
-    )
-  ) {
+  if (normalizedContent.includes(GENERATED_MARKER)) {
     return `${normalizedContent}\n`;
   }
 
   return [
     normalizedContent,
     '',
-    GENERATED_MARKER.trimEnd(),
+    GENERATED_MARKER,
     '',
   ].join('\n');
 }
@@ -33,18 +31,16 @@ function writeGeneratedFile(
     relativePath,
   );
 
-  const directory = path.dirname(filePath);
-
-  fs.mkdirSync(directory, {
-    recursive: true,
-  });
-
-  const normalizedContent =
-    ensureGeneratedMarker(content);
+  fs.mkdirSync(
+    path.dirname(filePath),
+    {
+      recursive: true,
+    },
+  );
 
   fs.writeFileSync(
     filePath,
-    normalizedContent,
+    ensureGeneratedMarker(content),
     'utf8',
   );
 
