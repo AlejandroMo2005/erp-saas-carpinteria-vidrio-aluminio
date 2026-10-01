@@ -55,6 +55,7 @@ backend/config/inventario_proformas.sql
 backend/config/inventario_proformas.zip
 
 # Local utility scripts
-backend/generar-hash.jsbackend/config/database.sql
+backend/generar-hash.js
+backend/config/database.sql
 backend/config/database.sql
 backend/generar-hash.js
