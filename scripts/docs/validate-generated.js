@@ -8,28 +8,89 @@ const {
   validateGeneratedConsistency,
 } = require('./validate-generated-consistency');
 
-const ROOT_DIR = path.resolve(__dirname, '../..');
-const GENERATED_DIR_NAME = path.join('docs', 'generated');
+const ROOT_DIR = path.resolve(
+  __dirname,
+  '../..',
+);
 
-function findMarkdownFiles(directory) {
+const GENERATED_DIR_NAME = path.join(
+  'docs',
+  'generated',
+);
+
+function findMarkdownFiles(
+  directory,
+  files = [],
+) {
   if (!fs.existsSync(directory)) {
-    return [];
+    return files;
   }
 
-  return fs.readdirSync(directory, { withFileTypes: true }).flatMap((entry) => {
-    const entryPath = path.join(directory, entry.name);
+  for (const entry of fs.readdirSync(
+    directory,
+    { withFileTypes: true },
+  )) {
+    const entryPath = path.join(
+      directory,
+      entry.name,
+    );
 
     if (entry.isDirectory()) {
-      return findMarkdownFiles(entryPath);
+      findMarkdownFiles(
+        entryPath,
+        files,
+      );
+      continue;
     }
 
-    return entry.name.endsWith('.md') ? [entryPath] : [];
-  });
+    if (
+      entry.isFile() &&
+      entry.name.endsWith('.md')
+    ) {
+      files.push(entryPath);
+    }
+  }
+
+  return files.sort();
 }
 
-function validateGeneratedDocumentation(rootDir = ROOT_DIR) {
-  const generatedDirectory = path.join(rootDir, GENERATED_DIR_NAME);
-  const files = findMarkdownFiles(generatedDirectory);
+function validateBasicStructure(files) {
+  const errors = [];
+
+  for (const filePath of files) {
+    const content = fs.readFileSync(
+      filePath,
+      'utf8',
+    );
+
+    if (!content.trim()) {
+      errors.push(
+        `El archivo de documentación está vacío: ${filePath}`,
+      );
+      continue;
+    }
+
+    if (!/^#\s+\S+/m.test(content)) {
+      errors.push(
+        `El archivo no contiene un título Markdown válido: ${filePath}`,
+      );
+    }
+  }
+
+  return errors;
+}
+
+function validateGeneratedDocumentation(
+  rootDir = ROOT_DIR,
+) {
+  const generatedDirectory = path.join(
+    rootDir,
+    GENERATED_DIR_NAME,
+  );
+
+  const files = findMarkdownFiles(
+    generatedDirectory,
+  );
 
   if (files.length === 0) {
     throw new Error(
@@ -37,23 +98,22 @@ function validateGeneratedDocumentation(rootDir = ROOT_DIR) {
     );
   }
 
-  for (const filePath of files) {
-    const content = fs.readFileSync(filePath, 'utf8');
+  const structureErrors =
+    validateBasicStructure(files);
 
-    if (!content.trim()) {
-      throw new Error(
-        `El archivo de documentación está vacío: ${filePath}`,
-      );
-    }
-
-    if (!content.startsWith('# ')) {
-      throw new Error(
-        `El archivo no contiene un título Markdown válido: ${filePath}`,
-      );
-    }
+  if (structureErrors.length > 0) {
+    throw new Error(
+      [
+        'La documentación generada presenta errores estructurales:',
+        ...structureErrors.map(
+          (error) => `- ${error}`,
+        ),
+      ].join('\n'),
+    );
   }
 
-  const consistencyResult = validateGeneratedConsistency(rootDir);
+  const consistencyResult =
+    validateGeneratedConsistency(rootDir);
 
   if (!consistencyResult.valid) {
     throw new Error(
@@ -61,11 +121,18 @@ function validateGeneratedDocumentation(rootDir = ROOT_DIR) {
     );
   }
 
-  const linkErrors = validateLinks(rootDir);
+  const linkErrors = validateLinks(
+    rootDir,
+  );
 
   if (linkErrors.length > 0) {
     throw new Error(
-      `Se encontraron ${linkErrors.length} enlaces internos inválidos.`,
+      [
+        'La documentación generada contiene enlaces internos inválidos:',
+        ...linkErrors.map(
+          (error) => `- ${error}`,
+        ),
+      ].join('\n'),
     );
   }
 
@@ -91,5 +158,8 @@ if (require.main === module) {
 }
 
 module.exports = {
+  GENERATED_DIR_NAME,
+  findMarkdownFiles,
+  validateBasicStructure,
   validateGeneratedDocumentation,
 };
