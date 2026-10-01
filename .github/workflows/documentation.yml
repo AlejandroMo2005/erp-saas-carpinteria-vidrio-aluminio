@@ -37,8 +37,8 @@ jobs:
       - name: Validate documentation
         run: npm run docs:validate
 
-      - name: Validate documentation links
-        run: npm run docs:validate-links
+      - name: Verify generated documentation
+        run: npm run docs:verify
 
       - name: Upload generated documentation
         uses: actions/upload-artifact@v4
