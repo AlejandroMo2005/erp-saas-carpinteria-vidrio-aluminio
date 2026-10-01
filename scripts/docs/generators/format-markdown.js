@@ -1,5 +1,5 @@
 function escapeMarkdown(value) {
-  return String(value)
+  return String(value ?? '')
     .replaceAll('\\', '\\\\')
     .replaceAll('|', '\\|')
     .replaceAll('\r\n', '\n')
@@ -40,7 +40,10 @@ function formatList(items = []) {
 }
 
 function formatCode(value) {
-  return `\`${String(value).replaceAll('`', '\\`')}\``;
+  return `\`${String(value ?? '').replaceAll(
+    '`',
+    '\\`',
+  )}\``;
 }
 
 module.exports = {
