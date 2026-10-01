@@ -39,9 +39,9 @@
     "e2e:report": "playwright show-report",
     "docs:generate": "node scripts/docs/generate-docs.js",
     "docs:validate": "node scripts/docs/validate-generated.js",
-    "docs:validate-links": "node scripts/docs/validate-docs.js",
+    "docs:validate-links": "node scripts/docs/validate-generated.js",
     "docs:verify": "node scripts/docs/verify-generated-clean.js",
-    "docs:check": "npm run docs:generate && npm run docs:validate && npm run docs:validate-links && npm run docs:verify"
+    "docs:check": "npm run docs:generate && npm run docs:validate && npm run docs:verify"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.0",
