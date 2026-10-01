@@ -1,6 +1,5 @@
 #!/usr/bin/env node
 
-const fs = require('node:fs');
 const path = require('node:path');
 const { execFileSync } = require('node:child_process');
 
@@ -9,50 +8,6 @@ const GENERATED_DIR = path.join(
   'generated',
 );
 
-function getGeneratedFiles(rootDir) {
-  const generatedDirectory = path.join(
-    rootDir,
-    GENERATED_DIR,
-  );
-
-  if (!fs.existsSync(generatedDirectory)) {
-    return [];
-  }
-
-  const files = [];
-
-  function collect(directory) {
-    for (const entry of fs.readdirSync(
-      directory,
-      { withFileTypes: true },
-    )) {
-      const fullPath = path.join(
-        directory,
-        entry.name,
-      );
-
-      if (entry.isDirectory()) {
-        collect(fullPath);
-        continue;
-      }
-
-      if (
-        entry.isFile() &&
-        entry.name.endsWith('.md')
-      ) {
-        files.push(
-          path.relative(rootDir, fullPath)
-            .replaceAll(path.sep, '/'),
-        );
-      }
-    }
-  }
-
-  collect(generatedDirectory);
-
-  return files.sort();
-}
-
 function getGitChangedFiles(rootDir) {
   try {
     const output = execFileSync(
@@ -60,6 +15,7 @@ function getGitChangedFiles(rootDir) {
       [
         'status',
         '--short',
+        '--untracked-files=all',
         '--',
         GENERATED_DIR,
       ],
@@ -75,21 +31,16 @@ function getGitChangedFiles(rootDir) {
       .filter(Boolean)
       .map((line) => line.slice(3))
       .sort();
-  } catch {
-    return [];
+  } catch (error) {
+    throw new Error(
+      `No fue posible consultar el estado Git de la documentación generada: ${error.message}`,
+    );
   }
 }
 
-function verifyGeneratedDocumentation(
-  rootDir,
-  expectedChangedFiles = getGitChangedFiles(rootDir),
-) {
-  const generatedFiles = getGeneratedFiles(
+function verifyGeneratedDocumentation(rootDir) {
+  const changedFiles = getGitChangedFiles(
     rootDir,
-  );
-
-  const changedFiles = generatedFiles.filter(
-    (file) => expectedChangedFiles.includes(file),
   );
 
   return {
@@ -104,29 +55,35 @@ if (require.main === module) {
     '../..',
   );
 
-  const result = verifyGeneratedDocumentation(
-    rootDir,
-  );
+  try {
+    const result =
+      verifyGeneratedDocumentation(rootDir);
 
-  if (!result.valid) {
-    console.error(
-      'La documentación generada presenta cambios pendientes:',
-    );
+    if (!result.valid) {
+      console.error(
+        'La documentación generada presenta cambios pendientes:',
+      );
 
-    for (const file of result.changedFiles) {
-      console.error(`- ${file}`);
+      for (const file of result.changedFiles) {
+        console.error(`- ${file}`);
+      }
+
+      process.exit(1);
     }
 
+    console.log(
+      'La documentación generada está sincronizada con el repositorio.',
+    );
+  } catch (error) {
+    console.error(
+      `Verificación de documentación fallida: ${error.message}`,
+    );
     process.exit(1);
   }
-
-  console.log(
-    'La documentación generada está sincronizada.',
-  );
 }
 
 module.exports = {
-  getGeneratedFiles,
+  GENERATED_DIR,
   getGitChangedFiles,
   verifyGeneratedDocumentation,
 };
