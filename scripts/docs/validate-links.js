@@ -6,28 +6,40 @@ const GENERATED_DIR = path.join(
   'generated',
 );
 
-function findMarkdownFiles(directory) {
+function findMarkdownFiles(
+  directory,
+  files = [],
+) {
   if (!fs.existsSync(directory)) {
-    return [];
+    return files;
   }
 
-  return fs.readdirSync(
+  for (const entry of fs.readdirSync(
     directory,
     { withFileTypes: true },
-  ).flatMap((entry) => {
+  )) {
     const entryPath = path.join(
       directory,
       entry.name,
     );
 
     if (entry.isDirectory()) {
-      return findMarkdownFiles(entryPath);
+      findMarkdownFiles(
+        entryPath,
+        files,
+      );
+      continue;
     }
 
-    return entry.name.endsWith('.md')
-      ? [entryPath]
-      : [];
-  });
+    if (
+      entry.isFile() &&
+      entry.name.endsWith('.md')
+    ) {
+      files.push(entryPath);
+    }
+  }
+
+  return files.sort();
 }
 
 function extractMarkdownLinks(content) {
@@ -35,7 +47,7 @@ function extractMarkdownLinks(content) {
   const pattern = /\[[^\]]+\]\(([^)]+)\)/g;
 
   for (const match of content.matchAll(pattern)) {
-    links.push(match[1]);
+    links.push(match[1].trim());
   }
 
   return links;
@@ -43,14 +55,15 @@ function extractMarkdownLinks(content) {
 
 function isExternalLink(link) {
   return (
-    link.startsWith('http://') ||
-    link.startsWith('https://') ||
-    link.startsWith('mailto:') ||
+    /^(?:https?|mailto):/i.test(link) ||
     link.startsWith('#')
   );
 }
 
-function resolveInternalLink(filePath, link) {
+function resolveInternalLink(
+  filePath,
+  link,
+) {
   const cleanLink = link.split('#')[0];
 
   if (!cleanLink) {
@@ -100,7 +113,10 @@ function validateLinks(rootDir) {
         !fs.existsSync(targetPath)
       ) {
         errors.push(
-          `${path.relative(rootDir, filePath)} -> ${link}`,
+          `${path.relative(
+            rootDir,
+            filePath,
+          )} -> ${link}`,
         );
       }
     }
@@ -135,6 +151,8 @@ if (require.main === module) {
 }
 
 module.exports = {
+  GENERATED_DIR,
+  findMarkdownFiles,
   extractMarkdownLinks,
   isExternalLink,
   resolveInternalLink,
