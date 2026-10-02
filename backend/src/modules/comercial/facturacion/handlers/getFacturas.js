@@ -5,14 +5,14 @@
 //                Facturacion        → ../facturacion.repository
 //                comprobanteService → ../facturacion.service
 //                config/database    → ../../../config/database
-//                utils/logger       → ../../../shared/utils/logger
+//                utils/logger       → ../../../../shared/utils/logger
 
 'use strict';
 
 const Facturacion        = require('../facturacion.repository');
 const comprobanteService = require('../facturacion.service');
 const database           = require('../../../../config/database.js');
-const logger             = require('../../../shared/utils/logger');
+const logger             = require('../../../../shared/utils/logger');
 const { successResponse, errorResponse } = require('./utils');
 
 // ═══════════════════════════════════════════════════════

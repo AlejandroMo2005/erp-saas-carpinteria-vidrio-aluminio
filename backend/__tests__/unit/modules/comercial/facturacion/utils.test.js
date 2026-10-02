@@ -17,7 +17,7 @@ const utilsPath = require.resolve(
 delete require.cache[utilsPath];
 
 Module._load = function (request, parent, isMain) {
-  if (request === '../../../shared/utils/logger') {
+  if (request === '../../../../shared/utils/logger') {
     return logger;
   }
 

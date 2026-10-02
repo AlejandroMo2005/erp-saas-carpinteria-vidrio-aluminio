@@ -4,7 +4,7 @@
 'use strict';
 
 const cors   = require('cors');
-const logger = require('../src/shared/utils/logger');
+const logger = require('../shared/utils/logger');
 
 const IS_PROD = process.env.NODE_ENV === 'production';
 

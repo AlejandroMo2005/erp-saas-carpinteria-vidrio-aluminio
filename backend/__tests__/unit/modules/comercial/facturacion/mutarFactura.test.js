@@ -57,7 +57,7 @@ Module._load = function (request, parent, isMain) {
     return comprobanteService;
   }
 
-  if (request === '../../../shared/utils/logger') {
+  if (request === '../../../../shared/utils/logger') {
     return logger;
   }
 

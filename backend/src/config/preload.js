@@ -6,7 +6,7 @@
 
 const fs     = require('fs');
 const path   = require('path');
-const logger = require('../src/shared/utils/logger');
+const logger = require('../shared/utils/logger');
 
 const buildPath = path.join(__dirname, '../../dist');
 

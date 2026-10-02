@@ -13,7 +13,7 @@
 const database           = require('../../../config/database.js');
 const Pedido             = require('./pedido.repository');
 const logger             = require('../../../shared/utils/logger');
-const { softDelete }     = require('../../shared/utils/softDelete');
+const { softDelete }     = require('../../../shared/utils/softDelete');
 
 // ── Utilidades ─────────────────────────────────────────────────────────────
 

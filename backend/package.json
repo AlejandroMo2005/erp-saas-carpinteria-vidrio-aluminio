@@ -10,7 +10,9 @@
     "test:run": "vitest run",
     "test:coverage": "vitest run --coverage",
     "test:watch": "vitest --watch",
-    "lint": "eslint ."
+    "lint": "eslint .",
+    "test:unit": "vitest run __tests__/unit",
+    "test:integration": "vitest run __tests__/integration"
   },
   "keywords": [
     "inventario",

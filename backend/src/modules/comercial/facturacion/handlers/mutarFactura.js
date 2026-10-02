@@ -3,14 +3,14 @@
 // 📦 Sprint 20 — Migrado a src/modules/comercial/facturacion/handlers/
 //                comprobanteService → ../facturacion.service
 //                Facturacion        → ../facturacion.repository
-//                utils/logger       → ../../../shared/utils/logger
+//                utils/logger       → ../../../../shared/utils/logger
 //                pdfService         → lazy-load conservado (dentro de descargarPDF)
 
 'use strict';
 
 const comprobanteService = require('../facturacion.service');
 const Facturacion        = require('../facturacion.repository');
-const logger             = require('../../../shared/utils/logger');
+const logger             = require('../../../../shared/utils/logger');
 const { successResponse, errorResponse } = require('./utils');
 
 // ═══════════════════════════════════════════════════════
