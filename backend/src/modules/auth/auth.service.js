@@ -9,9 +9,9 @@
 
 const jwt    = require('jsonwebtoken');
 const crypto = require('crypto');
-const db     = require('../../../config/database');
-const redis  = require('../../../config/redis');
-const logger = require('../../../utils/logger');
+const db     = require('../../config/database.js');
+const redis  = require('../../config/redis');
+const logger = require('../../shared/utils/logger');
 
 const IS_PROD = process.env.NODE_ENV === 'production';
 

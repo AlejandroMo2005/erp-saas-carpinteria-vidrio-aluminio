@@ -15,11 +15,11 @@ const logger = {
 const originalLoad = Module._load;
 
 const databasePath = require.resolve(
-  `${process.cwd()}/config/database.js`
+  `${process.cwd()}/src/config/database.js`
 );
 
 const loggerPath = require.resolve(
-  `${process.cwd()}/utils/logger.js`
+  `${process.cwd()}/src/shared/utils/logger.js`
 );
 
 const auditLogPath = require.resolve(
@@ -30,14 +30,14 @@ delete require.cache[auditLogPath];
 
 Module._load = function (request, parent, isMain) {
   if (
-    request === '../../../config/database' ||
+    request === '../../config/database.js' ||
     request === databasePath
   ) {
     return db;
   }
 
   if (
-    request === '../../../utils/logger' ||
+    request === '../utils/logger' ||
     request === loggerPath
   ) {
     return logger;

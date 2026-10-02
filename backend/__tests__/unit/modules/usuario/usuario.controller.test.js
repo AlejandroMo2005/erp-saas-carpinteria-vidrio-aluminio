@@ -18,19 +18,26 @@ const logger = {
   error: vi.fn(),
 };
 
-const softDelete = vi.fn();
-
 const db = {
   query: vi.fn(),
+};
+
+const loggerPath = require.resolve(
+  `${process.cwd()}/src/shared/utils/logger.js`
+);
+require.cache[loggerPath] = {
+  id: loggerPath,
+  filename: loggerPath,
+  loaded: true,
+  exports: logger,
 };
 
 const originalLoad = Module._load;
 
 Module._load = function (request, parent, isMain) {
   if (request === './usuario.repository') return Usuario;
-  if (request === '../../../utils/logger') return logger;
-  if (request === '../../../utils/softDelete') return { softDelete };
-  if (request === '../../../config/database') return db;
+  if (request === '../../../shared/utils/logger') return logger;
+  if (request === '../../config/database.js') return db;
 
   return originalLoad.call(this, request, parent, isMain);
 };

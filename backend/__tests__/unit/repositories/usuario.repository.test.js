@@ -17,7 +17,7 @@ const bcrypt = {
 const originalLoad = Module._load;
 
 Module._load = function (request, parent, isMain) {
-  if (request === '../../../config/database') return db;
+  if (request === '../../config/database.js') return db;
   if (request === 'bcryptjs') return bcrypt;
   return originalLoad.call(this, request, parent, isMain);
 };

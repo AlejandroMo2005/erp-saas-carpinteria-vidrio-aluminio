@@ -12,7 +12,7 @@ const logger = {
 const originalLoad = Module._load;
 
 const loggerPath = require.resolve(
-  `${process.cwd()}/utils/logger.js`
+  `${process.cwd()}/src/shared/utils/logger.js`
 );
 
 const csrfPath = require.resolve(
@@ -24,7 +24,7 @@ delete require.cache[loggerPath];
 
 Module._load = function (request, parent, isMain) {
   if (
-    request === '../../../utils/logger' ||
+    request === '../utils/logger' ||
     request === loggerPath
   ) {
     return logger;

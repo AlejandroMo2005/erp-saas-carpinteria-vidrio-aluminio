@@ -4,7 +4,7 @@
 
 const path    = require('path');
 const express = require('express');
-const { buildPath } = require('../../../config/preload');
+const { buildPath } = require('../../config/preload');
 
 const cacheHeaders = (req, res, next) => {
   if (req.path.startsWith('/api/')) {

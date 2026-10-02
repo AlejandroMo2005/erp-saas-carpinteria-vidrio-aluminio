@@ -44,11 +44,11 @@ Module._load = function (request, parent, isMain) {
     return comprobanteService;
   }
 
-  if (request === '../../../../../config/database') {
+  if (request === '../../../../config/database.js') {
     return database;
   }
 
-  if (request === '../../../../../utils/logger') {
+  if (request === '../../../shared/utils/logger') {
     return logger;
   }
 

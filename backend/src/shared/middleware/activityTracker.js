@@ -2,8 +2,8 @@
 // 📦 Sprint 20 — Movido de middleware/activityTracker.js
 'use strict';
 
-const db     = require('../../../config/database');
-const logger = require('../../../utils/logger');
+const db     = require('../../config/database.js');
+const logger = require('../utils/logger');
 
 const INACTIVIDAD_MINUTOS    = parseInt(process.env.SESSION_INACTIVITY_MINUTES || '15');
 const MAX_INACTIVIDAD_MS     = INACTIVIDAD_MINUTOS * 60 * 1000;

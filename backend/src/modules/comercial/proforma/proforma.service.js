@@ -7,7 +7,7 @@
 
 'use strict';
 
-const logger = require('../../../../utils/logger');
+const logger = require('../../../shared/utils/logger');
 
 // ── Lazy load proformaCalculator ───────────────────────────────────────────
 // Se intenta cargar al iniciar el módulo. Si no existe, los handlers

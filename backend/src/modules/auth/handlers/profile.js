@@ -7,7 +7,7 @@
 
 // Módulo usuario migrado en Sprint 20
 const Usuario = require('../../usuario/usuario.repository');
-const logger  = require('../../../../utils/logger');
+const logger  = require('../../../shared/utils/logger');
 const { actualizarActividad } = require('../auth.service');
 
 // ═══════════════════════════════════════════════════════

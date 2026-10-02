@@ -1,5 +1,4 @@
 'use strict';
-import React from 'react';
 import './Filtro.css';
 
 export default function Filtro({ filtro, setFiltro, tiposTodos, grupos }) {

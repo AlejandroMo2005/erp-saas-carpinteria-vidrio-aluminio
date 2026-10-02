@@ -16,14 +16,14 @@ require('dotenv').config();
 
 const cluster = require('cluster');
 
-const db = require('./config/database');
-const logger = require('./utils/logger');
+const db = require('./src/config/database.js');
+const logger = require('./src/shared/utils/logger');
 const {
   PRELOAD_LINK_HEADERS,
-} = require('./config/preload');
+} = require('./src/config/preload');
 const {
   ALLOWED_ORIGINS,
-} = require('./config/cors');
+} = require('./src/config/cors');
 
 const app = require('./app');
 

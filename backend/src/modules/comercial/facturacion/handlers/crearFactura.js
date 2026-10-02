@@ -3,18 +3,17 @@
 // 📦 Sprint 20 — Migrado a src/modules/comercial/facturacion/handlers/
 //                comprobanteService → ../facturacion.service
 //                Facturacion        → ../facturacion.repository
-//                Configuracion      → ../../../../../models/Configuracion  (pendiente migrar)
+//                Configuracion      → ../../../configuracion/configuracion.repository  (pendiente migrar)
 //                validacionService  → ../../../../../services/validacionService
-//                utils/logger       → ../../../../../utils/logger
+//                utils/logger       → ../../../shared/utils/logger
 
 'use strict';
 
 const comprobanteService        = require('../facturacion.service');
 const Facturacion               = require('../facturacion.repository');
-// TODO: actualizar a ruta del módulo cuando se migre configuracion
-const Configuracion             = require('../../../../../models/Configuracion');
+const Configuracion             = require('../../../configuracion/configuracion.repository');
 const { validarIdentificacion } = require('../../../../shared/services/validacionService');
-const logger                    = require('../../../../../utils/logger');
+const logger                    = require('../../../shared/utils/logger');
 const { successResponse, errorResponse } = require('./utils');
 
 // ═══════════════════════════════════════════════════════

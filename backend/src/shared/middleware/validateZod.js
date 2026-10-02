@@ -2,7 +2,7 @@
 // 📦 Sprint 20 — Movido de middleware/validateZod.js
 'use strict';
 
-const logger       = require('../../../utils/logger');
+const logger       = require('../utils/logger');
 
 function validateBody(schema) {
   return (req, res, next) => {

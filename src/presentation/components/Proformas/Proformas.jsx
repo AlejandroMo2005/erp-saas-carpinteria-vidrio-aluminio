@@ -2,9 +2,7 @@
 // Sprint 14 — Migración a React Query
 // Sprint 18 — Refactorizado: lógica → useProformas, UI → subcomponentes
 
-import React from 'react';
 import './Proformas.css';
-import { useAuth } from '../../context/AuthContext';
 import { useProformas } from './hooks/useProformas';
 import {
   useProformaToasts,
@@ -12,11 +10,8 @@ import {
 } from './Notificaciones/NotiProformas';
 import AutocompleteCliente from './AutocompleteCliente/AutocompleteCliente';
 import ItemTrabajo         from './ItemTrabajo/ItemTrabajo';
-import { sanitizar }      from './utils/proformaUtils';
 
 export default function Proformas({ onAgendar }) {
-  const { user } = useAuth();
-
   const { toasts, remove: removeToast,
     ok: toastOk, error: toastError, warning: toastWarning, info: toastInfo,
   } = useProformaToasts();

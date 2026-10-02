@@ -1,6 +1,5 @@
-import { useState, useEffect, useRef } from 'react';
+import { FileText, X, Calendar, User, useState, useEffect, useRef } from 'react';
 import {
-  X, FileText, User, Calendar, CheckCircle,
   XCircle, AlertCircle, Clock, Download, Printer,
   RotateCcw, ChevronDown, ChevronUp
 } from 'lucide-react';

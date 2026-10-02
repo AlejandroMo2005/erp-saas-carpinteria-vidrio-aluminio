@@ -3,7 +3,7 @@ import { createRequire } from 'node:module';
 
 const require = createRequire(import.meta.url);
 
-const logger = require('../../../utils/logger');
+const logger = require('../../../src/shared/utils/logger');
 
 vi.spyOn(logger, 'error').mockImplementation(() => {});
 vi.spyOn(logger, 'warn').mockImplementation(() => {});

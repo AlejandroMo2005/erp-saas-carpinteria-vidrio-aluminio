@@ -1,6 +1,6 @@
+import { memo } from 'react';
 // ItemTrabajo/ItemTrabajo.jsx
 
-import React, { memo } from 'react';
 import { MEDIDA_MAX, CANT_MAX, TEXTO_MAX } from '../constants/proformaConstants';
 import { esColorClaro } from '../utils/proformaUtils';
 import './ItemTrabajo.css';

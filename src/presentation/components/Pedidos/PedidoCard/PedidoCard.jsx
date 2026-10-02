@@ -1,7 +1,7 @@
+import { memo } from 'react';
 // src/presentation/components/Pedidos/PedidoCard/PedidoCard.jsx
 // Sprint 18 — Refactorización modular
 
-import React, { memo } from 'react';
 import './PedidoCard.css';
 import BadgeEstado from '../BadgeEstado/BadgeEstado';
 import { sanitizeForDisplay } from '../utils/pedidosUtils';

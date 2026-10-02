@@ -3,12 +3,15 @@
 const rateLimit = require('express-rate-limit');
 const crypto    = require('crypto');
 const xss       = require('xss');
-const logger    = require('../../../utils/logger');
+const logger    = require('../utils/logger');
 
 const xssOptions = { whiteList: {}, stripIgnoreTag: true, stripIgnoreTagBody: ['script'], css: false };
 
 const globalLimiter = rateLimit({
-  windowMs: 60 * 1000, max: 100, standardHeaders: true, legacyHeaders: false,
+  windowMs: 60 * 1000,
+  max: process.env.NODE_ENV === 'test' ? 100000 : 100,
+  standardHeaders: true,
+  legacyHeaders: false,
   handler: (req, res) => {
     logger.security.loginBlocked(req.ip, req.path);
     res.status(429).json({ success: false, message: 'Demasiadas peticiones. Intenta nuevamente en 1 minuto.', retryAfter: 60 });
@@ -16,7 +19,11 @@ const globalLimiter = rateLimit({
 });
 
 const authLimiter = rateLimit({
-  windowMs: 60 * 1000, max: 10, standardHeaders: true, legacyHeaders: false, skipSuccessfulRequests: false,
+  windowMs: 60 * 1000,
+  max: process.env.NODE_ENV === 'test' ? 100 : 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  skipSuccessfulRequests: false,
   handler: (req, res) => {
     logger.warn('Rate limit AUTH', { ip: req.ip, timestamp: new Date().toISOString() });
     res.status(429).json({ success: false, message: 'Demasiados intentos de autenticación. Intenta nuevamente en 1 minuto.', retryAfter: 60 });

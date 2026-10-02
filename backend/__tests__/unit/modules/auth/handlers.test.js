@@ -12,8 +12,8 @@ const require = createRequire(import.meta.url);
 
 const paths = {
   usuario: require.resolve('../../../../src/modules/usuario/usuario.repository'),
-  db: require.resolve('../../../../config/database'),
-  logger: require.resolve('../../../../utils/logger'),
+  db: require.resolve('../../../../src/config/database'),
+  logger: require.resolve('../../../../src/shared/utils/logger'),
   audit: require.resolve('../../../../src/shared/middleware/auditLog'),
   security: require.resolve('../../../../src/shared/middleware/security'),
   authService: require.resolve('../../../../src/modules/auth/auth.service'),

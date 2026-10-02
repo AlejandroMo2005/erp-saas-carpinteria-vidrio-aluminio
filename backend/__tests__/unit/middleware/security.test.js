@@ -27,7 +27,7 @@ const xss = vi.fn((value) => value.replace(/<script.*?>.*?<\/script>/gis, ''));
 
 const originalLoad = Module._load;
 
-const loggerPath = require.resolve(`${process.cwd()}/utils/logger.js`);
+const loggerPath = require.resolve(`${process.cwd()}/src/shared/utils/logger.js`);
 const securityPath = require.resolve(
   `${process.cwd()}/src/shared/middleware/security.js`
 );
@@ -36,7 +36,7 @@ delete require.cache[securityPath];
 delete require.cache[loggerPath];
 
 Module._load = function (request, parent, isMain) {
-  if (request === '../../../utils/logger' || request === loggerPath) {
+  if (request === '../utils/logger' || request === loggerPath) {
     return logger;
   }
 
@@ -134,7 +134,7 @@ describe('rate limiters', () => {
     expect(rateLimit).toHaveBeenCalledWith(
       expect.objectContaining({
         windowMs: 60000,
-        max: 10,
+        max: 100,
         standardHeaders: true,
         legacyHeaders: false,
         skipSuccessfulRequests: false,

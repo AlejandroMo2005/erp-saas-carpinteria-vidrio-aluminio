@@ -3,114 +3,97 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Authentication E2E Tests', () => {
   test.beforeEach(async ({ page }) => {
-    // Navigate to login page before each test
     await page.goto('/login');
   });
 
   test('should display login form', async ({ page }) => {
-    // Wait for form to load
-    await page.waitForSelector('form');
-
-    // Check for key elements
-    const emailInput = page.locator('input[type="email"]');
-    const passwordInput = page.locator('input[type="password"]');
-    const submitButton = page.locator('button[type="submit"]');
-
-    // Assertions
-    await expect(emailInput).toBeVisible();
-    await expect(passwordInput).toBeVisible();
-    await expect(submitButton).toBeVisible();
+    await expect(page.getByLabel('Correo electrónico')).toBeVisible();
+    await expect(page.getByLabel('Contraseña')).toBeVisible();
+    await expect(page.getByRole('button', { name: 'Iniciar Sesión' })).toBeVisible();
   });
 
-  test('should show error with empty credentials', async ({ page }) => {
-    // Get submit button
-    const submitButton = page.locator('button[type="submit"]');
+  test('should prevent submission with empty credentials', async ({ page }) => {
+    const emailInput = page.getByLabel('Correo electrónico');
+    const passwordInput = page.getByLabel('Contraseña');
+    const submitButton = page.getByRole('button', { name: 'Iniciar Sesión' });
 
-    // Click submit without filling form
     await submitButton.click();
 
-    // Wait for error message or form validation
-    // Note: Adjust selector based on your actual form
-    const errorMsg = page.locator('[role="alert"]');
-    
-    // Either error shows or form doesn't submit
-    const urlStaysSame = await page.url().includes('/login');
-    expect(urlStaysSame).toBe(true);
+    await expect(emailInput).toHaveAttribute('aria-invalid', 'false');
+    await expect(passwordInput).toHaveAttribute('aria-invalid', 'false');
+    await expect(submitButton).toBeEnabled();
+
+    expect(await emailInput.evaluate((input) => input.validity.valid)).toBe(false);
+    expect(await passwordInput.evaluate((input) => input.validity.valid)).toBe(false);
+    expect(page.url()).toMatch(/localhost:3000\/?$/);
   });
 
   test('should show error with invalid credentials', async ({ page }) => {
-    // Fill with wrong credentials
-    await page.fill('input[type="email"]', 'wrong@example.com');
-    await page.fill('input[type="password"]', 'wrongpassword');
+    await page.getByLabel('Correo electrónico').fill('wrong@example.com');
+    await page.getByLabel('Contraseña').fill('WrongPassword123!');
 
-    // Click submit
-    const submitButton = page.locator('button[type="submit"]');
-    await submitButton.click();
+    await page.getByRole('button', { name: 'Iniciar Sesión' }).click();
 
-    // Wait for error
-    // The page should stay on login or show error
-    await page.waitForTimeout(2000);
-    const urlStaysSame = await page.url().includes('/login');
-    
-    expect(urlStaysSame).toBe(true);
+    const error = page.getByRole('alert');
+
+    await expect(error).toBeVisible();
+    await expect(error).toHaveText('Credenciales inválidas');
+    await expect(page.getByLabel('Correo electrónico')).toHaveAttribute('aria-invalid', 'true');
+    await expect(page.getByLabel('Contraseña')).toHaveAttribute('aria-invalid', 'true');
+    await expect(page).toHaveURL(/localhost:3000\/?$/);
   });
 
   test('should have links to register and forgot password', async ({ page }) => {
-    // Look for register link
-    const registerLink = page.locator('a:has-text("Registr")');
-    const forgotLink = page.locator('a:has-text("olvid")');
-
-    // Check visibility
-    await expect(registerLink).toBeVisible();
-    await expect(forgotLink).toBeVisible();
+    await expect(page.getByRole('link', { name: 'Crear cuenta' })).toBeVisible();
+    await expect(page.getByRole('link', { name: '¿Olvidaste tu contraseña?' })).toBeVisible();
   });
 
-  test('should have accessibility attributes', async ({ page }) => {
-    // Check for main role
-    const main = page.locator('main, [role="main"]');
-    await expect(main).toBeVisible();
-
-    // Check form has proper structure
+  test('should have accessible form controls', async ({ page }) => {
+    const main = page.getByRole('main');
     const form = page.locator('form');
+
+    await expect(main).toBeVisible();
     await expect(form).toBeVisible();
 
-    // Check inputs have labels or aria-labels
-    const emailInput = page.locator('input[type="email"]');
-    const passwordInput = page.locator('input[type="password"]');
+    const emailInput = page.getByLabel('Correo electrónico');
+    const passwordInput = page.getByLabel('Contraseña');
 
-    const hasEmailLabel = await emailInput.evaluate(el => 
-      !!el.getAttribute('aria-label') || !!el.closest('label')
-    );
-    
-    expect(hasEmailLabel).toBe(true);
+    await expect(emailInput).toHaveAttribute('aria-required', 'true');
+    await expect(passwordInput).toHaveAttribute('aria-required', 'true');
+    await expect(emailInput).toHaveAttribute('autocomplete', 'email');
+    await expect(passwordInput).toHaveAttribute('autocomplete', 'current-password');
   });
 
-  test('should display session expired banner when passed as prop', async ({ page }) => {
-    // This test would need to navigate with URL params or use a custom route
-    // For now, it's a placeholder for future implementation
-    await page.goto('/login?expired=true');
+  test('should navigate to registration page', async ({ page }) => {
+    await page.getByRole('link', { name: 'Crear cuenta' }).click();
 
-    // Look for expired session message
-    const expiredBanner = page.locator(':text("sesión expiró"), [role="alert"]');
-    
-    // May or may not be visible depending on implementation
-    // This is informational
+    await expect(page).toHaveURL(/\/register$/);
+    await expect(page.getByRole('heading')).toBeVisible();
+  });
+
+  test('should navigate to forgot password page', async ({ page }) => {
+    await page.getByRole('link', { name: '¿Olvidaste tu contraseña?' }).click();
+
+    await expect(page).toHaveURL(/\/forgot-password$/);
+    await expect(page.getByRole('heading')).toBeVisible();
   });
 
   test('should be responsive on mobile', async ({ browser }) => {
-    // Create a mobile context
     const mobileContext = await browser.newContext({
-      viewportSize: { width: 375, height: 667 },
+      viewport: { width: 375, height: 667 },
     });
+
     const mobilePage = await mobileContext.newPage();
 
     await mobilePage.goto('/login');
 
-    // Check form is visible and accessible
-    const form = mobilePage.locator('form');
-    await expect(form).toBeVisible();
+    await expect(mobilePage.getByRole('main')).toBeVisible();
+    await expect(mobilePage.getByLabel('Correo electrónico')).toBeVisible();
+    await expect(mobilePage.getByLabel('Contraseña')).toBeVisible();
+    await expect(
+      mobilePage.getByRole('button', { name: 'Iniciar Sesión' })
+    ).toBeVisible();
 
-    // Clean up
     await mobileContext.close();
   });
 });

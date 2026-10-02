@@ -1,3 +1,4 @@
+import { useState, useCallback } from 'react';
 // src/presentation/components/Pedidos/Pedidos.jsx
 // Sprint 14 — Migración a React Query
 // 🐛 Fix Sprint 18  — useActualizarEstadoPedido → PUT /pedidos/:id/estado
@@ -6,7 +7,6 @@
 // 🎨 Sprint 16 v3   — Eliminado estado PROCESADO (no usado en el negocio)
 // ♻️  Sprint 18     — Refactorización modular: hook + subcomponentes + CSS por responsabilidad
 
-import React, { useState, useCallback } from 'react';
 import './Pedidos.css';
 import { useQueryClient } from '@tanstack/react-query';
 import { useAuth } from '../../context/AuthContext';

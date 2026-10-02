@@ -1,5 +1,4 @@
 // ProcesandoPanel/ProcesandoPanel.jsx
-import React from 'react';
 
 export default function ProcesandoPanel({ fotoSrc, progreso }) {
   return (

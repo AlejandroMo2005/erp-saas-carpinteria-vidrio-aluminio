@@ -1,7 +1,7 @@
+import { memo } from 'react';
 // src/presentation/components/Materiales/MatCard/MatCardVendedor.jsx
 // Sprint 18 — Refactorización modular
 
-import React, { memo } from 'react';
 import './MatCard.css';
 import IconoMaterial from '../IconoMaterial/IconoMaterial';
 import { normalizarColor } from '../utils/materialesUtils';

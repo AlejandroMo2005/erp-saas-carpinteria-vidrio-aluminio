@@ -2,7 +2,7 @@
 // 📦 Sprint 20 — Movido de middleware/errorHandler.js
 'use strict';
 
-const logger = require('../../../utils/logger');
+const logger = require('../utils/logger');
 
 const ERROR_STATUS_MAP = { 'ER_DUP_ENTRY':409,'ER_NO_REFERENCED_ROW':400,'ER_ROW_IS_REFERENCED':409,'ER_DATA_TOO_LONG':400,'JsonWebTokenError':401,'TokenExpiredError':401,'NotBeforeError':401,'ValidationError':422,'CastError':400 };
 const MENSAJES_PUBLICOS = { 400:'Datos inválidos en la solicitud.',401:'No autorizado. Verifica tu sesión.',403:'No tienes permisos para esta acción.',404:'Recurso no encontrado.',409:'Conflicto: ya existe un registro similar.',422:'Los datos enviados no son procesables.',429:'Demasiadas peticiones. Intenta en un momento.',500:'Error interno del servidor. Intenta más tarde.' };

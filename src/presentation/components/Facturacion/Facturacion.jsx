@@ -6,7 +6,7 @@ import './Facturacion.tabs.css';
 import './Facturacion.content.css';
 import './Facturacion.states.css';
 
-const ListaFacturas   = lazy(() => import('./Componentes/ListaFacturas/ListaFacturas'));
+const ListaFacturas = lazy(() => import('./Componentes/ListaFacturas/Listafacturas'));
 const Estadisticas    = lazy(() => import('./Componentes/Estadisticas/Estadisticas'));
 const ProveedoresMain = lazy(() => import('./Proveedores/ProveedoresMain/ProveedoresMain'));
 

@@ -12,16 +12,16 @@ const compression  = require('compression');
 require('dotenv').config();
 
 // ── Config + utils ─────────────────────────────────────────────────────────
-const db     = require('./config/database');
-const logger = require('./utils/logger');
-const { PRELOAD_LINK_HEADERS, buildPath } = require('./config/preload');
-const { helmetMiddleware, customHeaders } = require('./config/helmet');
-const { corsMiddleware }                  = require('./config/cors');
+const db     = require('./src/config/database.js');
+const logger = require('./src/shared/utils/logger');
+const { PRELOAD_LINK_HEADERS, buildPath } = require('./src/config/preload');
+const { helmetMiddleware, customHeaders } = require('./src/config/helmet');
+const { corsMiddleware }                  = require('./src/config/cors');
 
 // ── Middleware ─────────────────────────────────────────────────────────────
-const { emitirCsrfCookie, verificarCsrf } = require('./middleware/csrf');
-const { errorHandler, notFoundHandler }   = require('./middleware/errorHandler');
-const { trackActivity }                   = require('./middleware/activityTracker');
+const { emitirCsrfCookie, verificarCsrf } = require('./src/shared/middleware/csrf');
+const { errorHandler, notFoundHandler }   = require('./src/shared/middleware/errorHandler');
+const { trackActivity }                   = require('./src/shared/middleware/activityTracker');
 
 const {
   globalLimiter,
@@ -29,14 +29,14 @@ const {
   sqlInjectionProtect,
   additionalSecurityHeaders,
   httpLogger,
-} = require('./middleware/security');
+} = require('./src/shared/middleware/security');
 
 const {
   cacheHeaders,
   referenciasStatic,
   buildStatic,
   publicStatic,
-} = require('./middleware/staticCache');
+} = require('./src/shared/middleware/staticCache');
 
 // ── Rutas ──────────────────────────────────────────────────────────────────
 let registerRoutes;

@@ -1,5 +1,5 @@
 'use strict';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import TrabajoSeccion from './TrabajoSeccion';
 
 export default function GrupoVariante({ variante, trabajos, isAdmin }) {

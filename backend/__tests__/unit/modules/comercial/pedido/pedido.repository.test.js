@@ -20,7 +20,7 @@ const connection = {
 const originalLoad = Module._load;
 
 Module._load = function (request, parent, isMain) {
-  if (request === '../../../../config/database') return db;
+  if (request === '../../../config/database.js') return db;
 
   return originalLoad.call(this, request, parent, isMain);
 };

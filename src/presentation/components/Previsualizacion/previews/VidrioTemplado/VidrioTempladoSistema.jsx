@@ -65,7 +65,7 @@ export default function VidrioTempladoSistema({
     Array.from({ length: numPaneles }, (_, index) => {
       const xBase = -anchoN / 2 + index * anchoPanelReal + anchoPanelReal / 2;
 
-      let esMovil = false;
+      let esMovil;
       if (direccion === "centro" && numPuertasMoviles === 2) {
         esMovil = index < 2;
       } else if (direccion === "izquierda") {

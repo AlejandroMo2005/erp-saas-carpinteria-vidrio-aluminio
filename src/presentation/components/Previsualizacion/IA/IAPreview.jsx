@@ -1,14 +1,13 @@
+import { useState, useRef, useEffect, useCallback, memo } from 'react';
 // src/presentation/components/Previsualizacion/IA/IAPreview.jsx
 // Sprint 17 — DT-IA
 // Flujo: subir foto → pintar máscara → POST multipart → resultado
 // Sin cámara (se habilitará cuando haya HTTPS en producción)
 
-import React, { useState, useRef, useEffect, useCallback, memo } from 'react';
 import './IAPreview.css';
 import api from '../../../api/api';
 
-const PROMPT_NEGATIVO =
-  'blurry, distorted, cartoon, sketch, low quality, artifacts, watermark, text, deformed';
+
 
 // ═══════════════════════════════════════════════════════════════════════════
 // MaskPainter

@@ -1,5 +1,5 @@
-// BoundingBoxSelector/BoundingBoxSelector.jsx
 import React, { useState, useRef, useCallback, memo } from 'react';
+// BoundingBoxSelector/BoundingBoxSelector.jsx
 import './BoundingBoxSelector.css';
 
 const BoundingBoxSelector = memo(function BoundingBoxSelector({ imagen, onMascaraLista, onCancelar }) {

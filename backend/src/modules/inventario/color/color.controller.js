@@ -6,8 +6,8 @@
 
 'use strict';
 
-const db     = require('../../../../config/database');
-const logger = require('../../../../utils/logger');
+const db     = require('../../../config/database.js');
+const logger = require('../../../shared/utils/logger');
 
 exports.getColores = async (req, res) => {
   try {

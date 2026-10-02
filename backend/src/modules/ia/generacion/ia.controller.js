@@ -20,7 +20,7 @@ const {
   construirPromptLibre,
   traducirAIngles,
 } = require('../../../shared/services/iaService');
-const db = require('../../../../config/database');
+const db = require('../../../config/database.js');
 
 const PROMPT_MAX_LEN   = 500;
 const MAX_BASE64_BYTES = 10 * 1024 * 1024;

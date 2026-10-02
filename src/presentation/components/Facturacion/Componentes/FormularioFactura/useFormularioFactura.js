@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect } from 'react';
 import api from '../../../../api/api';
 import { IVA_DEFAULT, ITEM_VACIO } from './constants';
 import { buildDescripcion, distribuirTotal, calcularTotales } from './utils';

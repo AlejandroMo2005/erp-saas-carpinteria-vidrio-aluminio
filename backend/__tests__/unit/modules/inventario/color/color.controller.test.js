@@ -9,8 +9,8 @@ import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
 
-const dbPath = require.resolve(process.cwd() + '/config/database.js');
-const loggerPath = require.resolve(process.cwd() + '/utils/logger.js');
+const dbPath = require.resolve(process.cwd() + '/src/config/database.js');
+const loggerPath = require.resolve(process.cwd() + '/src/shared/utils/logger.js');
 const controllerPath = require.resolve(process.cwd() + '/src/modules/inventario/color/color.controller.js');
 
 const dbMock = {

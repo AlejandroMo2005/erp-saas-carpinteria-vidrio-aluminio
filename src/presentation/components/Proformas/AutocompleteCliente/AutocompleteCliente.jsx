@@ -1,6 +1,6 @@
+import { useState, useEffect, useRef, memo } from 'react';
 // AutocompleteCliente/AutocompleteCliente.jsx
 
-import React, { useState, useEffect, useRef, memo } from 'react';
 import api from '../../../api/api';
 import { TEXTO_MAX } from '../constants/proformaConstants';
 import './AutocompleteCliente.css';

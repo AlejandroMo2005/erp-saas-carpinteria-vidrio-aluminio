@@ -1,7 +1,6 @@
 // VisualizadorIA.jsx
 // Sprint 18 — Refactorizado: lógica → useVisualizadorIA, UI → subcomponentes
 
-import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import './VisualizadorIA.css';
 import { useVisualizadorIA }  from './hooks/useVisualizadorIA';

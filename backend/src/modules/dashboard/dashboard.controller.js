@@ -8,7 +8,7 @@
 'use strict';
 
 const m      = require('./dashboard.repository');
-const logger = require('../../../utils/logger');
+const logger = require('../../shared/utils/logger');
 
 // ═══════════════════════════════════════════════════════
 // GET /api/dashboard/resumen

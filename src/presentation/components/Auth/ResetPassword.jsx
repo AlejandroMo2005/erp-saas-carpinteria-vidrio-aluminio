@@ -1,6 +1,6 @@
+import { useState } from "react";
 // src/presentation/components/Auth/ResetPassword.jsx
 
-import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import api from "../../api/api";
 import "./ResetPassword.css";

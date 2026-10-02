@@ -1,6 +1,5 @@
-import {
+import { RefreshCw, Users,
   Plus, Pencil, Trash2, Phone, MapPin, Package,
-  AlertTriangle, History, Users, RefreshCw,
 } from 'lucide-react';
 import ModalProveedor    from '../ModalProveedor/ModalProveedor';
 import AlertasStock      from '../AlertasStock/AlertasStock';

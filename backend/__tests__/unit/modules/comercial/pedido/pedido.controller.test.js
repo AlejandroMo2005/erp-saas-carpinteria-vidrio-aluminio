@@ -23,10 +23,10 @@ const softDelete = vi.fn();
 const originalLoad = Module._load;
 
 Module._load = function (request, parent, isMain) {
-  if (request === '../../../../config/database') return database;
+  if (request === '../../../config/database.js') return database;
   if (request === './pedido.repository') return Pedido;
-  if (request === '../../../../utils/logger') return logger;
-  if (request === '../../../../utils/softDelete') return { softDelete };
+  if (request === '../../../shared/utils/logger') return logger;
+  if (request === '../../shared/utils/softDelete') return { softDelete };
 
   return originalLoad.call(this, request, parent, isMain);
 };

@@ -2,7 +2,7 @@
 
 const jwt = require('jsonwebtoken');
 const { timingSafeEqual } = require('./security');
-const logger = require('../../../utils/logger');
+const logger = require('../utils/logger');
 
 /**
  * Crea el middleware de protección con las dependencias proporcionadas.
@@ -224,8 +224,8 @@ let runtimeProtect;
 function getRuntimeProtect() {
   if (!runtimeProtect) {
     const Usuario = require('../../modules/usuario/usuario.repository');
-    const db = require('../../../config/database');
-    const redis = require('../../../config/redis');
+    const db = require('../../config/database.js');
+    const redis = require('../../config/redis');
 
     runtimeProtect = createProtect({
       Usuario,

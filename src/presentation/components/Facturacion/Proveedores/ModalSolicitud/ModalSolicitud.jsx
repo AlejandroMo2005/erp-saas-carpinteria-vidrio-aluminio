@@ -3,7 +3,7 @@ import useModalSolicitud from './useModalSolicitud';
 import './ModalSolicitud.css';
 
 export default function ModalSolicitud({
-  proveedor_id,
+  _proveedor_id,
   nombreProveedor,
   telefono_whatsapp,
   plantilla,

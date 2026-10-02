@@ -2,7 +2,6 @@
 // Sprint 14 — Migración a React Query
 // ♻️  Sprint 18 — Refactorización modular: 2 hooks + subcomponentes + CSS por responsabilidad
 
-import React from 'react';
 import './Materiales.page.css';
 import './Materiales.grid.css';
 import { useQueryClient } from '@tanstack/react-query';

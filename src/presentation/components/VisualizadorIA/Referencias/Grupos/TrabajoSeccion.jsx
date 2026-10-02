@@ -1,5 +1,5 @@
 'use strict';
-import React, {
+import {
   useState, useCallback, lazy, Suspense,
 } from 'react';
 import api from '../../../../api/api';

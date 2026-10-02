@@ -16,8 +16,8 @@ const MATERIAL_OPTS = ["Vidrio", "Esmerilado", "Ahumado"];
 export default function BalconPreview({
   ancho,
   alto,
-  colorMarco     = "#888888",
-  colorVidrio    = "#88aaff",
+  _colorMarco     = "#888888",
+  _colorVidrio    = "#88aaff",
   colorMarcoHex  = "#888888",
   colorVidrioHex = "#88aaff",
   opacidadVidrio = 0.3,

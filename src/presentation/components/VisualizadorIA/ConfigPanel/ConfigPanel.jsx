@@ -1,5 +1,4 @@
 // ConfigPanel/ConfigPanel.jsx
-import React from 'react';
 import './ConfigPanel.css';
 
 export default function ConfigPanel({

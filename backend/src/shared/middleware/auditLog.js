@@ -2,8 +2,8 @@
 // 📦 Sprint 20 — Movido de middleware/auditLog.js
 'use strict';
 
-const db     = require('../../../config/database');
-const logger = require('../../../utils/logger');
+const db     = require('../../config/database.js');
+const logger = require('../utils/logger');
 
 function esAnulacion(req) {
   if (!req.body) return false;

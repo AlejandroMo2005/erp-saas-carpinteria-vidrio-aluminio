@@ -8,7 +8,7 @@ const api = axios.create({
 
 // Interceptor para agregar token automáticamente
 api.interceptors.request.use(
-  (config) => {
+  (_config) => {
   },
   (error) => {
     return Promise.reject(error);

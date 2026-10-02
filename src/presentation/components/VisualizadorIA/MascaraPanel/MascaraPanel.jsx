@@ -1,5 +1,4 @@
 // MascaraPanel/MascaraPanel.jsx
-import React from 'react';
 import BoundingBoxSelector from '../BoundingBoxSelector/BoundingBoxSelector';
 import './MascaraPanel.css';
 

@@ -24,7 +24,7 @@ export function distribuirTotal(items, total) {
     }
   }
   const sumaCant = items.reduce((s, i) => s + (Number(i.cantidad) || 1), 0);
-  return items.map(i =>
+  return items.map(_i =>
     parseFloat((total / sumaCant).toFixed(2))
   );
 }

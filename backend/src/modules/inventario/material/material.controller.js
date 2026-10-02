@@ -10,9 +10,9 @@
 'use strict';
 
 const Material           = require('./material.repository');
-const logger             = require('../../../../utils/logger');
-const { softDelete }     = require('../../../../utils/softDelete');
-const db                 = require('../../../../config/database');
+const logger             = require('../../../shared/utils/logger');
+const { softDelete }     = require('../../../shared/utils/softDelete');
+const db                 = require('../../../config/database.js');
 
 const STOCK_BAJO_UMBRAL = 5;
 

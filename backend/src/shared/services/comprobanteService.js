@@ -6,8 +6,8 @@
  *                utils/logger    → ../../../utils/logger
  */
 
-const db     = require('../../../config/database');
-const logger = require('../../../utils/logger');
+const db     = require('../../config/database.js');
+const logger = require('../utils/logger');
 
 const generarClaveAcceso = (datos) => {
   const {

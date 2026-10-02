@@ -1,5 +1,5 @@
 'use strict';
-import React, { useState } from 'react';
+import { useState } from 'react';
 import GrupoVariante from './GrupoVariante';
 
 export default function GrupoTipo({ tipo, variantes, isAdmin }) {

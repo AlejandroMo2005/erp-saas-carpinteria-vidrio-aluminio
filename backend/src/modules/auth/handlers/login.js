@@ -10,8 +10,8 @@
 
 // Módulo usuario migrado en Sprint 20
 const Usuario = require('../../usuario/usuario.repository');
-const db      = require('../../../../config/database');
-const logger  = require('../../../../utils/logger');
+const db      = require('../../../config/database.js');
+const logger  = require('../../../shared/utils/logger');
 const { registrarAuditoria } = require('../../../shared/middleware/auditLog');
 const {
   COOKIE_OPTIONS,

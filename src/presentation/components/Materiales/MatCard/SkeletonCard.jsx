@@ -1,7 +1,6 @@
 // src/presentation/components/Materiales/MatCard/SkeletonCard.jsx
 // Sprint 18 — Refactorización modular
 
-import React from 'react';
 import './MatCard.css';
 
 export default function SkeletonCard() {

@@ -16,7 +16,7 @@ const logger = {
 const originalLoad = Module._load;
 
 Module._load = function (request, parent, isMain) {
-  if (request === '../../../config/database') return db;
+  if (request === '../../../config/database.js') return db;
   if (request === '../../../shared/utils/logger') return logger;
 
   return originalLoad.call(this, request, parent, isMain);

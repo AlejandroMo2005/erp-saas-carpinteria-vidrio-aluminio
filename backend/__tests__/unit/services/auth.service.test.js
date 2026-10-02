@@ -17,6 +17,16 @@ const logger = {
   info: vi.fn(),
 };
 
+const loggerPath = require.resolve(
+  `${process.cwd()}/src/shared/utils/logger.js`
+);
+require.cache[loggerPath] = {
+  id: loggerPath,
+  filename: loggerPath,
+  loaded: true,
+  exports: logger,
+};
+
 const originalLoad = Module._load;
 const originalSetInterval = globalThis.setInterval;
 
@@ -31,15 +41,15 @@ globalThis.setInterval = vi.fn(() => ({
 }));
 
 Module._load = function (request, parent, isMain) {
-  if (request === '../../../config/database') {
+  if (request === '../../config/database.js') {
     return db;
   }
 
-  if (request === '../../../config/redis') {
+  if (request === '../../config/redis') {
     return redis;
   }
 
-  if (request === '../../../utils/logger') {
+  if (request === '../../../shared/utils/logger') {
     return logger;
   }
 

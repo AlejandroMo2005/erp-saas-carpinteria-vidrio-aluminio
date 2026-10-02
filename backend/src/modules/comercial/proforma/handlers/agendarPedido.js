@@ -6,8 +6,8 @@
 
 'use strict';
 
-const database = require('../../../../../config/database');
-const logger   = require('../../../../../utils/logger');
+const database = require('../../../../config/database.js');
+const logger   = require('../../../../shared/utils/logger');
 const {
   round2,
   isLegacyItems,

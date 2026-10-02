@@ -1,0 +1,36 @@
+services:
+  mysql-e2e:
+    image: mysql:8.0.44
+    container_name: erp-mysql-e2e
+    environment:
+      MYSQL_ROOT_PASSWORD: e2e-root
+      MYSQL_DATABASE: inventario_proformas_e2e
+    ports:
+      - "3307:3306"
+    volumes:
+      - ./e2e/database/schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./e2e/database/seed.sql:/docker-entrypoint-initdb.d/02-seed.sql:ro
+      - mysql-e2e-data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-pe2e-root"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+      start_period: 10s
+
+  redis-e2e:
+    image: redis:7-alpine
+    container_name: erp-redis-e2e
+    ports:
+      - "6380:6379"
+    volumes:
+      - redis-e2e-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+volumes:
+  mysql-e2e-data:
+  redis-e2e-data:

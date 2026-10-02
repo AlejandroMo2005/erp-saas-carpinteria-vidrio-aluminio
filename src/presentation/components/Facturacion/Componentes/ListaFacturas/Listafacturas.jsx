@@ -1,11 +1,11 @@
-import { Search, FileText, Eye, XCircle, CheckCircle,
+import { Search, FileText, Eye, XCircle, 
          AlertCircle, Download, Plus, X } from 'lucide-react';
 import FormularioFactura from '../FormularioFactura/FormularioFactura';
 import DetalleFactura    from '../DetalleFactura/DetalleFactura';
 import useToasts         from './useToasts';
 import useListaFacturas  from './useListaFacturas';
 import { ESTADO_CONFIG } from './constants';
-import './ListaFacturas.css';
+import './Listafacturas.css';
 
 function ToastContainer({ toasts, onRemove }) {
   if (!toasts.length) return null;

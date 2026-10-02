@@ -10,10 +10,10 @@
 
 'use strict';
 
-const database           = require('../../../../config/database');
+const database           = require('../../../config/database.js');
 const Pedido             = require('./pedido.repository');
-const logger             = require('../../../../utils/logger');
-const { softDelete }     = require('../../../../utils/softDelete');
+const logger             = require('../../../shared/utils/logger');
+const { softDelete }     = require('../../shared/utils/softDelete');
 
 // ── Utilidades ─────────────────────────────────────────────────────────────
 

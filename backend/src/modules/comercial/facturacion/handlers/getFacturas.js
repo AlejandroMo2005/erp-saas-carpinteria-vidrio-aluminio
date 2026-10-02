@@ -4,15 +4,15 @@
 // 📦 Sprint 20 — Migrado a src/modules/comercial/facturacion/handlers/
 //                Facturacion        → ../facturacion.repository
 //                comprobanteService → ../facturacion.service
-//                config/database    → ../../../../../config/database
-//                utils/logger       → ../../../../../utils/logger
+//                config/database    → ../../../config/database
+//                utils/logger       → ../../../shared/utils/logger
 
 'use strict';
 
 const Facturacion        = require('../facturacion.repository');
 const comprobanteService = require('../facturacion.service');
-const database           = require('../../../../../config/database');
-const logger             = require('../../../../../utils/logger');
+const database           = require('../../../../config/database.js');
+const logger             = require('../../../shared/utils/logger');
 const { successResponse, errorResponse } = require('./utils');
 
 // ═══════════════════════════════════════════════════════

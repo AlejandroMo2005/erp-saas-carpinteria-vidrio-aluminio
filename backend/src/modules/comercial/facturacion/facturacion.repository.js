@@ -15,7 +15,7 @@
 
 'use strict';
 
-const db = require('../../../../config/database');
+const db = require('../../../config/database.js');
 
 // ═══════════════════════════════════════════════════════════════════════════
 // FACTURAS — LECTURA

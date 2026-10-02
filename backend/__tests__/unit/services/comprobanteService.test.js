@@ -31,11 +31,11 @@ const servicePath = require.resolve(
 delete require.cache[servicePath];
 
 Module._load = function (request, parent, isMain) {
-  if (request === '../../../config/database') {
+  if (request === '../../config/database.js') {
     return db;
   }
 
-  if (request === '../../../utils/logger') {
+  if (request === '../utils/logger') {
     return logger;
   }
 

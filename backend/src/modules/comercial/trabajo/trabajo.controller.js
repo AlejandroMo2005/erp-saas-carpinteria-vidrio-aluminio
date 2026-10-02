@@ -15,7 +15,7 @@
 
 'use strict';
 
-const db     = require('../../../config/database');      // ← Sprint 21
+const db     = require('../../../config/database.js');      // ← Sprint 21
 const logger = require('../../../shared/utils/logger');  // ← Sprint 21
 
 // ═══════════════════════════════════════════════════════

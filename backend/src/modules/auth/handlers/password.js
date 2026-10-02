@@ -10,9 +10,9 @@
 'use strict';
 
 const Usuario = require('../../usuario/usuario.repository');
-const db      = require('../../../../config/database');
+const db      = require('../../../config/database.js');
 const crypto  = require('crypto');
-const logger  = require('../../../../utils/logger');
+const logger  = require('../../../shared/utils/logger');
 const { timingSafeEqual } = require('../../../shared/middleware/security');
 const { registrarAuditoria } = require('../../../shared/middleware/auditLog');
 const { COOKIE_CLEAR_OPTIONS, getIp, addToBlacklist } = require('../auth.service');

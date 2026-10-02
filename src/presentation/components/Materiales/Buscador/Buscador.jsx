@@ -1,7 +1,6 @@
 // src/presentation/components/Materiales/Buscador/Buscador.jsx
 // Sprint 18 — Refactorización modular
 
-import React from 'react';
 import './Buscador.css';
 
 export default function Buscador({ busqueda, setBusqueda, gruposFiltrados, busquedaDebounced }) {

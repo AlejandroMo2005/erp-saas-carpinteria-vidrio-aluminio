@@ -1,5 +1,4 @@
 // ResultadoPanel/ResultadoPanel.jsx
-import React from 'react';
 
 export default function ResultadoPanel({
   fotoSrc, resultado, promptUsado,

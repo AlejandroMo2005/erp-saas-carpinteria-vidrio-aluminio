@@ -62,7 +62,7 @@ Module._load = function (request, parent, isMain) {
     return Facturacion;
   }
 
-  if (request === '../../../../../models/Configuracion') {
+  if (request === '../../../configuracion/configuracion.repository') {
     return Configuracion;
   }
 
@@ -70,7 +70,7 @@ Module._load = function (request, parent, isMain) {
     return validacionService;
   }
 
-  if (request === '../../../../../utils/logger') {
+  if (request === '../../../shared/utils/logger') {
     return logger;
   }
 

@@ -9,7 +9,7 @@ import { createRequire } from 'module';
 
 const require = createRequire(import.meta.url);
 
-const dbPath = require.resolve(process.cwd() + '/config/database.js');
+const dbPath = require.resolve(process.cwd() + '/src/config/database.js');
 const fsPath = require.resolve('fs');
 const httpsPath = require.resolve('https');
 const controllerPath = require.resolve(process.cwd() + '/src/modules/ia/referencia/referencia.controller.js');

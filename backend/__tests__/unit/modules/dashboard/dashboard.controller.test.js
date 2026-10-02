@@ -19,11 +19,21 @@ const logger = {
   error: vi.fn(),
 };
 
+const loggerPath = require.resolve(
+  `${process.cwd()}/src/shared/utils/logger.js`
+);
+require.cache[loggerPath] = {
+  id: loggerPath,
+  filename: loggerPath,
+  loaded: true,
+  exports: logger,
+};
+
 const originalLoad = Module._load;
 
 Module._load = function (request, parent, isMain) {
   if (request === './dashboard.repository') return repository;
-  if (request === '../../../utils/logger') return logger;
+  if (request === '../../../shared/utils/logger') return logger;
   return originalLoad.call(this, request, parent, isMain);
 };
 

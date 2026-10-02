@@ -34,7 +34,7 @@ const iaServicePath = require.resolve(
 );
 
 const databasePath = require.resolve(
-  '../../config/database.js'
+  '../../src/config/database.js'
 );
 
 require.cache[iaServicePath] = {

@@ -8,7 +8,7 @@ const logger = {
 };
 
 const loggerPath = require.resolve(
-  `${process.cwd()}/utils/logger.js`
+  `${process.cwd()}/src/shared/utils/logger.js`
 );
 
 const modulePath = require.resolve(

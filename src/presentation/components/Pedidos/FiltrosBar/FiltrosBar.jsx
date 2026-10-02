@@ -1,7 +1,6 @@
 // src/presentation/components/Pedidos/FiltrosBar/FiltrosBar.jsx
 // Sprint 18 — Refactorización modular
 
-import React from 'react';
 import './FiltrosBar.css';
 import { FILTROS_ESTADO, PERIODOS } from '../constants/pedidosConstants';
 

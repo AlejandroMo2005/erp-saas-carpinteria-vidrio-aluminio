@@ -4,7 +4,7 @@ import Module from 'node:module';
 
 const require = createRequire(import.meta.url);
 
-const preloadPath = require.resolve(`${process.cwd()}/config/preload.js`);
+const preloadPath = require.resolve(`${process.cwd()}/src/config/preload.js`);
 const staticCachePath = require.resolve(
   `${process.cwd()}/src/shared/middleware/staticCache.js`
 );
@@ -19,7 +19,7 @@ delete require.cache[staticCachePath];
 delete require.cache[preloadPath];
 
 Module._load = function (request, parent, isMain) {
-  if (request === '../../../config/preload' || request === preloadPath) {
+  if (request === '../../config/preload' || request === preloadPath) {
     return mockPreload;
   }
 

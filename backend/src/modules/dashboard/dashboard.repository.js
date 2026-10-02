@@ -5,7 +5,7 @@
 
 'use strict';
 
-const db = require('../../../config/database');
+const db = require('../../config/database.js');
 
 // ─── Resumen KPIs ───────────────────────────────────────────────────────────
 const getResumenGeneral = async (desde = null, hasta = null, empresaId) => {

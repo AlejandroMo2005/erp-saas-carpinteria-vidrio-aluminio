@@ -11,8 +11,8 @@
 'use strict';
 
 const Usuario    = require('./usuario.repository');
-const logger     = require('../../../utils/logger');
-const db         = require('../../../config/database');
+const logger     = require('../../shared/utils/logger');
+const db         = require('../../config/database.js');
 
 function validarCedulaRuc(valor) {
   if (!valor) return true;

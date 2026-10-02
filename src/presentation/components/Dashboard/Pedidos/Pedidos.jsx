@@ -10,7 +10,7 @@ const fmt = (n) => {
   return `$${num.toFixed(0)}`;
 };
 
-export default function Pedidos({ darkMode, highContrast }) {
+export default function Pedidos({ _darkMode, _highContrast }) {
   const [data,    setData]    = useState([]);
   const [loading, setLoading] = useState(true);
 

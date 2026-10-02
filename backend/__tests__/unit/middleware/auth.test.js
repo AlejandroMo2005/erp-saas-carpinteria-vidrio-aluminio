@@ -36,7 +36,7 @@ vi.mock('../../../src/shared/middleware/security', () => ({
   timingSafeEqual: mocks.timingSafeEqual,
 }));
 
-vi.mock('../../../utils/logger', () => ({
+vi.mock('../../../shared/utils/logger', () => ({
   default: mocks.logger,
 }));
 
@@ -113,7 +113,7 @@ function mockRuntimeModules() {
     }
 
     if (
-      request === '../../../config/database' ||
+      request === '../../config/database.js' ||
       request.endsWith('/src/config/database') ||
       request.endsWith('/src/config/database.js')
     ) {
@@ -121,7 +121,7 @@ function mockRuntimeModules() {
     }
 
     if (
-      request === '../../../config/redis' ||
+      request === '../../config/redis' ||
       request.endsWith('/src/config/redis') ||
       request.endsWith('/src/config/redis.js')
     ) {

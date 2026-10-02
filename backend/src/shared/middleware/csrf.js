@@ -3,7 +3,7 @@
 'use strict';
 
 const crypto = require('crypto');
-const logger = require('../../../utils/logger');
+const logger = require('../utils/logger');
 
 const IS_PROD           = process.env.NODE_ENV === 'production';
 const CSRF_TOKEN_TTL_MS = 4 * 60 * 60 * 1000;

@@ -1,10 +1,10 @@
 // src/modules/comercial/facturacion/handlers/utils.js
 // 📦 Sprint 20 — Migrado de controllers/facturacionController/utils.js
-//                logger → ../../../../../utils/logger
+//                logger → ../../../shared/utils/logger
 
 'use strict';
 
-const logger = require('../../../../../utils/logger');
+const logger = require('../../../shared/utils/logger');
 
 const successResponse = (res, data, message = 'Operación exitosa', statusCode = 200) =>
   res.status(statusCode).json({ success: true, message, data });

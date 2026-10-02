@@ -1,7 +1,7 @@
+import { useState } from "react";
 // src/presentation/components/Auth/ForgotPassword.jsx
 // 🎨 Sprint 18 — inline style del input de código movido a .forgot-group__input--code
 
-import React, { useState } from "react";
 import { useNavigate }     from "react-router-dom";
 import api                 from "../../api/api";
 import "./ForgotPassword.css";

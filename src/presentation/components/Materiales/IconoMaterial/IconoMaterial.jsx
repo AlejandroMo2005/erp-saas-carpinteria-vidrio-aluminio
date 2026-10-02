@@ -1,7 +1,7 @@
+import { memo } from 'react';
 // src/presentation/components/Materiales/IconoMaterial/IconoMaterial.jsx
 // Sprint 18 — Refactorización modular
 
-import React, { memo } from 'react';
 import { sanitizarTexto, normalizarColor, esColorClaro } from '../utils/materialesUtils';
 
 const IconoMaterial = memo(function IconoMaterial({ nombre, colorHex }) {

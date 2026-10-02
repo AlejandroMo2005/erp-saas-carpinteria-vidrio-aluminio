@@ -1,10 +1,10 @@
+import { useState, useEffect, lazy, Suspense, useTransition } from 'react'
 // src/App.jsx — Sprint 16
 // Sprint 17 DT-IA    — Ruta /visualizador-ia agregada como ruta independiente
 // Sprint 17 DT-REF-UI — Referencias IA integrada como módulo del dashboard
 //                       Acceso: ADMIN + VENDEDOR. CLIENTE no ve la tarjeta ni la vista.
 
 import './presentation/styles/dashboard-cards.css'
-import React, { useState, useEffect, lazy, Suspense, useTransition } from 'react'
 import { Ruler, Calendar, FileText, Package, Receipt, BarChart2 as BarChart, Images } from 'lucide-react'
 import { Routes, Route, Navigate, useNavigate } from 'react-router-dom'
 import { AccessibilityProvider } from './presentation/context/AccessibilityContext'

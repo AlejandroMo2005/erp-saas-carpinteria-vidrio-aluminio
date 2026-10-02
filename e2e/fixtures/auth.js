@@ -1,43 +1,33 @@
 // e2e/fixtures/auth.js
-import { test as base } from '@playwright/test';
+import { test as base, expect } from '@playwright/test';
 
-/**
- * Fixture para tests autenticados
- * Proporciona una página con usuario ya logged in
- */
+const E2E_EMAIL = 'e2e.admin@example.com';
+const E2E_PASSWORD = 'E2E_Test_2026!';
+
 export const test = base.extend({
   authenticatedPage: async ({ page }, use) => {
-    // Ir a login
     await page.goto('/login');
 
-    // Esperar que la página cargue
-    await page.waitForSelector('form', { timeout: 5000 });
+    await page.getByLabel('Correo electrónico').fill(E2E_EMAIL);
+    await page.getByLabel('Contraseña').fill(E2E_PASSWORD);
+    await page.getByRole('button', { name: 'Iniciar Sesión' }).click();
 
-    // Llenar credenciales (cambiar si es necesario)
-    await page.fill('input[type="email"]', 'test@example.com');
-    await page.fill('input[type="password"]', 'password123');
+    await page.waitForURL(/localhost:3000\/?$/, {
+      timeout: 10000,
+    });
 
-    // Click login
-    await page.click('button[type="submit"]');
+    await expect(page.getByRole('main')).toBeVisible({
+      timeout: 15000,
+    });
 
-    // Esperar a que redirija al dashboard
-    await page.waitForURL('/', { timeout: 5000 });
+    await expect(
+      page.getByRole('navigation', {
+        name: 'Navegación principal',
+      })
+    ).toBeVisible({ timeout: 15000 });
 
-    // Usar la página autenticada
     await use(page);
-
-    // Logout (cleanup)
-    try {
-      await page.goto('/');
-      // Buscar botón de logout en navbar
-      const logoutBtn = page.locator('button:has-text("Logout")');
-      if (await logoutBtn.isVisible({ timeout: 2000 })) {
-        await logoutBtn.click();
-      }
-    } catch (e) {
-      // Si falla logout, no importa
-    }
   },
 });
 
-export { expect } from '@playwright/test';
+export { expect };

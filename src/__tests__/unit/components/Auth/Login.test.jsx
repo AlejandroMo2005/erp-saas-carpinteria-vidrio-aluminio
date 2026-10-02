@@ -94,7 +94,13 @@ describe('Login Component', () => {
     const user = userEvent.setup();
     renderLogin();
 
-    const heading = screen.getByRole('heading', { name: /Sistema de Gestión/i });
-    expect(heading).toBeInTheDocument();
+    const emailInput = screen.getByLabelText('Correo electrónico');
+    const passwordInput = screen.getByLabelText('Contraseña');
+
+    await user.type(emailInput, 'test@example.com');
+    await user.type(passwordInput, 'password123');
+
+    expect(emailInput).toHaveValue('test@example.com');
+    expect(passwordInput).toHaveValue('password123');
   });
 });

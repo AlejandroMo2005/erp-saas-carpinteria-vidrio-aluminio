@@ -57,8 +57,6 @@ module.exports = [
     files: [
       '__tests__/**/*.js',
       'vitest.config.js',
-      'services/api.js',
-      'services/trabajosService.js',
     ],
     languageOptions: {
       ecmaVersion: 'latest',

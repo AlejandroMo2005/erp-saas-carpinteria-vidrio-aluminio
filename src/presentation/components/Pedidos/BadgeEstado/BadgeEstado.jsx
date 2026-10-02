@@ -1,7 +1,7 @@
+import { useState, memo } from 'react';
 // src/presentation/components/Pedidos/BadgeEstado/BadgeEstado.jsx
 // Sprint 18 — Refactorización modular
 
-import React, { useState, memo } from 'react';
 import './BadgeEstado.css';
 import {
   TRANSICIONES,

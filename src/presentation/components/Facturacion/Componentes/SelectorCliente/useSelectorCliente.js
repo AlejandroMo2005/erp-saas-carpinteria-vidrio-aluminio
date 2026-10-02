@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from 'react';
 import api from '../../../../api/api';
-import { TIPO_ID, NUEVO_CLIENTE_INICIAL } from './constants';
+import { NUEVO_CLIENTE_INICIAL } from './constants';
 import { validarCedula, validarRUC } from './utils';
 
 export default function useSelectorCliente({ onSeleccionar, onLimpiar }) {

@@ -1,10 +1,10 @@
+import { lazy, Suspense } from 'react';
 // src/presentation/components/Previsualizacion/Previsualizacion.jsx
 // Sprint 14 — Migración a React Query
 // Sprint 16 — Fix responsivo Android, SVG inline con aria correcto, contraste temas
 // Sprint 17 — DT-IA: pasa colorId (marcoActivo.id) a IAPreview para endpoint multipart
 // Sprint 18 — DT-IA-01: draw-zone con minHeight fijo | Refactor: hook + CSS parciales
 
-import React, { lazy, Suspense } from 'react';
 import './Previsualizacion.css';
 
 import { PreviewToastContainer } from './Notificaciones/NotiPrevisualizacion';

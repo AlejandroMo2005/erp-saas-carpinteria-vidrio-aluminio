@@ -12,9 +12,9 @@
 
 const Proveedor            = require('./proveedor.repository');
 const { generarPlantilla } = require('../../../shared/services/proveedorService');
-const logger               = require('../../../../utils/logger');
-const { softDelete }       = require('../../../../utils/softDelete');
-const db                   = require('../../../../config/database');
+const logger               = require('../../../shared/utils/logger');
+const { softDelete }       = require('../../../shared/utils/softDelete');
+const db                   = require('../../../config/database.js');
 
 const ok   = (res, data, status = 200) => res.status(status).json({ success: true, data });
 const fail = (res, msg, status = 500)  => res.status(status).json({ success: false, message: msg });

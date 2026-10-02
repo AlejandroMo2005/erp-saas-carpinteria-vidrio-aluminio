@@ -37,9 +37,9 @@ Module._load = function (request, parent, isMain) {
   if (request === '../../../shared/services/proveedorService') {
     return { generarPlantilla };
   }
-  if (request === '../../../../utils/logger') return logger;
-  if (request === '../../../../utils/softDelete') return { softDelete };
-  if (request === '../../../../config/database') return db;
+  if (request === '../../../shared/utils/logger') return logger;
+  if (request === '../../../shared/utils/softDelete') return { softDelete };
+  if (request === '../../../config/database.js') return db;
 
   return originalLoad.call(this, request, parent, isMain);
 };

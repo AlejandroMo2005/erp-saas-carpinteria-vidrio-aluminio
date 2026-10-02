@@ -1,147 +1,179 @@
 // e2e/navigation.spec.js
-import { test, expect } from '@playwright/test';
+import { test, expect } from './fixtures/auth.js';
 
 test.describe('Navigation & Flow E2E Tests', () => {
-  test('should navigate to different pages', async ({ page }) => {
-    // Start at home
-    await page.goto('/');
+  test.beforeEach(async ({ authenticatedPage }) => {
+    await expect(
+      authenticatedPage.getByRole('navigation', {
+        name: 'Navegación principal',
+      })
+    ).toBeVisible();
 
-    // Wait for page to load
-    await page.waitForSelector('main, [role="main"]', { timeout: 10000 });
-
-    // Check initial URL
-    let currentUrl = page.url();
-    expect(currentUrl).toContain('localhost:3000');
+    await expect(authenticatedPage.getByRole('main')).toBeVisible();
   });
 
-  test('should handle 404 gracefully', async ({ page }) => {
-    // Try to navigate to non-existent page
-    await page.goto('/non-existent-page', { waitUntil: 'networkidle' });
-
-    // Page should still load something
-    // Either 404 page or redirect to home
-    const content = page.locator('body');
-    await expect(content).toBeVisible();
-  });
-
-  test('should have working back/forward navigation', async ({ page }) => {
-    // Start at home
-    await page.goto('/');
-    
-    // Wait for load
-    await page.waitForSelector('main, [role="main"]', { timeout: 10000 });
-
-    const homeUrl = page.url();
-
-    // Try to find a link and click it
-    const links = page.locator('a[href^="/"]');
-    
-    if (await links.count() > 0) {
-      // Click first internal link
-      const firstLink = links.first();
-      await firstLink.click();
-
-      // Wait for navigation
-      await page.waitForLoadState('networkidle');
-
-      const newUrl = page.url();
-
-      // URLs should be different (unless it's same page)
-      // Go back
-      await page.goBack();
-      await page.waitForLoadState('networkidle');
-
-      const backUrl = page.url();
-      // Should be back at original
-      expect(backUrl).toContain('localhost:3000');
-    }
-  });
-
-  test('should preserve state during navigation', async ({ page }) => {
-    // Go to home
-    await page.goto('/');
-    
-    await page.waitForSelector('main, [role="main"]', { timeout: 10000 });
-
-    // Check for any session indicators
-    const userInfo = page.locator('[class*="user"], [class*="profile"], [class*="avatar"]');
-    
-    // Navigate away and back
-    if (await userInfo.count() > 0) {
-      await page.goto('/');
-      // User info should still be there
-      await expect(userInfo).toBeVisible();
-    }
-  });
-
-  test('should handle errors during navigation', async ({ page }) => {
-    // Capture response errors
-    const failedRequests = [];
-
-    page.on('response', response => {
-      if (!response.ok() && response.status() >= 400) {
-        failedRequests.push({
-          url: response.url(),
-          status: response.status(),
-        });
-      }
+  test('should display all navigation items for ADMIN', async ({
+    authenticatedPage,
+  }) => {
+    const navigation = authenticatedPage.getByRole('navigation', {
+      name: 'Navegación principal',
     });
 
-    // Navigate to home
-    await page.goto('/', { waitUntil: 'networkidle' });
+    const expectedItems = [
+      'Inicio, página actual',
+      'Preview',
+      'Pedidos',
+      'Proformas',
+      'Inventario',
+      'Facturación',
+      'Dashboard',
+    ];
 
-    // Check page is still usable even if some requests failed
-    const main = page.locator('main, [role="main"]');
-    await expect(main).toBeVisible();
+    for (const label of expectedItems) {
+      await expect(
+        navigation.getByRole('button', { name: label })
+      ).toBeVisible();
+    }
+
+    await expect(navigation.getByRole('button')).toHaveCount(7);
   });
 
-  test('should have proper viewport for mobile', async ({ page }) => {
-    // Set mobile viewport
-    await page.setViewportSize({ width: 375, height: 667 });
+  test('should mark Inicio as the active page initially', async ({
+    authenticatedPage,
+  }) => {
+    const navigation = authenticatedPage.getByRole('navigation', {
+      name: 'Navegación principal',
+    });
 
-    // Navigate
-    await page.goto('/');
-
-    // Wait for load
-    await page.waitForSelector('main, [role="main"]', { timeout: 10000 });
-
-    // Check that content is visible
-    const main = page.locator('main, [role="main"]');
-    await expect(main).toBeVisible();
-
-    // Check viewport
-    const size = await page.viewportSize();
-    expect(size.width).toBe(375);
-    expect(size.height).toBe(667);
+    await expect(
+      navigation.getByRole('button', {
+        name: 'Inicio, página actual',
+      })
+    ).toHaveAttribute('aria-current', 'page');
   });
 
-  test('should have proper viewport for tablet', async ({ page }) => {
-    // Set tablet viewport
-    await page.setViewportSize({ width: 768, height: 1024 });
+  test('should navigate between main views', async ({
+    authenticatedPage,
+  }) => {
+    const navigation = authenticatedPage.getByRole('navigation', {
+      name: 'Navegación principal',
+    });
 
-    // Navigate
-    await page.goto('/');
+    const views = [
+      {
+        button: 'Preview',
+        active: 'Preview, página actual',
+      },
+      {
+        button: 'Pedidos',
+        active: 'Pedidos, página actual',
+      },
+      {
+        button: 'Proformas',
+        active: 'Proformas, página actual',
+      },
+      {
+        button: 'Inventario',
+        active: 'Inventario, página actual',
+      },
+      {
+        button: 'Facturación',
+        active: 'Facturación, página actual',
+      },
+      {
+        button: 'Dashboard',
+        active: 'Dashboard, página actual',
+      },
+    ];
 
-    // Wait for load
-    await page.waitForSelector('main, [role="main"]', { timeout: 10000 });
+    for (const view of views) {
+      await navigation.getByRole('button', { name: view.button }).click();
 
-    // Check content
-    const main = page.locator('main, [role="main"]');
-    await expect(main).toBeVisible();
+      await expect(
+        navigation.getByRole('button', { name: view.active })
+      ).toHaveAttribute('aria-current', 'page');
+    }
   });
 
-  test('should have proper viewport for desktop', async ({ page }) => {
-    // Set desktop viewport
-    await page.setViewportSize({ width: 1920, height: 1080 });
+  test('should return to Inicio from another view', async ({
+    authenticatedPage,
+  }) => {
+    const navigation = authenticatedPage.getByRole('navigation', {
+      name: 'Navegación principal',
+    });
 
-    // Navigate
-    await page.goto('/');
+    await navigation.getByRole('button', { name: 'Pedidos' }).click();
 
-    // Wait for load
-    await page.waitForSelector('main, [role="main"]', { timeout: 10000 });
+    await expect(
+      navigation.getByRole('button', {
+        name: 'Pedidos, página actual',
+      })
+    ).toHaveAttribute('aria-current', 'page');
 
-    // Check content
-    const main = page.locator('main, [role="main"]');
-    await expect(main).toBeVisible();
+    await navigation.getByRole('button', { name: 'Inicio' }).click();
+
+    await expect(
+      navigation.getByRole('button', {
+        name: 'Inicio, página actual',
+      })
+    ).toHaveAttribute('aria-current', 'page');
+  });
+
+  test('should keep navigation available after changing views', async ({
+    authenticatedPage,
+  }) => {
+    const navigation = authenticatedPage.getByRole('navigation', {
+      name: 'Navegación principal',
+    });
+
+    await navigation.getByRole('button', { name: 'Proformas' }).click();
+
+    await expect(navigation).toBeVisible();
+    await expect(authenticatedPage.getByRole('main')).toBeVisible();
+    await expect(navigation.getByRole('button')).toHaveCount(7);
+  });
+
+  test('should remain usable on mobile', async ({
+    authenticatedPage,
+  }) => {
+    await authenticatedPage.setViewportSize({
+      width: 375,
+      height: 667,
+    });
+
+    const navigation = authenticatedPage.getByRole('navigation', {
+      name: 'Navegación principal',
+    });
+
+    await expect(navigation).toBeVisible();
+    await expect(
+      navigation.getByRole('button', {
+        name: 'Inicio, página actual',
+      })
+    ).toBeVisible();
+
+    await navigation.getByRole('button', { name: 'Pedidos' }).click();
+
+    await expect(
+      navigation.getByRole('button', {
+        name: 'Pedidos, página actual',
+      })
+    ).toHaveAttribute('aria-current', 'page');
+  });
+
+  test('should keep navigation usable on desktop', async ({
+    authenticatedPage,
+  }) => {
+    await authenticatedPage.setViewportSize({
+      width: 1920,
+      height: 1080,
+    });
+
+    const navigation = authenticatedPage.getByRole('navigation', {
+      name: 'Navegación principal',
+    });
+
+    await expect(navigation).toBeVisible();
+    await expect(navigation.getByRole('button')).toHaveCount(7);
   });
 });

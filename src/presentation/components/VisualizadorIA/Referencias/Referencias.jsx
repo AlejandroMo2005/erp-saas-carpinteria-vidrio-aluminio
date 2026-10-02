@@ -1,5 +1,4 @@
 'use strict';
-import React from 'react';
 import { useReferencias } from './hooks/useReferencias';
 import Filtro    from './Filtros/Filtro';
 import GrupoTipo from './Grupos/GrupoTipo';

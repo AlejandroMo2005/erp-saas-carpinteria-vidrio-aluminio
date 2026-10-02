@@ -34,7 +34,7 @@
 //     Si se necesita limpiar al cerrar la pestaña, usar pagehide con
 //     persisted=false en su lugar.
 
-import React, {
+import {
   createContext,
   useContext,
   useState,
@@ -109,7 +109,7 @@ export const AuthProvider = ({ children }) => {
 
   // loading=false desde el inicio — el lazy initializer ya resolvió el estado.
   // No hay nada que "esperar" antes de pintar la UI.
-  const [loading,        setLoading]        = useState(false);
+  const [loading] = useState(false);
   const [sessionExpired, setSessionExpired] = useState(false);
 
   const isRefreshing   = useRef(false);

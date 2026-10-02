@@ -8,7 +8,7 @@
 const path  = require('path');
 const fs    = require('fs');
 const https = require('https');
-const db    = require('../../../../config/database');
+const db    = require('../../../config/database.js');
 
 const DIR_BASE = path.join(__dirname, '../../../..', 'public/referencias');
 

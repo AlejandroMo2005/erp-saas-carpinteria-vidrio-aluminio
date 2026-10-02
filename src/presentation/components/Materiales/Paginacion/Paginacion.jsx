@@ -1,7 +1,7 @@
+import { memo } from 'react';
 // src/presentation/components/Materiales/Paginacion/Paginacion.jsx
 // Sprint 18 — Refactorización modular
 
-import React, { memo } from 'react';
 import './Paginacion.css';
 
 const Paginacion = memo(function Paginacion({ pagina, totalPaginas, onChange }) {

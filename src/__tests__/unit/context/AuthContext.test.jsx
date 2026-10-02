@@ -1,128 +1,768 @@
-// src/__tests__/unit/context/AuthContext.test.jsx
-import { describe, it, expect, beforeEach, vi, afterEach } from 'vitest';
+import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
 import { AuthProvider, useAuth } from '../../../presentation/context/AuthContext';
-import React from 'react';
 
-// Mock API module
-vi.mock('../../../api/api', () => ({
-  default: {
-    defaults: {
-      headers: {
-        common: {},
-      },
+const {
+  mockApi,
+  mockInterceptorUse,
+  mockInterceptorEject,
+  mockPost,
+} = vi.hoisted(() => {
+  const api = vi.fn();
+
+  api.defaults = {
+    baseURL: 'http://localhost:5000/api',
+    headers: {
+      common: {},
     },
-    post: vi.fn(),
-    interceptors: {
-      response: {
-        use: vi.fn(),
-        eject: vi.fn(),
-      },
+  };
+
+  api.post = vi.fn();
+  api.interceptors = {
+    response: {
+      use: vi.fn(),
+      eject: vi.fn(),
     },
-  },
+  };
+
+  return {
+    mockApi: api,
+    mockInterceptorUse: api.interceptors.response.use,
+    mockInterceptorEject: api.interceptors.response.eject,
+    mockPost: api.post,
+  };
+});
+
+vi.mock('../../../presentation/api/api', () => ({
+  default: mockApi,
 }));
+
+const wrapper = ({ children }) => <AuthProvider>{children}</AuthProvider>;
+
+const createRefreshResponse = ({
+  accessToken = 'refreshed-token',
+  expiresIn = '15m',
+  success = true,
+} = {}) => ({
+  ok: true,
+  json: vi.fn().mockResolvedValue({
+    success,
+    accessToken,
+    expiresIn,
+  }),
+});
 
 describe('AuthContext', () => {
   beforeEach(() => {
-    // Clean localStorage before each test
     localStorage.clear();
     vi.clearAllMocks();
+
+    mockApi.defaults.baseURL = 'http://localhost:5000/api';
+    mockApi.defaults.headers.common = {};
+    mockApi.mockResolvedValue({ data: 'retried' });
+
+    mockInterceptorUse.mockReturnValue(1);
+    mockInterceptorEject.mockClear();
+    mockPost.mockResolvedValue({ data: { success: true } });
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(createRefreshResponse())
+    );
   });
 
   afterEach(() => {
     localStorage.clear();
+    vi.restoreAllMocks();
+    vi.useRealTimers();
   });
 
   it('should provide AuthContext with initial values', () => {
-    const wrapper = ({ children }) => <AuthProvider>{children}</AuthProvider>;
     const { result } = renderHook(() => useAuth(), { wrapper });
 
     expect(result.current).toBeDefined();
-    expect(result.current.user).toBeDefined();
-    expect(result.current.loading).toBeDefined();
-    expect(result.current.login).toBeDefined();
-    expect(result.current.logout).toBeDefined();
+    expect(result.current.user).toBeNull();
+    expect(result.current.loading).toBe(false);
+    expect(result.current.sessionExpired).toBe(false);
+    expect(typeof result.current.login).toBe('function');
+    expect(typeof result.current.logout).toBe('function');
+    expect(typeof result.current.updateUser).toBe('function');
+    expect(typeof result.current.getAccessToken).toBe('function');
   });
 
   it('should initialize with null user when localStorage is empty', () => {
-    const wrapper = ({ children }) => <AuthProvider>{children}</AuthProvider>;
     const { result } = renderHook(() => useAuth(), { wrapper });
+
+    expect(result.current.user).toBeNull();
+    expect(result.current.isAuthenticated).toBe(false);
+  });
+
+  it('should remove invalid cached user JSON', () => {
+    localStorage.setItem('user', '{invalid-json');
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    expect(result.current.user).toBeNull();
+    expect(localStorage.getItem('user')).toBeNull();
+  });
+
+  it('should initialize with cached user from localStorage', () => {
+    const mockUser = {
+      id: 1,
+      email: 'test@example.com',
+      rol: 'ADMIN',
+    };
+
+    localStorage.setItem('user', JSON.stringify(mockUser));
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    expect(result.current.user).toEqual(mockUser);
+    expect(result.current.isAuthenticated).toBe(true);
+  });
+
+  it('should provide all role-based getters correctly', () => {
+    const roles = [
+      ['ADMIN', 'isAdmin'],
+      ['VENDEDOR', 'isVendedor'],
+      ['CLIENTE', 'isCliente'],
+      ['ALMACEN', 'isAlmacen'],
+      ['VISOR', 'isVisor'],
+    ];
+
+    for (const [rol, getter] of roles) {
+      localStorage.setItem(
+        'user',
+        JSON.stringify({ id: 1, email: 'test@example.com', rol })
+      );
+
+      const { result, unmount } = renderHook(() => useAuth(), { wrapper });
+
+      expect(result.current[getter]).toBe(true);
+
+      unmount();
+      localStorage.clear();
+    }
+  });
+
+  it('should login, persist user and configure access token', () => {
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    const user = {
+      id: 10,
+      email: 'user@example.com',
+      rol: 'VENDEDOR',
+    };
+
+    act(() => {
+      result.current.login({
+        user,
+        accessToken: 'access-token-123',
+        expiresIn: '15m',
+      });
+    });
+
+    expect(result.current.user).toEqual(user);
+    expect(result.current.isAuthenticated).toBe(true);
+    expect(result.current.sessionExpired).toBe(false);
+    expect(result.current.getAccessToken()).toBe('access-token-123');
+    expect(localStorage.getItem('user')).toBe(JSON.stringify(user));
+    expect(
+      mockApi.defaults.headers.common.Authorization
+    ).toBe('Bearer access-token-123');
+  });
+
+  it('should use default expiresIn when login does not provide it', () => {
+    vi.useFakeTimers();
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    act(() => {
+      result.current.login({
+        user: { id: 1, rol: 'ADMIN' },
+        accessToken: 'token-default-expiry',
+      });
+    });
+
+    expect(result.current.getAccessToken()).toBe('token-default-expiry');
+    expect(result.current.user).toEqual({ id: 1, rol: 'ADMIN' });
+  });
+
+  it('should update user data and persist the merged result', () => {
+    const user = {
+      id: 1,
+      email: 'old@example.com',
+      nombre: 'Usuario',
+      rol: 'CLIENTE',
+    };
+
+    localStorage.setItem('user', JSON.stringify(user));
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    act(() => {
+      result.current.updateUser({
+        nombre: 'Nuevo Nombre',
+        telefono: '0999999999',
+      });
+    });
+
+    expect(result.current.user).toEqual({
+      ...user,
+      nombre: 'Nuevo Nombre',
+      telefono: '0999999999',
+    });
+
+    expect(JSON.parse(localStorage.getItem('user'))).toEqual({
+      ...user,
+      nombre: 'Nuevo Nombre',
+      telefono: '0999999999',
+    });
+  });
+
+  it('should clear sessionExpired with clearSessionExpired', async () => {
+    const user = {
+      id: 1,
+      email: 'test@example.com',
+      rol: 'ADMIN',
+    };
+
+    localStorage.setItem('user', JSON.stringify(user));
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+      })
+    );
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.sessionExpired).toBe(true);
+    });
+
+    act(() => {
+      result.current.clearSessionExpired();
+    });
+
+    expect(result.current.sessionExpired).toBe(false);
+    expect(result.current.user).toBeNull();
+    expect(localStorage.getItem('user')).toBeNull();
+  });
+
+  it('should refresh silently when cached user exists', async () => {
+    const user = {
+      id: 1,
+      email: 'test@example.com',
+      rol: 'ADMIN',
+    };
+
+    localStorage.setItem('user', JSON.stringify(user));
+
+    const fetchMock = vi.fn().mockResolvedValue(
+      createRefreshResponse({
+        accessToken: 'silent-refresh-token',
+        expiresIn: '15m',
+      })
+    );
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        'http://localhost:5000/api/auth/refresh',
+        expect.objectContaining({
+          method: 'POST',
+          credentials: 'include',
+        })
+      );
+    });
+
+    await waitFor(() => {
+      expect(result.current.getAccessToken()).toBe('silent-refresh-token');
+    });
+
+    expect(result.current.user).toEqual(user);
+  });
+
+  it('should expire session when silent refresh fails', async () => {
+    const user = {
+      id: 1,
+      email: 'test@example.com',
+      rol: 'ADMIN',
+    };
+
+    localStorage.setItem('user', JSON.stringify(user));
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+      })
+    );
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.sessionExpired).toBe(true);
+    });
+
+    expect(result.current.user).toBeNull();
+    expect(result.current.getAccessToken()).toBeNull();
+    expect(localStorage.getItem('user')).toBeNull();
+  });
+
+  it('should expire session when refresh response has no access token', async () => {
+    localStorage.setItem(
+      'user',
+      JSON.stringify({ id: 1, rol: 'ADMIN' })
+    );
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: true,
+        json: vi.fn().mockResolvedValue({
+          success: true,
+          accessToken: null,
+        }),
+      })
+    );
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.sessionExpired).toBe(true);
+    });
 
     expect(result.current.user).toBeNull();
   });
 
-  it('should initialize with cached user from localStorage', () => {
-    const mockUser = { id: 1, email: 'test@example.com', rol: 'ADMIN' };
-    localStorage.setItem('user', JSON.stringify(mockUser));
+  it('should expire session when refresh throws', async () => {
+    localStorage.setItem(
+      'user',
+      JSON.stringify({ id: 1, rol: 'ADMIN' })
+    );
 
-    const wrapper = ({ children }) => <AuthProvider>{children}</AuthProvider>;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockRejectedValue(new Error('Network error'))
+    );
+
     const { result } = renderHook(() => useAuth(), { wrapper });
 
-    expect(result.current.user).toEqual(mockUser);
+    await waitFor(() => {
+      expect(result.current.sessionExpired).toBe(true);
+    });
+
+    expect(result.current.user).toBeNull();
   });
 
-  it('should have isAuthenticated getter', () => {
-    const wrapper = ({ children }) => <AuthProvider>{children}</AuthProvider>;
-    const { result } = renderHook(() => useAuth(), { wrapper });
+  it('should logout locally and call backend', async () => {
+    const user = {
+      id: 1,
+      email: 'test@example.com',
+      rol: 'ADMIN',
+    };
 
-    expect(result.current.isAuthenticated).toBe(false);
+    localStorage.setItem('user', JSON.stringify(user));
 
-    // Set a user and check
-    const mockUser = { id: 1, email: 'test@example.com' };
-    localStorage.setItem('user', JSON.stringify(mockUser));
-
-    // Re-render to pick up the new localStorage value
-    const { result: result2 } = renderHook(() => useAuth(), { wrapper });
-    expect(result2.current.isAuthenticated).toBe(true);
-  });
-
-  it('should provide role-based getters', () => {
-    const mockUser = { id: 1, email: 'test@example.com', rol: 'VENDEDOR' };
-    localStorage.setItem('user', JSON.stringify(mockUser));
-
-    const wrapper = ({ children }) => <AuthProvider>{children}</AuthProvider>;
-    const { result } = renderHook(() => useAuth(), { wrapper });
-
-    expect(result.current.isVendedor).toBe(true);
-    expect(result.current.isAdmin).toBe(false);
-    expect(result.current.isCliente).toBe(false);
-  });
-
-  it('should handle logout', async () => {
-    const mockUser = { id: 1, email: 'test@example.com' };
-    localStorage.setItem('user', JSON.stringify(mockUser));
-
-    const wrapper = ({ children }) => <AuthProvider>{children}</AuthProvider>;
     const { result } = renderHook(() => useAuth(), { wrapper });
 
     await act(async () => {
       await result.current.logout();
     });
 
+    expect(mockPost).toHaveBeenCalledWith('/auth/logout');
+    expect(result.current.user).toBeNull();
+    expect(result.current.isAuthenticated).toBe(false);
+    expect(result.current.getAccessToken()).toBeNull();
+    expect(localStorage.getItem('user')).toBeNull();
+    expect(
+      mockApi.defaults.headers.common.Authorization
+    ).toBeUndefined();
+  });
+
+  it('should complete local logout even when backend logout fails', async () => {
+    mockPost.mockRejectedValue(new Error('Backend unavailable'));
+
+    const user = {
+      id: 1,
+      email: 'test@example.com',
+      rol: 'ADMIN',
+    };
+
+    localStorage.setItem('user', JSON.stringify(user));
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    await act(async () => {
+      await result.current.logout();
+    });
+
+    expect(mockPost).toHaveBeenCalledWith('/auth/logout');
+    expect(result.current.user).toBeNull();
+    expect(localStorage.getItem('user')).toBeNull();
+  });
+
+  it('should react to storage logout from another tab', () => {
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    act(() => {
+      result.current.login({
+        user: {
+          id: 1,
+          email: 'test@example.com',
+          rol: 'ADMIN',
+        },
+        accessToken: 'tab-token',
+        expiresIn: '15m',
+      });
+    });
+
+    expect(result.current.user).not.toBeNull();
+    expect(result.current.getAccessToken()).toBe('tab-token');
+
+    act(() => {
+      window.dispatchEvent(
+        new StorageEvent('storage', {
+          key: 'user',
+          newValue: null,
+        })
+      );
+    });
+
+    expect(result.current.user).toBeNull();
+    expect(result.current.getAccessToken()).toBeNull();
+  });
+
+  it('should ignore storage events that do not represent logout', () => {
+    const user = {
+      id: 1,
+      email: 'test@example.com',
+      rol: 'ADMIN',
+    };
+
+    localStorage.setItem('user', JSON.stringify(user));
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    act(() => {
+      window.dispatchEvent(
+        new StorageEvent('storage', {
+          key: 'other-key',
+          newValue: null,
+        })
+      );
+    });
+
+    expect(result.current.user).toEqual(user);
+  });
+
+  it('should respect refresh cooldown when document becomes visible', async () => {
+    vi.useFakeTimers();
+
+    const user = {
+      id: 1,
+      email: 'test@example.com',
+      rol: 'ADMIN',
+    };
+
+    localStorage.setItem('user', JSON.stringify(user));
+
+    const fetchMock = vi.fn().mockResolvedValue(
+      createRefreshResponse({
+        accessToken: 'visibility-token',
+        expiresIn: '15m',
+      })
+    );
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(result.current.getAccessToken()).toBe('visibility-token');
+
+    Object.defineProperty(document, 'visibilityState', {
+      configurable: true,
+      value: 'visible',
+    });
+
+    act(() => {
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(result.current.getAccessToken()).toBe('visibility-token');
+  });
+
+  it('should refresh on visibilitychange after cooldown expires', async () => {
+    vi.useFakeTimers();
+
+    const fetchMock = vi.fn().mockResolvedValue(
+      createRefreshResponse({
+        accessToken: 'visibility-token',
+        expiresIn: '15m',
+      })
+    );
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    act(() => {
+      result.current.login({
+        user: {
+          id: 1,
+          email: 'test@example.com',
+          rol: 'ADMIN',
+        },
+        accessToken: 'initial-token',
+        expiresIn: '15m',
+      });
+    });
+
+    expect(fetchMock).not.toHaveBeenCalled();
+    expect(result.current.getAccessToken()).toBe('initial-token');
+
+    await act(async () => {
+      vi.advanceTimersByTime(30001);
+    });
+
+    Object.defineProperty(document, 'visibilityState', {
+      configurable: true,
+      value: 'visible',
+    });
+
+    act(() => {
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(result.current.getAccessToken()).toBe('visibility-token');
+  });
+
+  it('should register and clean up the Axios response interceptor', () => {
+    const { unmount } = renderHook(() => useAuth(), { wrapper });
+
+    expect(mockInterceptorUse).toHaveBeenCalledTimes(1);
+    expect(mockInterceptorUse).toHaveBeenCalledWith(
+      expect.any(Function),
+      expect.any(Function)
+    );
+
+    unmount();
+
+    expect(mockInterceptorEject).toHaveBeenCalledWith(1);
+  });
+
+  it('should pass successful Axios responses through the interceptor', () => {
+    let successHandler;
+
+    mockInterceptorUse.mockImplementation((onFulfilled) => {
+      successHandler = onFulfilled;
+      return 7;
+    });
+
+    renderHook(() => useAuth(), { wrapper });
+
+    const response = { data: { success: true } };
+
+    expect(successHandler(response)).toEqual(response);
+  });
+
+  it('should reject non-401 Axios errors without refreshing', async () => {
+    let errorHandler;
+
+    mockInterceptorUse.mockImplementation((_, onRejected) => {
+      errorHandler = onRejected;
+      return 8;
+    });
+
+    renderHook(() => useAuth(), { wrapper });
+
+    const error = {
+      response: { status: 500 },
+      config: { url: '/api/test' },
+    };
+
+    await expect(errorHandler(error)).rejects.toBe(error);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('should reject an already retried 401 without refreshing', async () => {
+    let errorHandler;
+
+    mockInterceptorUse.mockImplementation((_, onRejected) => {
+      errorHandler = onRejected;
+      return 9;
+    });
+
+    renderHook(() => useAuth(), { wrapper });
+
+    const error = {
+      response: { status: 401 },
+      config: {
+        url: '/api/test',
+        _retry: true,
+      },
+    };
+
+    await expect(errorHandler(error)).rejects.toBe(error);
+    expect(fetch).not.toHaveBeenCalled();
+  });
+
+  it('should expire session when refresh or login itself returns 401', async () => {
+    let errorHandler;
+
+    mockInterceptorUse.mockImplementation((_, onRejected) => {
+      errorHandler = onRejected;
+      return 10;
+    });
+
+    localStorage.setItem(
+      'user',
+      JSON.stringify({ id: 1, rol: 'ADMIN' })
+    );
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    const error = {
+      response: { status: 401 },
+      config: {
+        url: '/auth/refresh',
+      },
+    };
+
+    await act(async () => {
+      await expect(errorHandler(error)).rejects.toBe(error);
+    });
+
+    await waitFor(() => {
+      expect(result.current.sessionExpired).toBe(true);
+    });
+
     expect(result.current.user).toBeNull();
   });
 
-  it('should throw error when useAuth is used outside provider', () => {
-    // Suppress console.error for this test
+  it('should refresh and retry a request after a 401', async () => {
+    let errorHandler;
+
+    mockInterceptorUse.mockImplementation((_, onRejected) => {
+      errorHandler = onRejected;
+      return 11;
+    });
+
+    mockApi.mockResolvedValue({ data: 'retried' });
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        createRefreshResponse({
+          accessToken: 'retry-token',
+          expiresIn: '15m',
+        })
+      )
+    );
+
+    renderHook(() => useAuth(), { wrapper });
+
+    const originalRequest = {
+      url: '/api/protected',
+      headers: {},
+    };
+
+    const error = {
+      response: { status: 401 },
+      config: originalRequest,
+    };
+
+    const promise = errorHandler(error);
+
+    await expect(promise).resolves.toEqual({ data: 'retried' });
+
+    expect(originalRequest._retry).toBe(true);
+    expect(originalRequest.headers.Authorization).toBe(
+      'Bearer retry-token'
+    );
+    expect(mockApi).toHaveBeenCalledWith(originalRequest);
+  });
+
+  it('should expire session when 401 refresh fails', async () => {
+    let errorHandler;
+
+    mockInterceptorUse.mockImplementation((_, onRejected) => {
+      errorHandler = onRejected;
+      return 12;
+    });
+
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue({
+        ok: false,
+      })
+    );
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    const error = {
+      response: { status: 401 },
+      config: {
+        url: '/api/protected',
+        headers: {},
+      },
+    };
+
+    await act(async () => {
+      await expect(errorHandler(error)).rejects.toBe(error);
+    });
+
+    await waitFor(() => {
+      expect(result.current.sessionExpired).toBe(true);
+    });
+  });
+
+  it('should expose no authentication when user is null', () => {
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    expect(result.current.isAuthenticated).toBe(false);
+    expect(result.current.isAdmin).toBe(false);
+    expect(result.current.isVendedor).toBe(false);
+    expect(result.current.isCliente).toBe(false);
+    expect(result.current.isAlmacen).toBe(false);
+    expect(result.current.isVisor).toBe(false);
+  });
+
+  it('should throw when useAuth is used outside AuthProvider', () => {
     const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
 
-    expect(() => {
-      renderHook(() => useAuth());
-    }).toThrow();
+    expect(() => renderHook(() => useAuth())).toThrow(
+      'useAuth debe usarse dentro de AuthProvider'
+    );
 
     spy.mockRestore();
   });
 
-  it('should maintain loading state during auth operations', async () => {
-    const wrapper = ({ children }) => <AuthProvider>{children}</AuthProvider>;
+  it('should keep loading false because authentication is initialized synchronously', () => {
     const { result } = renderHook(() => useAuth(), { wrapper });
 
-    // Initial state
     expect(result.current.loading).toBe(false);
-
-    // When performing login, loading should be true temporarily
-    // This would require mocking the login call properly
-    // For now, we verify the property exists
-    expect(typeof result.current.loading).toBe('boolean');
   });
 });
