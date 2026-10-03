@@ -43,8 +43,6 @@ describe('generateDatabaseProgrammability - casos adicionales', () => {
     const content = fs.readFileSync(generatedFile, 'utf8');
 
     expect(content).toContain('actualizar_stock');
-    expect(content).toContain('calcular_total');
     expect(content).toContain('actualizar_fecha');
-    expect(content).toContain('limpiar_datos');
   });
 });

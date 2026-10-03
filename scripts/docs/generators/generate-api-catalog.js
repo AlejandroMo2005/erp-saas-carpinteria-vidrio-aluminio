@@ -2,7 +2,7 @@ const { collectRoutesSources } = require('./collect-routes');
 const { parseRouteFiles } = require('./parse-routes');
 const { writeGeneratedFile } = require('./write-file');
 
-function formatRoutes(routes, rootDir) {
+function formatRoutes(routes) {
   if (routes.length === 0) {
     return 'No se encontraron rutas HTTP en los archivos analizados.';
   }
@@ -51,7 +51,7 @@ function generateApiCatalog(rootDir) {
 
 | Método | Ruta | Fuente |
 |---|---|---|
-${formatRoutes(formattedRoutes, rootDir)}
+${formatRoutes(formattedRoutes)}
 
 ## Fuente
 

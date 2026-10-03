@@ -1,5 +1,4 @@
 const fs = require('node:fs');
-const os = require('node:fs');
 const osPath = require('node:os');
 const path = require('node:path');
 
@@ -28,6 +27,6 @@ describe('validateGeneratedDocumentation - casos adicionales', () => {
 
     expect(() => {
       validateGeneratedDocumentation(rootDir);
-    }).toThrow('El archivo de documentación está vacío');
+    }).toThrow('docs/generated/empty.md: el archivo de documentación está vacío.');
   });
 });

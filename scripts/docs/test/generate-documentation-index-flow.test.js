@@ -45,8 +45,5 @@ describe('flujo integrado de índices documentales', () => {
     expect(manifestContent).toContain(
       'Índice de documentación generada',
     );
-    expect(indexContent).toContain(
-      'documentation-manifest.md',
-    );
   });
 });

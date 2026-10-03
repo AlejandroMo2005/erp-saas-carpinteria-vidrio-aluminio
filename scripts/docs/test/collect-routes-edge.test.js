@@ -3,67 +3,90 @@ const os = require('node:os');
 const path = require('node:path');
 
 const {
-  collectRouteSources,
+  collectRoutesSources,
 } = require('../generators/collect-routes');
 
-describe('collectRouteSources - casos adicionales', () => {
-  test('recorre directorios anidados y conserva las rutas encontradas', () => {
+describe('collectRoutesSources - casos adicionales', () => {
+  test('recorre módulos anidados y conserva sus montajes', () => {
     const rootDir = fs.mkdtempSync(
       path.join(os.tmpdir(), 'docs-routes-'),
     );
 
-    const routesDir = path.join(
+    const modulesDir = path.join(
       rootDir,
       'backend',
-      'routes',
-      'admin',
+      'src',
+      'modules',
     );
 
-    fs.mkdirSync(routesDir, { recursive: true });
+    fs.mkdirSync(
+      path.join(modulesDir, 'cliente'),
+      { recursive: true },
+    );
 
     fs.writeFileSync(
-      path.join(rootDir, 'backend', 'routes', 'clientes.js'),
+      path.join(modulesDir, 'index.js'),
+      "app.use('/api/clientes', loadModule('./cliente/cliente.routes'));",
+    );
+
+    const routePath = path.join(
+      modulesDir,
+      'cliente',
+      'cliente.routes.js',
+    );
+
+    fs.writeFileSync(
+      routePath,
       'router.get("/clientes", handler);',
     );
 
-    fs.writeFileSync(
-      path.join(routesDir, 'usuarios.js'),
-      'router.get("/usuarios", handler);',
-    );
-
-    const files = collectRouteSources(rootDir);
+    const files = collectRoutesSources(rootDir);
 
     expect(files).toEqual([
-      path.join(rootDir, 'backend', 'routes', 'admin', 'usuarios.js'),
-      path.join(rootDir, 'backend', 'routes', 'clientes.js'),
+      {
+        filePath: routePath,
+        mountPath: '/api/clientes',
+        source: 'module',
+      },
     ]);
+
+    fs.rmSync(rootDir, {
+      recursive: true,
+      force: true,
+    });
   });
 
-  test('ignora archivos que no corresponden a rutas JavaScript', () => {
+  test('ignora referencias a archivos que no existen', () => {
     const rootDir = fs.mkdtempSync(
       path.join(os.tmpdir(), 'docs-routes-'),
     );
 
-    const routesDir = path.join(
+    const modulesDir = path.join(
       rootDir,
       'backend',
-      'routes',
+      'src',
+      'modules',
     );
 
-    fs.mkdirSync(routesDir, { recursive: true });
+    fs.mkdirSync(modulesDir, {
+      recursive: true,
+    });
 
     fs.writeFileSync(
-      path.join(routesDir, 'clientes.js'),
-      'router.get("/clientes", handler);',
+      path.join(modulesDir, 'index.js'),
+      "app.use('/api/clientes', loadModule('./cliente/cliente.routes'));",
     );
 
     fs.writeFileSync(
-      path.join(routesDir, 'README.md'),
-      '# Rutas',
+      path.join(modulesDir, 'README.md'),
+      '# Módulos',
     );
 
-    expect(collectRouteSources(rootDir)).toEqual([
-      path.join(routesDir, 'clientes.js'),
-    ]);
+    expect(collectRoutesSources(rootDir)).toEqual([]);
+
+    fs.rmSync(rootDir, {
+      recursive: true,
+      force: true,
+    });
   });
 });

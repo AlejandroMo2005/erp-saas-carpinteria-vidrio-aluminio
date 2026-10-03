@@ -131,11 +131,11 @@ describe('generateDatabaseSchema', () => {
     );
 
     expect(content).toContain(
-      '# Esquema de base de datos',
+      '# Esquema automático de base de datos',
     );
 
     expect(content).toContain(
-      'No se encontraron fuentes SQL',
+      'Fuentes SQL: 0',
     );
   });
 

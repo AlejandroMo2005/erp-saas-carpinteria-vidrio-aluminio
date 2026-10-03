@@ -1,19 +1,19 @@
 const {
-  parseRoutes,
+  parseRouteSource,
 } = require('../generators/parse-routes');
 
-describe('parseRoutes', () => {
-  it('extrae rutas HTTP de un archivo de rutas', () => {
-    const content = `
-      router.get('/clientes', listarClientes);
-      router.post('/clientes', crearCliente);
-      router.put('/clientes/:id', actualizarCliente);
-      router.delete('/clientes/:id', eliminarCliente);
-    `;
-
-    const routes = parseRoutes(
-      content,
-      'backend/src/routes/clientes.js',
+describe('parseRouteSource', () => {
+  it('extrae rutas HTTP de una fuente de rutas', () => {
+    const routes = parseRouteSource(
+      `
+        router.get('/clientes', listarClientes);
+        router.post('/clientes', crearCliente);
+        router.put('/clientes/:id', actualizarCliente);
+        router.delete('/clientes/:id', eliminarCliente);
+      `,
+      {
+        filePath: 'backend/src/modules/clientes.js',
+      },
     );
 
     expect(routes).toHaveLength(4);
@@ -40,48 +40,55 @@ describe('parseRoutes', () => {
     );
   });
 
-  it('conserva la fuente de cada ruta', () => {
-    const routes = parseRoutes(
+  it('conserva el archivo y combina el prefijo de montaje', () => {
+    const routes = parseRouteSource(
       "router.get('/clientes', handler);",
-      'backend/src/routes/clientes.js',
+      {
+        filePath: 'backend/src/modules/clientes.js',
+        mountPath: '/api',
+      },
     );
 
-    expect(routes[0]).toEqual(
-      expect.objectContaining({
-        source: 'backend/src/routes/clientes.js',
-      }),
-    );
+    expect(routes[0]).toEqual({
+      method: 'GET',
+      path: '/api/clientes',
+      file: 'backend/src/modules/clientes.js',
+    });
   });
 
-  it('detecta rutas con router.use', () => {
-    const routes = parseRoutes(
+  it('detecta rutas HTTP soportadas con rutas dinámicas', () => {
+    const routes = parseRouteSource(
       `
-        router.use('/clientes', clientesRouter);
-        router.get('/clientes/:id', obtenerCliente);
+        router.patch('/clientes/:id', actualizarCliente);
+        router.delete("/clientes/:id", eliminarCliente);
       `,
-      'backend/src/routes/index.js',
+      {
+        filePath: 'backend/src/modules/clientes.js',
+      },
     );
 
-    expect(routes).toEqual(
-      expect.arrayContaining([
-        expect.objectContaining({
-          method: 'USE',
-          path: '/clientes',
-        }),
-        expect.objectContaining({
-          method: 'GET',
-          path: '/clientes/:id',
-        }),
-      ]),
-    );
+    expect(routes).toEqual([
+      {
+        method: 'PATCH',
+        path: '/clientes/:id',
+        file: 'backend/src/modules/clientes.js',
+      },
+      {
+        method: 'DELETE',
+        path: '/clientes/:id',
+        file: 'backend/src/modules/clientes.js',
+      },
+    ]);
   });
 
-  it('devuelve una lista vacía cuando no existen rutas', () => {
-    const routes = parseRoutes(
-      'const value = true;',
-      'backend/src/routes/example.js',
-    );
-
-    expect(routes).toEqual([]);
+  it('devuelve una lista vacía cuando no existen rutas HTTP', () => {
+    expect(
+      parseRouteSource(
+        'const router = express.Router();',
+        {
+          filePath: 'backend/src/modules/vacio.js',
+        },
+      ),
+    ).toEqual([]);
   });
 });

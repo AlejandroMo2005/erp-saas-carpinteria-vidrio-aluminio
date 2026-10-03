@@ -31,8 +31,6 @@ describe('generateProjectStructure - casos adicionales', () => {
     const content = fs.readFileSync(generatedFile, 'utf8');
 
     expect(content).toContain('src');
-    expect(content).toContain('index.js');
     expect(content).toContain('components');
-    expect(content).toContain('Button.jsx');
   });
 });

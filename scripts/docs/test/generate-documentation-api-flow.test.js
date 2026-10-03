@@ -20,20 +20,28 @@ describe('flujo integrado de documentación de API', () => {
       }),
     );
 
-    const routesDir = path.join(
+    const modulesDir = path.join(
       rootDir,
       'backend',
-      'routes',
+      'src',
+      'modules',
     );
 
-    fs.mkdirSync(routesDir, { recursive: true });
+    fs.mkdirSync(modulesDir, { recursive: true });
 
     fs.writeFileSync(
-      path.join(routesDir, 'clientes.js'),
+      path.join(modulesDir, 'clientes.js'),
       `
         router.get('/clientes', listarClientes);
         router.post('/clientes', crearCliente);
         router.delete('/clientes/:id', eliminarCliente);
+      `,
+    );
+
+    fs.writeFileSync(
+      path.join(modulesDir, 'index.js'),
+      `
+        app.use('/api', loadModule('./clientes'));
       `,
     );
 
@@ -44,7 +52,7 @@ describe('flujo integrado de documentación de API', () => {
       'docs',
       'generated',
       'api',
-      'catalog.md',
+      'endpoints.md',
     );
 
     const content = fs.readFileSync(

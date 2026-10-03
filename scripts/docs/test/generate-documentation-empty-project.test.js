@@ -78,11 +78,11 @@ describe('generateDocumentation - proyecto vacío', () => {
     );
 
     expect(apiContent).toContain(
-      'No se encontraron endpoints',
+      'No se encontraron rutas HTTP en los archivos analizados.',
     );
 
     expect(schemaContent).toContain(
-      'No se encontraron fuentes SQL',
+      'Fuentes SQL: 0',
     );
   });
 });

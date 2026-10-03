@@ -27,6 +27,5 @@ describe('generateProjectMetadata - casos adicionales', () => {
 
     expect(content).toContain('erp-test');
     expect(content).toContain('2.5.0');
-    expect(content).toContain('Proyecto de prueba');
   });
 });

@@ -17,7 +17,7 @@ function extractIndexes(content) {
     const tableDefinition = tableMatch[2];
 
     const indexMatches = tableDefinition.matchAll(
-      /(?:PRIMARY\s+KEY|UNIQUE\s+(?:KEY|INDEX)|(?:KEY|INDEX))\s*(?:`([^`]+)`\s*)?\(([^)]+)\)/gi,
+      /(?:PRIMARY\s+KEY|UNIQUE\s+(?:KEY|INDEX)|(?:KEY|INDEX))\s*(?:`([^`]+)`|([A-Za-z0-9_]+))?\s*\(([^)]+)\)/gi,
     );
 
     for (const indexMatch of indexMatches) {
@@ -38,9 +38,9 @@ function extractIndexes(content) {
 
       indexes.push({
         table: tableName,
-        name: indexMatch[1] || 'PRIMARY',
+        name: indexMatch[1] || indexMatch[2] || 'PRIMARY',
         type,
-        columns: indexMatch[2]
+        columns: indexMatch[3]
           .split(',')
           .map((column) =>
             column

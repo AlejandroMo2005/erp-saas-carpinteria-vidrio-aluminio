@@ -8,8 +8,8 @@ const {
 const { writeGeneratedFile } = require('./write-file');
 
 const REPORT_PATHS = [
-  'coverage/coverage-summary.json',
-  'backend/coverage/coverage-summary.json',
+  'coverage/coverage-final.json',
+  'backend/coverage/coverage-final.json',
 ];
 
 function readCoverageSummary(rootDir) {
@@ -41,12 +41,111 @@ function readCoverageSummary(rootDir) {
   return null;
 }
 
+function aggregateMetric(
+  data,
+  metric,
+) {
+  const metricConfig = {
+    statement: {
+      map: 'statementMap',
+      counts: 's',
+    },
+    branch: {
+      map: 'branchMap',
+      counts: 'b',
+    },
+    function: {
+      map: 'fnMap',
+      counts: 'f',
+    },
+    line: {
+      map: 'statementMap',
+      counts: 's',
+    },
+  };
+
+  const config = metricConfig[metric];
+
+  if (!config) {
+    return null;
+  }
+
+  const files = Object.values(data ?? {});
+  let total = 0;
+  let covered = 0;
+
+  for (const file of files) {
+    const counts = file?.[config.counts];
+
+    if (!counts) {
+      continue;
+    }
+
+    const keys = config.map
+      ? Object.keys(file[config.map] ?? {})
+      : Object.keys(counts);
+
+    if (metric === 'line') {
+      const lines = new Map();
+
+      for (const key of keys) {
+        const line = file.statementMap?.[key]?.start?.line;
+
+        if (!line) {
+          continue;
+        }
+
+        const count = counts[key] ?? 0;
+        lines.set(
+          line,
+          (lines.get(line) ?? 0) + count,
+        );
+      }
+
+      total += lines.size;
+      covered += [...lines.values()].filter(
+        (count) => count > 0,
+      ).length;
+
+      continue;
+    }
+
+    for (const key of keys) {
+      const value = counts[key];
+
+      if (Array.isArray(value)) {
+        total += value.length;
+        covered += value.filter(
+          (count) => count > 0,
+        ).length;
+        continue;
+      }
+
+      total += 1;
+
+      if (value > 0) {
+        covered += 1;
+      }
+    }
+  }
+
+  if (total === 0) {
+    return null;
+  }
+
+  return Number(
+    ((covered / total) * 100).toFixed(2),
+  );
+}
+
 function getCoverageValue(
   coverage,
   metric,
 ) {
-  return coverage?.data?.total?.[metric]?.pct ??
-    'N/D';
+  return aggregateMetric(
+    coverage?.data,
+    metric,
+  );
 }
 
 function generateTestEvidence(rootDir) {
@@ -66,28 +165,28 @@ function generateTestEvidence(rootDir) {
               'Statements',
               `${getCoverageValue(
                 coverage,
-                'statements',
+                'statement',
               )}%`,
             ],
             [
               'Branches',
               `${getCoverageValue(
                 coverage,
-                'branches',
+                'branch',
               )}%`,
             ],
             [
               'Functions',
               `${getCoverageValue(
                 coverage,
-                'functions',
+                'function',
               )}%`,
             ],
             [
               'Lines',
               `${getCoverageValue(
                 coverage,
-                'lines',
+                'line',
               )}%`,
             ],
           ],
@@ -118,6 +217,7 @@ function generateTestEvidence(rootDir) {
 module.exports = {
   REPORT_PATHS,
   readCoverageSummary,
+  aggregateMetric,
   getCoverageValue,
   generateTestEvidence,
 };

@@ -27,6 +27,6 @@ describe('validateGeneratedConsistency - casos adicionales', () => {
 
     expect(() => {
       validateGeneratedConsistency(rootDir);
-    }).toThrow('falta la marca de generación automática');
+    }).toThrow('falta el marcador oficial de generación automática.');
   });
 });

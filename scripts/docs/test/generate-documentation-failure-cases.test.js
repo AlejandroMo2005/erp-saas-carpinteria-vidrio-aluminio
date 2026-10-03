@@ -32,7 +32,7 @@ describe('casos de fallo de documentación', () => {
     expect(() => {
       validateGeneratedDocumentation(rootDir);
     }).toThrow(
-      'El archivo no contiene un título Markdown válido',
+      'docs/generated/invalid.md: falta un título Markdown de nivel 1.',
     );
   });
 
@@ -57,7 +57,7 @@ describe('casos de fallo de documentación', () => {
     expect(() => {
       validateGeneratedDocumentation(rootDir);
     }).toThrow(
-      'La documentación generada no cumple las reglas de consistencia',
+      'docs/generated/manual.md: falta el marcador oficial de generación automática.',
     );
   });
 });

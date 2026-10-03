@@ -1,39 +1,54 @@
 const {
-  parseRoutes,
+  normalizeRoutePath,
+  combineRoutePaths,
+  parseRouteSource,
 } = require('../generators/parse-routes');
 
-describe('parseRoutes - casos adicionales', () => {
-  test('detecta métodos PATCH y DELETE con rutas dinámicas', () => {
-    const content = `
-      router.patch('/clientes/:id', actualizarCliente);
-      router.delete("/clientes/:id", eliminarCliente);
-    `;
+describe('parse-routes - casos adicionales', () => {
+  test('normaliza rutas raíz y barras duplicadas', () => {
+    expect(normalizeRoutePath('/')).toBe('');
+    expect(normalizeRoutePath('///clientes///')).toBe('/clientes');
+  });
 
-    const routes = parseRoutes(
-      content,
-      'backend/routes/clientes.js',
+  test('combina correctamente prefijo y ruta', () => {
+    expect(
+      combineRoutePaths('/api/', '/clientes/:id/'),
+    ).toBe('/api/clientes/:id');
+  });
+
+  test('detecta HEAD y OPTIONS', () => {
+    const routes = parseRouteSource(
+      `
+        router.head('/health', handler);
+        router.options('/clientes', handler);
+      `,
+      {
+        filePath: 'backend/src/modules/clientes.js',
+      },
     );
 
     expect(routes).toEqual([
       {
-        method: 'PATCH',
-        path: '/clientes/:id',
-        source: 'backend/routes/clientes.js',
+        method: 'HEAD',
+        path: '/health',
+        file: 'backend/src/modules/clientes.js',
       },
       {
-        method: 'DELETE',
-        path: '/clientes/:id',
-        source: 'backend/routes/clientes.js',
+        method: 'OPTIONS',
+        path: '/clientes',
+        file: 'backend/src/modules/clientes.js',
       },
     ]);
   });
 
-  test('devuelve un arreglo vacío cuando no existen rutas', () => {
-    expect(
-      parseRoutes(
-        'const router = express.Router();',
-        'backend/routes/vacio.js',
-      ),
-    ).toEqual([]);
+  test('no interpreta router.use como endpoint HTTP', () => {
+    const routes = parseRouteSource(
+      "router.use('/clientes', clientesRouter);",
+      {
+        filePath: 'backend/src/modules/index.js',
+      },
+    );
+
+    expect(routes).toEqual([]);
   });
 });

@@ -27,13 +27,13 @@ function getGitChangedFiles(rootDir) {
 
     return output
       .split('\n')
-      .map((line) => line.trim())
-      .filter(Boolean)
-      .map((line) => line.slice(3))
+      .filter((line) => line.trim())
+      .map((line) => line.slice(3).trim())
       .sort();
   } catch (error) {
     throw new Error(
       `No fue posible consultar el estado Git de la documentación generada: ${error.message}`,
+      { cause: error },
     );
   }
 }

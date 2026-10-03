@@ -1,15 +1,45 @@
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const { execFileSync } = require('node:child_process');
 
 const {
-  getGeneratedFiles,
+  getGitChangedFiles,
   verifyGeneratedDocumentation,
 } = require('../verify-generated-clean');
 
 describe('verifyGeneratedDocumentation', () => {
   let temporaryRoot;
   let generatedDirectory;
+
+  function git(...args) {
+    return execFileSync(
+      'git',
+      args,
+      {
+        cwd: temporaryRoot,
+        encoding: 'utf8',
+      },
+    );
+  }
+
+  function writeFile(relativePath, content) {
+    const filePath = path.join(
+      temporaryRoot,
+      relativePath,
+    );
+
+    fs.mkdirSync(
+      path.dirname(filePath),
+      { recursive: true },
+    );
+
+    fs.writeFileSync(
+      filePath,
+      content,
+      'utf8',
+    );
+  }
 
   beforeEach(() => {
     temporaryRoot = fs.mkdtempSync(
@@ -26,6 +56,28 @@ describe('verifyGeneratedDocumentation', () => {
       generatedDirectory,
       { recursive: true },
     );
+
+    git('init', '-q');
+    git('config', 'user.email', 'docs-test@example.com');
+    git('config', 'user.name', 'Docs Test');
+
+    writeFile(
+      'docs/generated/README.md',
+      '# Documentación\n',
+    );
+
+    writeFile(
+      'docs/generated/api/endpoints.md',
+      '# Endpoints\n',
+    );
+
+    writeFile(
+      'src/example.js',
+      'module.exports = {};\n',
+    );
+
+    git('add', '.');
+    git('commit', '-qm', 'initial');
   });
 
   afterEach(() => {
@@ -35,136 +87,64 @@ describe('verifyGeneratedDocumentation', () => {
     });
   });
 
-  it('recopila archivos Markdown generados de forma recursiva', () => {
-    const files = [
-      'README.md',
-      'api/endpoints.md',
-      'database/schema.md',
-      'quality/tests.md',
-    ];
-
-    for (const relativePath of files) {
-      const filePath = path.join(
-        generatedDirectory,
-        relativePath,
-      );
-
-      fs.mkdirSync(
-        path.dirname(filePath),
-        { recursive: true },
-      );
-
-      fs.writeFileSync(
-        filePath,
-        `# ${relativePath}\n`,
-        'utf8',
-      );
-    }
-
+  it('detecta un repositorio Git limpio', () => {
     expect(
-      getGeneratedFiles(temporaryRoot),
-    ).toEqual(
-      files
-        .map((file) => `docs/generated/${file}`)
-        .sort(),
-    );
-  });
-
-  it('devuelve una lista vacía cuando no existe el directorio generado', () => {
-    fs.rmSync(
-      generatedDirectory,
-      {
-        recursive: true,
-        force: true,
-      },
-    );
-
-    expect(
-      getGeneratedFiles(temporaryRoot),
+      getGitChangedFiles(temporaryRoot),
     ).toEqual([]);
-  });
 
-  it('detecta archivos generados incluidos entre los cambios', () => {
-    const expectedChangedFiles = [
-      'docs/generated/README.md',
-      'docs/generated/api/endpoints.md',
-    ];
-
-    const result = verifyGeneratedDocumentation(
-      temporaryRoot,
-      expectedChangedFiles,
-    );
-
-    expect(result).toEqual({
+    expect(
+      verifyGeneratedDocumentation(temporaryRoot),
+    ).toEqual({
       valid: true,
       changedFiles: [],
     });
   });
 
   it('identifica archivos generados modificados', () => {
-    fs.writeFileSync(
-      path.join(
-        generatedDirectory,
-        'README.md',
-      ),
-      '# Documentación\n',
-      'utf8',
-    );
-
-    fs.mkdirSync(
-      path.join(
-        generatedDirectory,
-        'api',
-      ),
-      { recursive: true },
-    );
-
-    fs.writeFileSync(
-      path.join(
-        generatedDirectory,
-        'api',
-        'endpoints.md',
-      ),
-      '# Endpoints\n',
-      'utf8',
+    writeFile(
+      'docs/generated/README.md',
+      '# Documentación modificada\n',
     );
 
     const result = verifyGeneratedDocumentation(
       temporaryRoot,
-      [
-        'docs/generated/README.md',
-        'docs/generated/api/endpoints.md',
-      ],
     );
 
     expect(result).toEqual({
       valid: false,
       changedFiles: [
         'docs/generated/README.md',
-        'docs/generated/api/endpoints.md',
+      ],
+    });
+  });
+
+  it('detecta archivos generados no trackeados', () => {
+    writeFile(
+      'docs/generated/new.md',
+      '# Nuevo\n',
+    );
+
+    const result = verifyGeneratedDocumentation(
+      temporaryRoot,
+    );
+
+    expect(result).toEqual({
+      valid: false,
+      changedFiles: [
+        'docs/generated/new.md',
       ],
     });
   });
 
   it('ignora cambios fuera de documentación generada', () => {
-    fs.writeFileSync(
-      path.join(
-        generatedDirectory,
-        'README.md',
-      ),
-      '# Documentación\n',
-      'utf8',
+    writeFile(
+      'src/example.js',
+      'module.exports = { changed: true };\n',
     );
 
-    const result = verifyGeneratedDocumentation(
-      temporaryRoot,
-      [
-        'src/example.js',
-        'package.json',
-      ],
-    );
-
-    expect(result).toEqual({
+    expect(
+      verifyGeneratedDocumentation(temporaryRoot),
+    ).toEqual({
       valid: true,
       changedFiles: [],
     });

@@ -1,5 +1,4 @@
 const fs = require('node:fs');
-const os = require('node:fs');
 const path = require('node:path');
 const os = require('node:os');
 
@@ -20,7 +19,8 @@ describe('generateApiCatalog', () => {
         temporaryRoot,
         'backend',
         'src',
-        'routes',
+        'modules',
+        'clientes',
       ),
       { recursive: true },
     );
@@ -39,7 +39,19 @@ describe('generateApiCatalog', () => {
         temporaryRoot,
         'backend',
         'src',
-        'routes',
+        'modules',
+        'index.js',
+      ),
+      "app.use('/api/clientes', loadModule('./clientes'));",
+      'utf8',
+    );
+
+    fs.writeFileSync(
+      path.join(
+        temporaryRoot,
+        'backend',
+        'src',
+        'modules',
         'clientes.js',
       ),
       `
@@ -95,11 +107,11 @@ describe('generateApiCatalog', () => {
     );
 
     expect(content).toContain(
-      '# Catálogo de endpoints',
+      '# Catálogo automático de endpoints',
     );
 
     expect(content).toContain(
-      'No se encontraron endpoints',
+      'No se encontraron rutas HTTP en los archivos analizados.',
     );
   });
 
@@ -109,7 +121,19 @@ describe('generateApiCatalog', () => {
         temporaryRoot,
         'backend',
         'src',
-        'routes',
+        'modules',
+        'index.js',
+      ),
+      "app.use('/api/clientes', loadModule('./clientes'));",
+      'utf8',
+    );
+
+    fs.writeFileSync(
+      path.join(
+        temporaryRoot,
+        'backend',
+        'src',
+        'modules',
         'clientes.js',
       ),
       "router.get('/clientes', listarClientes);",

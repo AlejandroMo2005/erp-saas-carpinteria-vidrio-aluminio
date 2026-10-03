@@ -59,3 +59,4 @@ backend/generar-hash.js
 backend/config/database.sql
 backend/config/database.sql
 backend/generar-hash.js
+reports/

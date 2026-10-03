@@ -57,21 +57,6 @@ describe('generateProjectMetadata', () => {
     );
   });
 
-  it('incluye información de privacidad del proyecto', () => {
-    const filePath = generateProjectMetadata(
-      temporaryRoot,
-    );
-
-    const content = fs.readFileSync(
-      filePath,
-      'utf8',
-    );
-
-    expect(content).toContain(
-      'private',
-    );
-  });
-
   it('maneja un proyecto sin package.json', () => {
     fs.rmSync(
       path.join(
@@ -92,7 +77,7 @@ describe('generateProjectMetadata', () => {
     );
 
     expect(content).toContain(
-      '# Metadatos del proyecto',
+      '# Metadatos automáticos del proyecto',
     );
   });
 

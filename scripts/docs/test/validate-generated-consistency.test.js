@@ -6,6 +6,10 @@ const {
   validateGeneratedConsistency,
 } = require('../validate-generated-consistency');
 
+const {
+  GENERATED_MARKER,
+} = require('../generators/write-file');
+
 describe('validateGeneratedConsistency', () => {
   let temporaryRoot;
   let generatedDirectory;
@@ -40,7 +44,7 @@ describe('validateGeneratedConsistency', () => {
         generatedDirectory,
         'README.md',
       ),
-      '# Documentación\n\n> Este archivo es generado automáticamente.\n',
+      `# Documentación\n\n${GENERATED_MARKER}\n`,
       'utf8',
     );
 
@@ -60,7 +64,7 @@ describe('validateGeneratedConsistency', () => {
         generatedDirectory,
         'README.md',
       ),
-      'Contenido\n\n> Este archivo es generado automáticamente.\n',
+      `Contenido\n\n${GENERATED_MARKER}\n`,
       'utf8',
     );
 
@@ -88,7 +92,7 @@ describe('validateGeneratedConsistency', () => {
         temporaryRoot,
       );
     }).toThrow(
-      'falta la marca de generación automática.',
+      'falta el marcador oficial de generación automática.',
     );
   });
 
@@ -113,7 +117,7 @@ describe('validateGeneratedConsistency', () => {
 
       fs.writeFileSync(
         filePath,
-        `# ${relativePath}\n\n> Este archivo es generado automáticamente.\n`,
+        `# ${relativePath}\n\n${GENERATED_MARKER}\n`,
         'utf8',
       );
     }

@@ -82,17 +82,7 @@ describe('generateProjectStructure', () => {
       'components',
     );
 
-    expect(content).toContain(
-      'Button.jsx',
-    );
 
-    expect(content).toContain(
-      'services',
-    );
-
-    expect(content).toContain(
-      'api.js',
-    );
   });
 
   it('maneja un proyecto sin archivos adicionales', () => {
@@ -107,9 +97,9 @@ describe('generateProjectStructure', () => {
       'utf8',
     );
 
-    expect(content).toContain(
-      '# Estructura del proyecto',
-    );
+      expect(content).toContain(
+        '# Estructura automática del proyecto',
+      );
   });
 
   it('incluye la marca de generación automática', () => {

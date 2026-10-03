@@ -25,10 +25,33 @@ describe('verifyGeneratedDocumentation - casos adicionales', () => {
       '# Documentación\n',
     );
 
-    const result = verifyGeneratedDocumentation(
-      rootDir,
-      [],
+    require('node:child_process').execFileSync(
+      'git',
+      ['init'],
+      { cwd: rootDir, stdio: 'ignore' },
     );
+
+    require('node:child_process').execFileSync(
+      'git',
+      ['add', 'docs/generated/README.md'],
+      { cwd: rootDir, stdio: 'ignore' },
+    );
+
+    require('node:child_process').execFileSync(
+      'git',
+      [
+        '-c',
+        'user.name=Docs Test',
+        '-c',
+        'user.email=docs-test@example.com',
+        'commit',
+        '-m',
+        'test: seed generated docs',
+      ],
+      { cwd: rootDir, stdio: 'ignore' },
+    );
+
+    const result = verifyGeneratedDocumentation(rootDir);
 
     expect(result).toEqual({
       valid: true,

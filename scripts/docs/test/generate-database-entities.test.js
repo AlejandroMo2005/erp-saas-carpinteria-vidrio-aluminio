@@ -135,11 +135,11 @@ describe('generateDatabaseEntities', () => {
     );
 
     expect(content).toContain(
-      '# Entidades de base de datos',
+      '# Entidades automáticas de base de datos',
     );
 
     expect(content).toContain(
-      'No se encontraron entidades',
+      'No se detectaron tablas en las fuentes SQL.',
     );
   });
 

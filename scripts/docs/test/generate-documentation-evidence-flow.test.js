@@ -29,17 +29,17 @@ describe('flujo integrado de evidencias documentales', () => {
     );
 
     const testEvidence = fs.readFileSync(
-      path.join(generatedDir, 'test-evidence.md'),
+      path.join(generatedDir, 'quality', 'test-evidence.md'),
       'utf8',
     );
 
     const lintEvidence = fs.readFileSync(
-      path.join(generatedDir, 'lint-evidence.md'),
+      path.join(generatedDir, 'quality', 'lint-evidence.md'),
       'utf8',
     );
 
     const testsReport = fs.readFileSync(
-      path.join(generatedDir, 'tests-report.md'),
+      path.join(generatedDir, 'quality', 'tests.md'),
       'utf8',
     );
 

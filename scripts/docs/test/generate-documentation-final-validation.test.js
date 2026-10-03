@@ -1,6 +1,7 @@
 const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
+const { execFileSync } = require('node:child_process');
 
 const {
   generateDocumentation,
@@ -32,9 +33,34 @@ describe('flujo final de documentación', () => {
       rootDir,
     );
 
+    execFileSync(
+      'git',
+      ['init'],
+      { cwd: rootDir, stdio: 'ignore' },
+    );
+
+    execFileSync(
+      'git',
+      ['add', 'docs/generated'],
+      { cwd: rootDir, stdio: 'ignore' },
+    );
+
+    execFileSync(
+      'git',
+      [
+        '-c',
+        'user.name=Docs Test',
+        '-c',
+        'user.email=docs-test@example.com',
+        'commit',
+        '-m',
+        'test: seed generated documentation',
+      ],
+      { cwd: rootDir, stdio: 'ignore' },
+    );
+
     const verification = verifyGeneratedDocumentation(
       rootDir,
-      [],
     );
 
     expect(validation.valid).toBe(true);

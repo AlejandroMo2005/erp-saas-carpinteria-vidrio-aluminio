@@ -73,11 +73,11 @@ describe('generateDatabaseProgrammability', () => {
     );
 
     expect(content).toContain(
-      'TRIGGER',
+      '## Triggers',
     );
 
     expect(content).toContain(
-      'PROCEDURE',
+      '## Procedimientos almacenados',
     );
   });
 
@@ -124,11 +124,11 @@ describe('generateDatabaseProgrammability', () => {
     );
 
     expect(content).toContain(
-      '# Programabilidad de base de datos',
+      '# Programabilidad automática de base de datos',
     );
 
     expect(content).toContain(
-      'No se encontraron triggers ni procedimientos',
+      'Procedimientos detectados: 0',
     );
   });
 

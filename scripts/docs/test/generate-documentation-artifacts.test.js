@@ -25,12 +25,12 @@ describe('flujo integrado de artefactos documentales', () => {
     const expectedFiles = [
       'docs/generated/README.md',
       'docs/generated/documentation-manifest.md',
-      'docs/generated/api/catalog.md',
+      'docs/generated/api/endpoints.md',
       'docs/generated/database/schema.md',
       'docs/generated/database/entities.md',
       'docs/generated/database/relations.md',
       'docs/generated/database/indexes.md',
-      'docs/generated/database/programmability.md',
+      'docs/generated/database/programability.md',
     ];
 
     for (const relativePath of expectedFiles) {

@@ -18,9 +18,9 @@ describe('generateDatabaseEntities - casos adicionales', () => {
     fs.writeFileSync(
       path.join(databaseDir, 'clientes.sql'),
       `
-        CREATE TABLE clientes (
-          id INT NOT NULL,
-          nombre VARCHAR(100) NOT NULL
+        CREATE TABLE \`clientes\` (
+          \`id\` INT NOT NULL,
+          \`nombre\` VARCHAR(100) NOT NULL
         );
       `,
     );
@@ -28,9 +28,9 @@ describe('generateDatabaseEntities - casos adicionales', () => {
     fs.writeFileSync(
       path.join(databaseDir, 'productos.sql'),
       `
-        CREATE TABLE productos (
-          id INT NOT NULL,
-          nombre VARCHAR(100)
+        CREATE TABLE \`productos\` (
+          \`id\` INT NOT NULL,
+          \`nombre\` VARCHAR(100)
         );
       `,
     );

@@ -53,7 +53,7 @@ describe('validateDocumentation', () => {
         '',
         '[API](api/endpoints.md)',
         '',
-        '> Este archivo es generado automáticamente.',
+        '> Este archivo es generado automáticamente. No editar manualmente.',
         '',
       ].join('\n'),
       'utf8',
@@ -68,7 +68,7 @@ describe('validateDocumentation', () => {
       [
         '# Endpoints',
         '',
-        '> Este archivo es generado automáticamente.',
+        '> Este archivo es generado automáticamente. No editar manualmente.',
         '',
       ].join('\n'),
       'utf8',
@@ -76,7 +76,10 @@ describe('validateDocumentation', () => {
 
     expect(
       validateDocumentation(temporaryRoot),
-    ).toEqual([]);
+    ).toEqual({
+      valid: true,
+      files: 2,
+    });
   });
 
   it('detecta enlaces internos inexistentes', () => {
@@ -90,19 +93,16 @@ describe('validateDocumentation', () => {
         '',
         '[API](api/endpoints.md)',
         '',
-        '> Este archivo es generado automáticamente.',
+        '> Este archivo es generado automáticamente. No editar manualmente.',
         '',
       ].join('\n'),
       'utf8',
     );
 
-    const errors = validateDocumentation(
-      temporaryRoot,
-    );
-
-    expect(errors).toHaveLength(1);
-    expect(errors[0]).toContain(
-      'api/endpoints.md',
+    expect(() => {
+      validateDocumentation(temporaryRoot);
+    }).toThrow(
+      'docs/generated/README.md -> api/endpoints.md',
     );
   });
 
@@ -119,7 +119,7 @@ describe('validateDocumentation', () => {
         '[Correo](mailto:test@example.com)',
         '[Sección](#inicio)',
         '',
-        '> Este archivo es generado automáticamente.',
+        '> Este archivo es generado automáticamente. No editar manualmente.',
         '',
       ].join('\n'),
       'utf8',
@@ -127,10 +127,13 @@ describe('validateDocumentation', () => {
 
     expect(
       validateDocumentation(temporaryRoot),
-    ).toEqual([]);
+    ).toEqual({
+      valid: true,
+      files: 1,
+    });
   });
 
-  it('devuelve una lista vacía cuando no existe documentación generada', () => {
+  it('rechaza cuando no existe documentación generada', () => {
     fs.rmSync(
       generatedDirectory,
       {
@@ -139,8 +142,10 @@ describe('validateDocumentation', () => {
       },
     );
 
-    expect(
-      validateDocumentation(temporaryRoot),
-    ).toEqual([]);
+    expect(() => {
+      validateDocumentation(temporaryRoot);
+    }).toThrow(
+      'No se encontraron archivos de documentación generada.',
+    );
   });
 });

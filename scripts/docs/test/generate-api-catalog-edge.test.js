@@ -19,10 +19,32 @@ describe('generateApiCatalog - casos límite', () => {
         temporaryRoot,
         'backend',
         'src',
-        'routes',
-        'clientes',
+        'modules',
       ),
       { recursive: true },
+    );
+
+    fs.writeFileSync(
+      path.join(
+        temporaryRoot,
+        'backend',
+        'src',
+        'modules',
+        'index.js',
+      ),
+      "app.use('/api/clientes', loadModule('./clientes'));\napp.use('/api/detalle', loadModule('./detalle'));",
+      'utf8',
+    );
+    fs.writeFileSync(
+      path.join(
+        temporaryRoot,
+        'backend',
+        'src',
+        'modules',
+        'index.js',
+      ),
+      "app.use('/api/clientes', loadModule('./clientes'));\napp.use('/api/detalle', loadModule('./detalle'));",
+      'utf8',
     );
   });
 
@@ -39,8 +61,7 @@ describe('generateApiCatalog - casos límite', () => {
         temporaryRoot,
         'backend',
         'src',
-        'routes',
-        'clientes',
+        'modules',
         'clientes.js',
       ),
       `
@@ -55,8 +76,7 @@ describe('generateApiCatalog - casos límite', () => {
         temporaryRoot,
         'backend',
         'src',
-        'routes',
-        'clientes',
+        'modules',
         'detalle.js',
       ),
       `
@@ -98,8 +118,7 @@ describe('generateApiCatalog - casos límite', () => {
         temporaryRoot,
         'backend',
         'src',
-        'routes',
-        'clientes',
+        'modules',
         'clientes.js',
       ),
       "router.get('/clientes', listarClientes);",
@@ -126,8 +145,7 @@ describe('generateApiCatalog - casos límite', () => {
         temporaryRoot,
         'backend',
         'src',
-        'routes',
-        'clientes',
+        'modules',
         'clientes.js',
       ),
       `

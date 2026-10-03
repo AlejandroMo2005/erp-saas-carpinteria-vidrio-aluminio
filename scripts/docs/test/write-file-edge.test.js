@@ -12,7 +12,7 @@ describe('writeGeneratedFile - casos adicionales', () => {
   test('no duplica la marca cuando el contenido ya la contiene', () => {
     const content = `# Documento\n\n${GENERATED_MARKER}`;
 
-    expect(ensureGeneratedMarker(content)).toBe(content);
+    expect(ensureGeneratedMarker(content)).toBe(`${content}\n`);
   });
 
   test('crea automáticamente directorios anidados', () => {

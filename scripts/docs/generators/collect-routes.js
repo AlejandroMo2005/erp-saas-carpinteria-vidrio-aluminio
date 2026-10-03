@@ -83,7 +83,7 @@ function collectMountedRouteFiles(rootDir) {
 
   for (const match of source.matchAll(pattern)) {
     const mountPath = match[1];
-    const modulePath = match[2];
+    const modulePath = match[3];
     const routeFile = resolveRouteFile(
       rootDir,
       modulePath,

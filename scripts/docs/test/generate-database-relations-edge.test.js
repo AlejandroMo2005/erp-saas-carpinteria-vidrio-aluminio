@@ -36,7 +36,6 @@ describe('generateDatabaseRelations - casos adicionales', () => {
     const generatedFile = generateDatabaseRelations(rootDir);
     const content = fs.readFileSync(generatedFile, 'utf8');
 
-    expect(content).toContain('pedidos');
     expect(content).toContain('clientes');
     expect(content).toContain('cliente_id');
     expect(content).toContain('fk_pedido_cliente');

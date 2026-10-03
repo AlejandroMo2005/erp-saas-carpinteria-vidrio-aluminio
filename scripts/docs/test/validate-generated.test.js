@@ -6,6 +6,10 @@ const {
   validateGeneratedDocumentation,
 } = require('../validate-generated');
 
+const {
+  GENERATED_MARKER,
+} = require('../generators/write-file');
+
 describe('validateGeneratedDocumentation', () => {
   let temporaryRoot;
   let generatedDirectory;
@@ -36,7 +40,7 @@ describe('validateGeneratedDocumentation', () => {
   it('valida correctamente documentación generada válida', () => {
     fs.writeFileSync(
       path.join(generatedDirectory, 'README.md'),
-      '# Documentación generada\n\n> Este archivo es generado automáticamente.\n',
+      `# Documentación generada\n\n${GENERATED_MARKER}\n`,
       'utf8',
     );
 
@@ -68,7 +72,7 @@ describe('validateGeneratedDocumentation', () => {
     expect(() => {
       validateGeneratedDocumentation(temporaryRoot);
     }).toThrow(
-      'El archivo de documentación está vacío',
+      'docs/generated/README.md: el archivo de documentación está vacío.',
     );
   });
 
@@ -82,7 +86,7 @@ describe('validateGeneratedDocumentation', () => {
     expect(() => {
       validateGeneratedDocumentation(temporaryRoot);
     }).toThrow(
-      'El archivo no contiene un título Markdown válido',
+      'docs/generated/README.md: falta un título Markdown de nivel 1.',
     );
   });
 
@@ -94,7 +98,7 @@ describe('validateGeneratedDocumentation', () => {
 
     fs.writeFileSync(
       path.join(generatedDirectory, 'README.md'),
-      '# Documentación\n\n> Este archivo es generado automáticamente.\n',
+      `# Documentación\n\n${GENERATED_MARKER}\n`,
       'utf8',
     );
 
@@ -104,7 +108,7 @@ describe('validateGeneratedDocumentation', () => {
         'api',
         'endpoints.md',
       ),
-      '# Endpoints\n\n> Este archivo es generado automáticamente.\n',
+      `# Endpoints\n\n${GENERATED_MARKER}\n`,
       'utf8',
     );
 

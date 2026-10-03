@@ -60,6 +60,25 @@ export default [
   },
 
   {
+    files: ['scripts/docs/**/*.{js,cjs}'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+      },
+    },
+  },
+
+  {
+    files: ['scripts/docs/test/**/*.{js,cjs}'],
+    languageOptions: {
+      globals: {
+        ...globals.node,
+        ...globals.vitest,
+      },
+    },
+  },
+
+  {
     files: ['e2e/**/*.{js,jsx}', 'playwright.config.js'],
     languageOptions: {
       globals: {

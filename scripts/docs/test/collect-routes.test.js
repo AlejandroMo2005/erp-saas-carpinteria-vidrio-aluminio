@@ -28,7 +28,7 @@ describe('collectRouteFiles', () => {
         temporaryRoot,
         'backend',
         'src',
-        'routes',
+        'modules',
       ),
       { recursive: true },
     );
@@ -38,7 +38,7 @@ describe('collectRouteFiles', () => {
         temporaryRoot,
         'backend',
         'src',
-        'routes',
+        'modules',
         'clientes.js',
       ),
       'router.get("/clientes", handler);',
@@ -54,7 +54,7 @@ describe('collectRouteFiles', () => {
       path.join(
         'backend',
         'src',
-        'routes',
+        'modules',
         'clientes.js',
       ),
     );
@@ -65,7 +65,7 @@ describe('collectRouteFiles', () => {
       temporaryRoot,
       'backend',
       'src',
-      'routes',
+      'modules',
       'facturacion',
     );
 

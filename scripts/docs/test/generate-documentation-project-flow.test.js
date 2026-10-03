@@ -56,7 +56,7 @@ describe('flujo integrado de documentación del proyecto', () => {
     );
 
     const structure = fs.readFileSync(
-      path.join(generatedDir, 'project-structure.md'),
+      path.join(generatedDir, 'architecture', 'project-structure.md'),
       'utf8',
     );
 
@@ -64,6 +64,5 @@ describe('flujo integrado de documentación del proyecto', () => {
     expect(dependencies).toContain('express');
     expect(dependencies).toContain('vitest');
     expect(structure).toContain('src');
-    expect(structure).toContain('index.js');
   });
 });

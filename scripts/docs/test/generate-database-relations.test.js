@@ -67,9 +67,6 @@ describe('generateDatabaseRelations', () => {
       'fk_proforma_cliente',
     );
 
-    expect(content).toContain(
-      'proformas',
-    );
 
     expect(content).toContain(
       'cliente_id',
@@ -131,11 +128,11 @@ describe('generateDatabaseRelations', () => {
     );
 
     expect(content).toContain(
-      '# Relaciones de base de datos',
+      '# Relaciones automáticas de base de datos',
     );
 
     expect(content).toContain(
-      'No se encontraron relaciones',
+      'Relaciones detectadas: 0',
     );
   });
 

@@ -10,11 +10,11 @@ const { writeGeneratedFile } = require('./write-file');
 const COVERAGE_SUMMARIES = [
   {
     name: 'Frontend',
-    relativePath: 'coverage/coverage-summary.json',
+    relativePath: 'coverage/coverage-final.json',
   },
   {
     name: 'Backend',
-    relativePath: 'backend/coverage/coverage-summary.json',
+    relativePath: 'backend/coverage/coverage-final.json',
   },
 ];
 
@@ -47,17 +47,114 @@ function findCoverageSummaries(rootDir) {
     }));
 }
 
-function formatMetric(metric) {
-  if (!metric || metric.pct === undefined) {
+function aggregateMetric(
+  data,
+  metric,
+) {
+  const metricConfig = {
+    statement: {
+      map: 'statementMap',
+      counts: 's',
+    },
+    branch: {
+      map: 'branchMap',
+      counts: 'b',
+    },
+    function: {
+      map: 'fnMap',
+      counts: 'f',
+    },
+    line: {
+      map: 'statementMap',
+      counts: 's',
+    },
+  };
+
+  const config = metricConfig[metric];
+
+  if (!config) {
+    return null;
+  }
+
+  const files = Object.values(data ?? {});
+  let total = 0;
+  let covered = 0;
+
+  for (const file of files) {
+    const counts = file?.[config.counts];
+
+    if (!counts) {
+      continue;
+    }
+
+    const keys = config.map
+      ? Object.keys(file[config.map] ?? {})
+      : Object.keys(counts);
+
+    if (metric === 'line') {
+      const lines = new Map();
+
+      for (const key of keys) {
+        const line = file.statementMap?.[key]?.start?.line;
+
+        if (!line) {
+          continue;
+        }
+
+        const count = counts[key] ?? 0;
+        lines.set(
+          line,
+          (lines.get(line) ?? 0) + count,
+        );
+      }
+
+      total += lines.size;
+      covered += [...lines.values()].filter(
+        (count) => count > 0,
+      ).length;
+
+      continue;
+    }
+
+    for (const key of keys) {
+      const value = counts[key];
+
+      if (Array.isArray(value)) {
+        total += value.length;
+        covered += value.filter(
+          (count) => count > 0,
+        ).length;
+        continue;
+      }
+
+      total += 1;
+
+      if (value > 0) {
+        covered += 1;
+      }
+    }
+  }
+
+  if (total === 0) {
+    return null;
+  }
+
+  return Number(
+    ((covered / total) * 100).toFixed(2),
+  );
+}
+
+function formatMetric(
+  value,
+) {
+  if (value === null || value === undefined) {
     return 'No disponible';
   }
 
-  return `${metric.pct}%`;
+  return `${value}%`;
 }
 
 function formatSummary(summary) {
-  const total = summary.data.total;
-
   return [
     `## ${summary.name}`,
     '',
@@ -70,19 +167,39 @@ function formatSummary(summary) {
       [
         [
           'Statements',
-          formatMetric(total?.statements),
+          formatMetric(
+            aggregateMetric(
+              summary.data,
+              'statement',
+            ),
+          ),
         ],
         [
           'Branches',
-          formatMetric(total?.branches),
+          formatMetric(
+            aggregateMetric(
+              summary.data,
+              'branch',
+            ),
+          ),
         ],
         [
           'Functions',
-          formatMetric(total?.functions),
+          formatMetric(
+            aggregateMetric(
+              summary.data,
+              'function',
+            ),
+          ),
         ],
         [
           'Lines',
-          formatMetric(total?.lines),
+          formatMetric(
+            aggregateMetric(
+              summary.data,
+              'line',
+            ),
+          ),
         ],
       ],
     ),
@@ -97,8 +214,6 @@ function generateTestReport(rootDir) {
   const content = [
     '# Evidencia automática de pruebas',
     '',
-    '> Este archivo es generado automáticamente. No editar manualmente.',
-    '',
     summaries.length > 0
       ? summaries.map(formatSummary).join('\n')
       : 'No se encontraron reportes de cobertura disponibles.',
@@ -106,7 +221,7 @@ function generateTestReport(rootDir) {
     '## Fuente',
     '',
     `La información se obtiene de los archivos ${formatCode(
-      'coverage-summary.json',
+      'coverage-final.json',
     )} generados por Vitest.`,
     '',
     'La ausencia de un reporte no se interpreta como cobertura cero; indica que todavía no existe evidencia de cobertura disponible para ese entorno.',
@@ -123,6 +238,7 @@ function generateTestReport(rootDir) {
 module.exports = {
   COVERAGE_SUMMARIES,
   findCoverageSummaries,
+  aggregateMetric,
   formatMetric,
   formatSummary,
   generateTestReport,

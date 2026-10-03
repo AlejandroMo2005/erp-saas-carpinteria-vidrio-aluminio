@@ -35,7 +35,7 @@ describe('generateGitInfo', () => {
     );
 
     expect(content).toContain(
-      '# Información del repositorio',
+      '# Información automática del repositorio',
     );
   });
 

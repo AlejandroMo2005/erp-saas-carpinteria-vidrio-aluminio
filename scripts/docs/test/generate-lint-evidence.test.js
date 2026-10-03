@@ -35,7 +35,7 @@ describe('generateLintEvidence', () => {
     );
 
     expect(content).toContain(
-      '# Evidencia de lint',
+      '# Evidencia automática de lint',
     );
   });
 

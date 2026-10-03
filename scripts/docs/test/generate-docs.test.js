@@ -4,7 +4,7 @@ const path = require('node:path');
 
 const {
   generateDocumentation,
-} = require('../generate-docs');
+} = require('../generators/generate-docs');
 
 describe('generación de documentación', () => {
   let tempDirectory;
@@ -211,9 +211,9 @@ END;
 
     const content = fs.readFileSync(manifestPath, 'utf8');
 
-    expect(content).toContain('docs/generated/database/schema.md');
-    expect(content).toContain('docs/generated/database/entities.md');
-    expect(content).toContain('docs/generated/database/relations.md');
+    expect(content).toContain('database/schema.md');
+    expect(content).toContain('database/entities.md');
+    expect(content).toContain('database/relations.md');
   });
 
   it('mantiene estable el manifiesto al regenerar', () => {

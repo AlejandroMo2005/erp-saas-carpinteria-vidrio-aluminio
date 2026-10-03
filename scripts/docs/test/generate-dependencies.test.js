@@ -87,7 +87,7 @@ describe('generateDependencies', () => {
     );
 
     expect(content).toContain(
-      'Dependencias de desarrollo',
+      '### Desarrollo',
     );
   });
 

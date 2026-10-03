@@ -26,19 +26,19 @@ describe('flujo integrado de documentación de base de datos', () => {
     fs.writeFileSync(
       path.join(databaseDir, 'schema.sql'),
       `
-        CREATE TABLE clientes (
-          id INT NOT NULL,
-          nombre VARCHAR(100) NOT NULL,
+        CREATE TABLE \`clientes\` (
+          \`id\` INT NOT NULL,
+          \`nombre\` VARCHAR(100) NOT NULL,
           PRIMARY KEY (id)
         );
 
-        CREATE TABLE pedidos (
-          id INT NOT NULL,
-          cliente_id INT NOT NULL,
+        CREATE TABLE \`pedidos\` (
+          \`id\` INT NOT NULL,
+          \`cliente_id\` INT NOT NULL,
           PRIMARY KEY (id),
-          CONSTRAINT fk_pedido_cliente
-            FOREIGN KEY (cliente_id)
-            REFERENCES clientes(id)
+          CONSTRAINT \`fk_pedido_cliente\`
+            FOREIGN KEY (\`cliente_id\`)
+            REFERENCES \`clientes\`(\`id\`)
         );
       `,
     );

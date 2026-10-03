@@ -14,6 +14,10 @@ function readProjectPackage(rootDir) {
     'package.json',
   );
 
+  if (!fs.existsSync(packagePath)) {
+    return {};
+  }
+
   return JSON.parse(
     fs.readFileSync(
       packagePath,
