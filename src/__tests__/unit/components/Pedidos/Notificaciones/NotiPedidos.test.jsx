@@ -1,9 +1,7 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
-import {
-  PedidoToastContainer,
-  usePedidoToasts,
-} from '../../../../../presentation/components/Pedidos/Notificaciones/NotiPedidos';
+import { PedidoToastContainer } from '../../../../../presentation/components/Pedidos/Notificaciones/NotiPedidos';
+import { usePedidoToasts } from '../../../../../presentation/components/Pedidos/Notificaciones/usePedidoToasts';
 
 function Harness() {
   const {

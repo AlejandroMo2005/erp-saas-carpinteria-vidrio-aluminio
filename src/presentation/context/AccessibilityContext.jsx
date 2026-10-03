@@ -2,22 +2,12 @@
 // 🚀 Sprint 13.2 — Fix CLS 0.18: lazy initializers + useLayoutEffect
 
 import {
-  createContext,
-  useContext,
   useLayoutEffect,
   useState,
   useCallback,
 } from 'react';
 
-const AccessibilityContext = createContext();
-
-export const useAccessibility = () => {
-  const context = useContext(AccessibilityContext);
-  if (!context) {
-    throw new Error('useAccessibility debe usarse dentro de AccessibilityProvider');
-  }
-  return context;
-};
+import { AccessibilityContext } from './useAccessibility';
 
 const THEME_TRANSITION_MS = 220;
 

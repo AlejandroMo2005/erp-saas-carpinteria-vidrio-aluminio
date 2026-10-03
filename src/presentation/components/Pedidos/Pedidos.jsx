@@ -9,7 +9,7 @@ import { useState, useCallback } from 'react';
 
 import './Pedidos.css';
 import { useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/useAuth';
 import { usePedidos, useActualizarEstadoPedido, pedidosKeys } from '../../hooks/usePedidos';
 import { usePedidosFiltros } from './hooks/usePedidosFiltros';
 import { mensajeError } from './utils/pedidosUtils';
@@ -17,10 +17,8 @@ import { TRANSICIONES } from './constants/pedidosConstants';
 import FiltrosBar from './FiltrosBar/FiltrosBar';
 import PedidoCard from './PedidoCard/PedidoCard';
 import VisualizadorModal from './VisualizadorModal';
-import {
-  usePedidoToasts,
-  PedidoToastContainer,
-} from './Notificaciones/NotiPedidos';
+import { PedidoToastContainer } from './Notificaciones/NotiPedidos';
+import { usePedidoToasts } from './Notificaciones/usePedidoToasts';
 
 function IconReload() {
   return (

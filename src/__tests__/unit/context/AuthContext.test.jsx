@@ -1,6 +1,7 @@
 import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { renderHook, act, waitFor } from '@testing-library/react';
-import { AuthProvider, useAuth } from '../../../presentation/context/AuthContext';
+import { AuthProvider } from '../../../presentation/context/AuthContext';
+import { useAuth } from '../../../presentation/context/useAuth';
 
 const {
   mockApi,

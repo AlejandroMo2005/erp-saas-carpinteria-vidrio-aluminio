@@ -35,13 +35,13 @@
 //     persisted=false en su lugar.
 
 import {
-  createContext,
-  useContext,
   useState,
   useEffect,
   useRef,
   useCallback,
 } from 'react';
+
+import { AuthContext } from './useAuth';
 import api from '../api/api';
 
 // ── accessToken en memoria del módulo ─────────────────────────────────────────
@@ -80,14 +80,6 @@ const parseExpiresIn = (expiresIn) => {
 const REFRESH_COOLDOWN_MS = 30_000;
 
 // ─────────────────────────────────────────────────────────────────────────────
-const AuthContext = createContext();
-
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error('useAuth debe usarse dentro de AuthProvider');
-  return context;
-};
-
 export const AuthProvider = ({ children }) => {
 
   // 🚀 Sprint 13.2 — Lazy initializer: corre sincrónicamente antes del render 1.

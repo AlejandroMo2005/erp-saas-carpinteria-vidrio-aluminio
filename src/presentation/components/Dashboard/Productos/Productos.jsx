@@ -2,7 +2,7 @@ import { X } from 'lucide-react';
 import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import useProductos, { generarDatosGrafico } from './useProductos';
 import { iconoMaterial }                      from './constants';
-import { obtenerEstiloLinea }                 from './Identificador';
+import { obtenerEstiloLinea }                 from './IdentificadorUtils';
 import './Productos.layout.css';
 import './Productos.card.css';
 import './Productos.chart.css';

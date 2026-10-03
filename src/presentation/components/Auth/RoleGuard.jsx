@@ -11,7 +11,7 @@
 //     <ComponenteAdminOVendedor />
 //   </RoleGuard>
 
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/useAuth';
 
 /**
  * Bloquea el render de children si el usuario no tiene uno de los roles requeridos.

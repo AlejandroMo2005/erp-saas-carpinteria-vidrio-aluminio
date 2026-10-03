@@ -3,53 +3,18 @@
  * @module components/Materiales/Notificaciones/NotiMateriales
  */
 
-import { useState, useCallback, useRef, memo } from 'react';
+import { memo } from 'react';
 import './NotiMateriales.css';
-
-// ═══════════════════════════════════════════════════════════════════════════
-// CONSTANTES
-// ═══════════════════════════════════════════════════════════════════════════
-
-const DURACION_MS = 3500;
 
 const ICONOS = {
   success: '✓',
-  error:   '✕',
-  info:    'ℹ'
+  error: '✕',
+  info: 'ℹ',
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
-// HOOK: useToasts
-// Exportado para usarse en Materiales.jsx
-// ═══════════════════════════════════════════════════════════════════════════
-
-export function useToasts() {
-  const [toasts, setToasts]  = useState([]);
-  const contadorRef          = useRef(0);
-
-  /**
-   * Agrega un toast y lo elimina automáticamente tras DURACION_MS
-   * @param {string} mensaje
-   * @param {'success'|'error'|'info'} tipo
-   */
-  const push = useCallback((mensaje, tipo = 'success') => {
-    const id = ++contadorRef.current;
-    setToasts(prev => [...prev, { id, mensaje, tipo }]);
-    setTimeout(() => {
-      setToasts(prev => prev.filter(t => t.id !== id));
-    }, DURACION_MS);
-  }, []);
-
-  /** Elimina un toast manualmente (botón ×) */
-  const remove = useCallback((id) => {
-    setToasts(prev => prev.filter(t => t.id !== id));
-  }, []);
-
-  return { toasts, push, remove };
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
 // COMPONENTE: ToastContainer
+// ═══════════════════════════════════════════════════════════════════════════
 // Memoizado — solo se re-renderiza cuando cambia la lista de toasts
 // ═══════════════════════════════════════════════════════════════════════════
 

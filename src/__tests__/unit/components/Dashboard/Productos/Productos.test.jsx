@@ -17,7 +17,7 @@ vi.mock('@/presentation/components/Dashboard/Productos/constants', () => ({
   iconoMaterial: vi.fn(() => () => <span data-testid="material-icon" />),
 }));
 
-vi.mock('@/presentation/components/Dashboard/Productos/Identificador', () => ({
+vi.mock('@/presentation/components/Dashboard/Productos/IdentificadorUtils', () => ({
   obtenerEstiloLinea: vi.fn(() => ({
     stroke: '#ffffff',
     strokeWidth: 3.5,

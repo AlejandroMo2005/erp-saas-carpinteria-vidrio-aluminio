@@ -42,7 +42,7 @@ const mocks = vi.hoisted(() => ({
   setPedidoSeleccionado: vi.fn(),
 }));
 
-vi.mock('../../../../presentation/context/AuthContext', () => ({
+vi.mock('../../../../presentation/context/useAuth', () => ({
   useAuth: () => ({ user: mocks.user }),
 }));
 
@@ -68,8 +68,11 @@ vi.mock('../../../../presentation/components/Pedidos/hooks/usePedidosFiltros', (
   usePedidosFiltros: mocks.usePedidosFiltros,
 }));
 
-vi.mock('../../../../presentation/components/Pedidos/Notificaciones/NotiPedidos', () => ({
+vi.mock('../../../../presentation/components/Pedidos/Notificaciones/usePedidoToasts', () => ({
   usePedidoToasts: mocks.usePedidoToasts,
+}));
+
+vi.mock('../../../../presentation/components/Pedidos/Notificaciones/NotiPedidos', () => ({
   PedidoToastContainer: (props) => (
     <div data-testid="toast-container">
       {props.toasts.length}
@@ -130,12 +133,7 @@ vi.mock('../../../../presentation/components/Pedidos/VisualizadorModal', () => (
   ),
 }));
 
-vi.mock('../../../../presentation/components/Pedidos/Notificaciones/NotiPedidos', () => ({
-  usePedidoToasts: mocks.usePedidoToasts,
-  PedidoToastContainer: ({ toasts }) => (
-    <div data-testid="toast-container">{toasts.length}</div>
-  ),
-}));
+
 
 import Pedidos from '../../../../presentation/components/Pedidos/Pedidos';
 

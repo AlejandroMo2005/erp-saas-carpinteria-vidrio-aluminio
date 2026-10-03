@@ -6,7 +6,7 @@ const mocks = vi.hoisted(() => ({
   accessibility: vi.fn(),
 }));
 
-vi.mock('@/presentation/context/AccessibilityContext', () => ({
+vi.mock('@/presentation/context/useAccessibility', () => ({
   useAccessibility: mocks.accessibility,
 }));
 

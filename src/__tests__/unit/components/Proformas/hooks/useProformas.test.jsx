@@ -32,7 +32,7 @@ vi.mock('@tanstack/react-query', () => ({
   }),
 }));
 
-vi.mock('../../../../../presentation/context/AuthContext', () => ({
+vi.mock('../../../../../presentation/context/useAuth', () => ({
   useAuth: () => ({
     user: mocks.user,
   }),

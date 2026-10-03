@@ -1,7 +1,7 @@
 // src/presentation/components/common/AccessibilityPanel/useAccessibilityPanel.js
 
 import { useState, useRef, useEffect, useCallback } from 'react';
-import { useAccessibility } from '../../../context/AccessibilityContext';
+import { useAccessibility } from '../../../context/useAccessibility';
 
 export function useAccessibilityPanel() {
   const {

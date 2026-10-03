@@ -3,52 +3,19 @@
  * @module components/Pedidos/Notificaciones/NotiPedidos
  */
 
-import { useState, useCallback, useRef, memo } from 'react';
+import { memo } from 'react';
 import './NotiPedidos.css';
-
-// ═══════════════════════════════════════════════════════════════════════════
-// CONSTANTES
-// ═══════════════════════════════════════════════════════════════════════════
-
-const DURACION_MS = 4000;
 
 const ICONOS = {
   success: '✓',
-  error:   '✕',
+  error: '✕',
   warning: '⚠',
-  info:    'ℹ'
+  info: 'ℹ',
 };
 
 // ═══════════════════════════════════════════════════════════════════════════
-// HOOK: usePedidoToasts
-// ═══════════════════════════════════════════════════════════════════════════
-
-export function usePedidoToasts() {
-  const [toasts, setToasts] = useState([]);
-  const contadorRef         = useRef(0);
-
-  const push = useCallback((mensaje, tipo = 'info') => {
-    const id = ++contadorRef.current;
-    setToasts(prev => [...prev, { id, mensaje, tipo }]);
-    setTimeout(() => {
-      setToasts(prev => prev.filter(t => t.id !== id));
-    }, DURACION_MS);
-  }, []);
-
-  const remove = useCallback((id) => {
-    setToasts(prev => prev.filter(t => t.id !== id));
-  }, []);
-
-  const ok      = useCallback((msg) => push(msg, 'success'), [push]);
-  const error   = useCallback((msg) => push(msg, 'error'),   [push]);
-  const warning = useCallback((msg) => push(msg, 'warning'), [push]);
-  const info    = useCallback((msg) => push(msg, 'info'),    [push]);
-
-  return { toasts, push, remove, ok, error, warning, info };
-}
-
-// ═══════════════════════════════════════════════════════════════════════════
 // COMPONENTE: PedidoToastContainer
+// ═══════════════════════════════════════════════════════════════════════════
 // ═══════════════════════════════════════════════════════════════════════════
 
 export const PedidoToastContainer = memo(function PedidoToastContainer({

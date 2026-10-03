@@ -6,7 +6,7 @@ import { useState } from "react";
 //   Antes: login(res.data.data.user, res.data.data.token)
 //   Ahora: login({ user, accessToken, refreshToken })
 
-import { useAuth } from "../../context/AuthContext";
+import { useAuth } from "../../context/useAuth";
 import api from "../../api/api";
 import "./Register.css";
 

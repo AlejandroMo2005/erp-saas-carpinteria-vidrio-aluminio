@@ -22,7 +22,7 @@ const mocks = vi.hoisted(() => ({
   sanitizar: vi.fn((value) => String(value ?? '').trim()),
 }));
 
-vi.mock('../../../../presentation/context/AuthContext', () => ({
+vi.mock('../../../../presentation/context/useAuth', () => ({
   useAuth: () => ({
     user: mocks.user,
   }),
@@ -35,7 +35,7 @@ vi.mock('../../../../presentation/components/Proformas/hooks/useProformas', () =
   },
 }));
 
-vi.mock('../../../../presentation/components/Proformas/Notificaciones/NotiProformas', () => ({
+vi.mock('../../../../presentation/components/Proformas/Notificaciones/useProformaToasts', () => ({
   useProformaToasts: () => ({
     toasts: mocks.toasts,
     remove: mocks.removeToast,
@@ -44,6 +44,9 @@ vi.mock('../../../../presentation/components/Proformas/Notificaciones/NotiProfor
     warning: mocks.toastWarning,
     info: mocks.toastInfo,
   }),
+}));
+
+vi.mock('../../../../presentation/components/Proformas/Notificaciones/NotiProformas', () => ({
   ProformaToastContainer: ({ toasts, onRemove }) => (
     <div data-testid="toast-container">
       <span data-testid="toast-count">{toasts.length}</span>

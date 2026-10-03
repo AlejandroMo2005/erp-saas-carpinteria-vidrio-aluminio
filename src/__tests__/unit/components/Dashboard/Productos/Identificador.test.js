@@ -3,7 +3,7 @@ import {
   esColorOscuro,
   obtenerBordeOptimo,
   obtenerEstiloLinea,
-} from '@/presentation/components/Dashboard/Productos/Identificador';
+} from '@/presentation/components/Dashboard/Productos/IdentificadorUtils';
 
 describe('Identificador de luminosidad', () => {
   it('devuelve luminosidad por defecto para entrada inválida', () => {

@@ -17,7 +17,7 @@ vi.mock('@tanstack/react-query', () => ({
   useQueryClient: () => mocks.queryClient,
 }));
 
-vi.mock('../../../../presentation/context/AuthContext', () => ({
+vi.mock('../../../../presentation/context/useAuth', () => ({
   useAuth: () => ({ user: mocks.user }),
 }));
 
@@ -26,12 +26,15 @@ vi.mock('../../../../presentation/hooks/useMateriales', () => ({
   useActualizarVariante: () => mocks.actualizarVariante,
 }));
 
-vi.mock('../../../../presentation/components/Materiales/Notificaciones/NotiMateriales', () => ({
+vi.mock('../../../../presentation/components/Materiales/Notificaciones/useToasts', () => ({
   useToasts: () => ({
     toasts: [],
     push: mocks.pushToast,
     remove: mocks.removeToast,
   }),
+}));
+
+vi.mock('../../../../presentation/components/Materiales/Notificaciones/NotiMateriales', () => ({
   ToastContainer: ({ toasts, onRemove }) => (
     <div data-testid="toast-container">
       <button onClick={() => onRemove('toast-1')}>remove-toast</button>

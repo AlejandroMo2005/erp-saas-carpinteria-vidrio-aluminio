@@ -2,7 +2,7 @@
 
 import { useState, useCallback, useMemo, useRef, useEffect } from 'react';
 import { useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '../../../context/AuthContext';
+import { useAuth } from '../../../context/useAuth';
 import { useTrabajos, useColoresTrabajo } from '../../../hooks/useCatalogos';
 import { pedidosKeys } from '../../../hooks/usePedidos';
 import api from '../../../api/api';

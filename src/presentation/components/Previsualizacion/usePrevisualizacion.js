@@ -3,7 +3,7 @@
 
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { useTrabajos, useColores } from '../../hooks/useCatalogos';
-import { usePreviewToasts } from './Notificaciones/NotiPrevisualizacion';
+import { usePreviewToasts } from './Notificaciones/usePreviewToasts';
 import { PREVIEW_MAP } from './constants';
 import { validarMedida, separarColorYAlpha, MEDIDA_MIN, MEDIDA_MAX } from './utils';
 

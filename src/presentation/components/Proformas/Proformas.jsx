@@ -4,10 +4,8 @@
 
 import './Proformas.css';
 import { useProformas } from './hooks/useProformas';
-import {
-  useProformaToasts,
-  ProformaToastContainer,
-} from './Notificaciones/NotiProformas';
+import { ProformaToastContainer } from './Notificaciones/NotiProformas';
+import { useProformaToasts } from './Notificaciones/useProformaToasts';
 import AutocompleteCliente from './AutocompleteCliente/AutocompleteCliente';
 import ItemTrabajo         from './ItemTrabajo/ItemTrabajo';
 

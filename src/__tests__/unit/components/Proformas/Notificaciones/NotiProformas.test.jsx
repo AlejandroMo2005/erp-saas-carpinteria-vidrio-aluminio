@@ -1,9 +1,7 @@
 import { describe, expect, it, vi, beforeEach, afterEach } from 'vitest';
 import { fireEvent, render, screen, act } from '@testing-library/react';
-import {
-  useProformaToasts,
-  ProformaToastContainer,
-} from '@/presentation/components/Proformas/Notificaciones/NotiProformas';
+import { ProformaToastContainer } from '@/presentation/components/Proformas/Notificaciones/NotiProformas';
+import { useProformaToasts } from '@/presentation/components/Proformas/Notificaciones/useProformaToasts';
 
 function ToastHarness() {
   const { toasts, push, remove, ok, error, warning, info } =

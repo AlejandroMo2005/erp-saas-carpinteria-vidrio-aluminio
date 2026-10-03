@@ -8,7 +8,7 @@ const { mockLogin, mockPost } = vi.hoisted(() => ({
   mockPost: vi.fn(),
 }));
 
-vi.mock('../../../../presentation/context/AuthContext', () => ({
+vi.mock('../../../../presentation/context/useAuth', () => ({
   useAuth: () => ({
     login: mockLogin,
   }),

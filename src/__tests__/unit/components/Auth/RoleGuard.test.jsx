@@ -4,7 +4,7 @@ import RoleGuard from '../../../../presentation/components/Auth/RoleGuard';
 
 const mockUseAuth = vi.fn();
 
-vi.mock('../../../../presentation/context/AuthContext', () => ({
+vi.mock('../../../../presentation/context/useAuth', () => ({
   useAuth: () => mockUseAuth(),
 }));
 

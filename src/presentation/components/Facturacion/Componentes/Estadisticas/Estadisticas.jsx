@@ -7,7 +7,7 @@ import {
   DollarSign, FileText, Users, AlertCircle,
   BarChart3, RefreshCw,
 } from 'lucide-react';
-import { useAccessibility }   from '../../../../context/AccessibilityContext';
+import { useAccessibility }   from '../../../../context/useAccessibility';
 import useEstadisticas         from './useEstadisticas';
 import { COLORES_ESTADO, COLORES_GRAFICO, PERIODOS } from './constants';
 import { formatearMoneda, formatearMes, estiloLinea } from './utils';

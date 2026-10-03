@@ -30,27 +30,6 @@ const BoundingBoxSelector = memo(function BoundingBoxSelector({ imagen, onMascar
     br: { x: r.x2, y: r.y2 }, bl: { x: r.x1, y: r.y2 },
   });
 
-  const applyRectDrag = (type, dx, dy, r0) => {
-    let { x1, y1, x2, y2 } = r0;
-    switch (type) {
-      case 'tl': x1=clamp(x1+dx,0,x2-MIN_SIZE); y1=clamp(y1+dy,0,y2-MIN_SIZE); break;
-      case 'tm': y1=clamp(y1+dy,0,y2-MIN_SIZE); break;
-      case 'tr': x2=clamp(x2+dx,x1+MIN_SIZE,100); y1=clamp(y1+dy,0,y2-MIN_SIZE); break;
-      case 'ml': x1=clamp(x1+dx,0,x2-MIN_SIZE); break;
-      case 'mr': x2=clamp(x2+dx,x1+MIN_SIZE,100); break;
-      case 'bl': x1=clamp(x1+dx,0,x2-MIN_SIZE); y2=clamp(y2+dy,y1+MIN_SIZE,100); break;
-      case 'bm': y2=clamp(y2+dy,y1+MIN_SIZE,100); break;
-      case 'br': x2=clamp(x2+dx,x1+MIN_SIZE,100); y2=clamp(y2+dy,y1+MIN_SIZE,100); break;
-      case 'move': {
-        const w=x2-x1, h=y2-y1;
-        const nx=clamp(x1+dx,0,100-w), ny=clamp(y1+dy,0,100-h);
-        x1=nx; y1=ny; x2=nx+w; y2=ny+h; break;
-      }
-      default: break;
-    }
-    return { x1, y1, x2, y2 };
-  };
-
   const toSVGPoint = useCallback((e) => {
     const svg = svgRef.current;
     if (!svg) return { x: 0, y: 0 };
@@ -89,9 +68,30 @@ const BoundingBoxSelector = memo(function BoundingBoxSelector({ imagen, onMascar
         dragRef.current = { type: 'quad-corner', corner: type, startPt: dragRef.current?.startPt ?? startPt, startQuad: q };
       }, 500);
     }
-  }, [toSVGPoint, clearLongPress]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [toSVGPoint, clearLongPress]);
 
   const onSVGMove = useCallback((e) => {
+    const applyRectDrag = (type, dx, dy, r0) => {
+      let { x1, y1, x2, y2 } = r0;
+      switch (type) {
+        case 'tl': x1=clamp(x1+dx,0,x2-MIN_SIZE); y1=clamp(y1+dy,0,y2-MIN_SIZE); break;
+        case 'tm': y1=clamp(y1+dy,0,y2-MIN_SIZE); break;
+        case 'tr': x2=clamp(x2+dx,x1+MIN_SIZE,100); y1=clamp(y1+dy,0,y2-MIN_SIZE); break;
+        case 'ml': x1=clamp(x1+dx,0,x2-MIN_SIZE); break;
+        case 'mr': x2=clamp(x2+dx,x1+MIN_SIZE,100); break;
+        case 'bl': x1=clamp(x1+dx,0,x2-MIN_SIZE); y2=clamp(y2+dy,y1+MIN_SIZE,100); break;
+        case 'bm': y2=clamp(y2+dy,y1+MIN_SIZE,100); break;
+        case 'br': x2=clamp(x2+dx,x1+MIN_SIZE,100); y2=clamp(y2+dy,y1+MIN_SIZE,100); break;
+        case 'move': {
+          const w=x2-x1, h=y2-y1;
+          const nx=clamp(x1+dx,0,100-w), ny=clamp(y1+dy,0,100-h);
+          x1=nx; y1=ny; x2=nx+w; y2=ny+h; break;
+        }
+        default: break;
+      }
+      return { x1, y1, x2, y2 };
+    };
+
     if (!dragRef.current) return;
     const pt = toSVGPoint(e);
     const dx = pt.x - dragRef.current.startPt.x;
@@ -112,7 +112,7 @@ const BoundingBoxSelector = memo(function BoundingBoxSelector({ imagen, onMascar
     const newRect = applyRectDrag(dragRef.current.type, dx, dy, dragRef.current.startRect);
     rectRef.current = newRect; setRect(newRect);
     const newQ = rectToQuad(newRect); quadRef.current = newQ; setQuad(newQ);
-  }, [toSVGPoint]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [toSVGPoint]);
 
   const onSVGUp = useCallback(() => { clearLongPress(); dragRef.current = null; }, [clearLongPress]);
 

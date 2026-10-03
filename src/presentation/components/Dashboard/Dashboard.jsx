@@ -1,6 +1,6 @@
 import { useState, lazy, Suspense } from 'react';
 import { Package, Activity } from 'lucide-react';
-import { useAccessibility }    from '../../context/AccessibilityContext';
+import { useAccessibility }    from '../../context/useAccessibility';
 import { useDashboardResumen } from '../../hooks/useDashboard';
 import { KPI_CONFIG }          from './constants';
 import { fmt }                 from './utils';

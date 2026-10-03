@@ -1,10 +1,8 @@
 import { act, fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 
-import {
-  ToastContainer,
-  useToasts,
-} from '../../../../../presentation/components/Materiales/Notificaciones/NotiMateriales';
+import { ToastContainer } from '../../../../../presentation/components/Materiales/Notificaciones/NotiMateriales';
+import { useToasts } from '../../../../../presentation/components/Materiales/Notificaciones/useToasts';
 
 function ToastHarness() {
   const { toasts, push, remove } = useToasts();

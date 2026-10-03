@@ -5,12 +5,13 @@
 import './Materiales.page.css';
 import './Materiales.grid.css';
 import { useQueryClient } from '@tanstack/react-query';
-import { useAuth } from '../../context/AuthContext';
+import { useAuth } from '../../context/useAuth';
 import {
   useMaterialesConColores,
   useActualizarVariante,
 } from '../../hooks/useMateriales';
-import { useToasts, ToastContainer } from './Notificaciones/NotiMateriales';
+import { ToastContainer } from './Notificaciones/NotiMateriales';
+import { useToasts } from './Notificaciones/useToasts';
 import { useMaterialesFiltros }  from './hooks/useMaterialesFiltros';
 import { useMaterialesActions }  from './hooks/useMaterialesActions';
 import Buscador      from './Buscador/Buscador';
