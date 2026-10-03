@@ -39,10 +39,13 @@ const Material = {
     return rows;
   },
 
-  updateVarianteInfo: (id, stock, precio) =>
+  updateVarianteInfo: (id, stock, precio, empresaId) =>
     db.query(
-      'UPDATE materiales_variantes SET stock = ?, precio = ? WHERE id = ?',
-      [stock, precio, id]
+      `UPDATE materiales_variantes mv
+       INNER JOIN materiales m ON m.id = mv.material_id
+       SET mv.stock = ?, mv.precio = ?
+       WHERE mv.id = ? AND m.empresa_id = ?`,
+      [stock, precio, id, empresaId]
     ),
 
   updateBasePrice: (materialId, precio, empresaId) =>
@@ -51,13 +54,13 @@ const Material = {
       [precio, materialId, empresaId]
     ),
 
-  getById: async (id) => {
+  getById: async (id, empresaId) => {
     const [rows] = await db.query(
       `SELECT mv.*, m.empresa_id
        FROM materiales_variantes mv
        JOIN materiales m ON m.id = mv.material_id
-       WHERE mv.id = ?`,
-      [id]
+       WHERE mv.id = ? AND m.empresa_id = ?`,
+      [id, empresaId]
     );
     return rows[0];
   },

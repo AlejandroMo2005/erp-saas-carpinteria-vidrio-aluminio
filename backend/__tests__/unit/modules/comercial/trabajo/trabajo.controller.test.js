@@ -160,11 +160,13 @@ describe('trabajo.controller', () => {
       const [sql, params] = db.query.mock.calls[0];
 
       expect(sql).toContain('FROM recetas r');
+      expect(sql).toContain('INNER JOIN trabajos t');
       expect(sql).toContain('INNER JOIN materiales m');
       expect(sql).toContain('r.trabajo_id = ?');
+      expect(sql).toContain('t.empresa_id = ?');
       expect(sql).toContain('m.empresa_id = ?');
       expect(sql).toContain('m.deleted_at IS NULL');
-      expect(params).toEqual(['3', 7]);
+      expect(params).toEqual(['3', 7, 7]);
 
       expect(res.json).toHaveBeenCalledWith(rows);
     });
@@ -254,27 +256,5 @@ describe('trabajo.controller', () => {
     });
   });
 
-  describe('agendarPedido', () => {
-    it('debe responder 501 y registrar advertencia por endpoint legacy', async () => {
-      const req = createRequest();
-      const res = createResponse();
 
-      await controller.agendarPedido(req, res);
-
-      expect(logger.warn).toHaveBeenCalledWith(
-        'TRABAJO_AGENDAR_LEGACY',
-        expect.objectContaining({
-          event: 'trabajo.agendarPedido_not_implemented',
-          userId: 25,
-        })
-      );
-
-      expect(res.status).toHaveBeenCalledWith(501);
-      expect(res.json).toHaveBeenCalledWith({
-        success: false,
-        message:
-          'Endpoint legacy no implementado. Usar POST /api/proformas/agendar',
-      });
-    });
-  });
 });

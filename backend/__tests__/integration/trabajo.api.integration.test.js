@@ -8,6 +8,9 @@ const app = require(`${process.cwd()}/app.js`);
 describe('API trabajos - integración HTTP', () => {
   const agent = request.agent(app);
   let accessToken;
+  let trabajoId;
+  let materialId;
+  let recetaId;
 
   beforeAll(async () => {
     await agent.get('/api');
@@ -21,6 +24,36 @@ describe('API trabajos - integración HTTP', () => {
 
     expect(response.status).toBe(200);
     accessToken = response.body.data.accessToken;
+
+    const db = require(`${process.cwd()}/src/config/database.js`);
+
+    const [trabajos] = await db.query(
+      `SELECT t.id
+       FROM trabajos t
+       INNER JOIN empresas e ON e.id = t.empresa_id
+       WHERE t.nombre = ? AND e.ruc = ?
+       LIMIT 1`,
+      ['Ventana E2E', '9999999999001']
+    );
+
+    expect(trabajos).toHaveLength(1);
+    trabajoId = trabajos[0].id;
+
+    const [recetas] = await db.query(
+      `SELECT r.id, r.material_id
+       FROM recetas r
+       INNER JOIN trabajos t ON t.id = r.trabajo_id
+       INNER JOIN materiales m ON m.id = r.material_id
+       WHERE r.trabajo_id = ?
+         AND t.nombre = ?
+         AND m.nombre = ?
+       LIMIT 1`,
+      [trabajoId, 'Ventana E2E', 'Material E2E']
+    );
+
+    expect(recetas).toHaveLength(1);
+    recetaId = recetas[0].id;
+    materialId = recetas[0].material_id;
   });
 
   it('debe listar trabajos de la empresa autenticada', async () => {
@@ -33,7 +66,7 @@ describe('API trabajos - integración HTTP', () => {
     expect(response.body).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          id: 40,
+          id: trabajoId,
           nombre: 'Ventana E2E',
         }),
       ])
@@ -58,7 +91,7 @@ describe('API trabajos - integración HTTP', () => {
 
   it('debe obtener las recetas de un trabajo', async () => {
     const response = await agent
-      .get('/api/trabajos/40/recetas')
+      .get(`/api/trabajos/${trabajoId}/recetas`)
       .set('Authorization', `Bearer ${accessToken}`);
 
     expect(response.status).toBe(200);
@@ -66,9 +99,9 @@ describe('API trabajos - integración HTTP', () => {
     expect(response.body).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          id: 181,
-          trabajo_id: 40,
-          material_id: 41,
+          id: recetaId,
+          trabajo_id: trabajoId,
+          material_id: materialId,
           material: 'Material E2E',
           unidad_calculo: 'm2',
         }),

@@ -10,6 +10,7 @@ describe('API proveedores - integración HTTP', () => {
   let accessToken;
   let csrfToken;
   let proveedorId;
+  let empresaId;
 
   beforeAll(async () => {
     const csrfResponse = await agent.get('/api');
@@ -28,6 +29,18 @@ describe('API proveedores - integración HTTP', () => {
 
     expect(response.status).toBe(200);
     accessToken = response.body.data.accessToken;
+
+    const db = require(`${process.cwd()}/src/config/database.js`);
+    const [empresas] = await db.query(
+      `SELECT id
+       FROM empresas
+       WHERE ruc = ?
+       LIMIT 1`,
+      ['9999999999001']
+    );
+
+    expect(empresas).toHaveLength(1);
+    empresaId = empresas[0].id;
   });
 
   it('debe listar proveedores de la empresa autenticada', async () => {
@@ -76,7 +89,7 @@ describe('API proveedores - integración HTTP', () => {
     expect(response.body.data).toEqual(
       expect.objectContaining({
         id: proveedorId,
-        empresa_id: 2,
+        empresa_id: empresaId,
         nombre: 'Proveedor E2E',
       })
     );

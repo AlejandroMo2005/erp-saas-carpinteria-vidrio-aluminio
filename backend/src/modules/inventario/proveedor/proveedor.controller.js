@@ -72,6 +72,10 @@ exports.actualizar = async (req, res) => {
       req.empresaId
     );
 
+    if (!proveedor) {
+      return fail(res, 'Proveedor no encontrado', 404);
+    }
+
     logger.info('PROVEEDOR_ACTUALIZADO', {
       event: 'proveedor.updated', proveedorId: req.params.id,
       empresaId: req.empresaId, userId: req.user?.id,
@@ -166,9 +170,22 @@ exports.generarSolicitud = async (req, res) => {
 
 exports.marcarEnviada = async (req, res) => {
   try {
-    ok(res, await Proveedor.marcarEnviada(req.params.id));
+    const solicitud = await Proveedor.marcarEnviada(
+      req.params.id,
+      req.empresaId
+    );
+
+    if (!solicitud) {
+      return fail(res, 'Solicitud no encontrada', 404);
+    }
+
+    ok(res, solicitud);
   } catch (e) {
-    logger.error('PROVEEDOR_MARCAR_ENVIADA', { event: 'proveedor.marcarEnviada_error', solicitudId: req.params.id, message: e.message });
+    logger.error('PROVEEDOR_MARCAR_ENVIADA', {
+      event: 'proveedor.marcarEnviada_error',
+      solicitudId: req.params.id,
+      message: e.message,
+    });
     fail(res, 'Error al marcar solicitud');
   }
 };

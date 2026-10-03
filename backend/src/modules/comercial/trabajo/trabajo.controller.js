@@ -55,11 +55,13 @@ exports.getRecetasPorTrabajo = async (req, res) => {
          m.nombre AS material, m.precio,
          r.unidad_calculo, r.factor
        FROM recetas r
+       INNER JOIN trabajos t ON t.id = r.trabajo_id
        INNER JOIN materiales m ON m.id = r.material_id
        WHERE r.trabajo_id = ?
+         AND t.empresa_id = ?
          AND m.empresa_id = ?
          AND m.deleted_at IS NULL`,
-      [id, req.empresaId]
+      [id, req.empresaId, req.empresaId]
     );
     res.json(rows);
   } catch (error) {
@@ -101,25 +103,4 @@ exports.getColores = async (req, res) => {
     });
     res.status(500).json({ error: 'Error al obtener colores' });
   }
-};
-
-// ═══════════════════════════════════════════════════════
-// POST /api/trabajos/agendar  [LEGACY — ELIMINAR]
-//
-// ❌ Sprint 21 — ELIMINAR esta ruta de trabajo.routes.js.
-//   El endpoint nunca fue implementado (siempre retornó 501).
-//   La funcionalidad existe en POST /api/proformas/agendar.
-//   Se conserva el handler solo como log de compatibilidad; una vez
-//   confirmado que ningún cliente llama esta ruta, borrar todo el bloque.
-// ═══════════════════════════════════════════════════════
-exports.agendarPedido = async (req, res) => {
-  logger.warn('TRABAJO_AGENDAR_LEGACY', {
-    event:   'trabajo.agendarPedido_not_implemented',
-    message: 'Endpoint legacy no implementado. Usar POST /api/proformas/agendar',
-    userId:  req.user?.id,
-  });
-  return res.status(501).json({
-    success: false,
-    message: 'Endpoint legacy no implementado. Usar POST /api/proformas/agendar',
-  });
 };

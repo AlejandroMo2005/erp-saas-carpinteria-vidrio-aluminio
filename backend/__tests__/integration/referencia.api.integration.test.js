@@ -10,6 +10,7 @@ describe('API referencias - integración HTTP', () => {
   const agent = request.agent(app);
   let accessToken;
   let csrfToken;
+  let trabajoId;
   let referenciaId;
   let imagenBuffer;
 
@@ -39,6 +40,20 @@ describe('API referencias - integración HTTP', () => {
 
     expect(response.status).toBe(200);
     accessToken = response.body.data.accessToken;
+
+    const db = require(`${process.cwd()}/src/config/database.js`);
+
+    const [trabajos] = await db.query(
+      `SELECT t.id
+       FROM trabajos t
+       INNER JOIN empresas e ON e.id = t.empresa_id
+       WHERE t.nombre = ? AND e.ruc = ?
+       LIMIT 1`,
+      ['Ventana E2E', '9999999999001']
+    );
+
+    expect(trabajos).toHaveLength(1);
+    trabajoId = trabajos[0].id;
   });
 
   it('debe rechazar un trabajo inválido al listar referencias', async () => {
@@ -52,7 +67,7 @@ describe('API referencias - integración HTTP', () => {
 
   it('debe subir una referencia para un trabajo existente', async () => {
     const response = await agent
-      .post('/api/referencias/trabajos/40')
+      .post(`/api/referencias/trabajos/${trabajoId}`)
       .set('Authorization', `Bearer ${accessToken}`)
       .set('x-csrf-token', csrfToken)
       .field('descriptores', 'ventana aluminio blanca, glass, architectural')
@@ -61,7 +76,7 @@ describe('API referencias - integración HTTP', () => {
 
     expect(response.status).toBe(201);
     expect(response.body.ok).toBe(true);
-    expect(response.body.trabajo_id).toBe(40);
+    expect(response.body.trabajo_id).toBe(trabajoId);
     expect(response.body.filename).toMatch(/^ref_\d+\.png$/);
     expect(response.body.descriptores).toBe(
       'ventana aluminio blanca, glass, architectural'
@@ -73,11 +88,11 @@ describe('API referencias - integración HTTP', () => {
 
   it('debe listar la referencia recién creada', async () => {
     const response = await agent
-      .get('/api/referencias/trabajos/40')
+      .get(`/api/referencias/trabajos/${trabajoId}`)
       .set('Authorization', `Bearer ${accessToken}`);
 
     expect(response.status).toBe(200);
-    expect(response.body.trabajo_id).toBe(40);
+    expect(response.body.trabajo_id).toBe(trabajoId);
     expect(response.body.referencias).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
@@ -85,7 +100,7 @@ describe('API referencias - integración HTTP', () => {
           descriptores: 'ventana aluminio blanca, glass, architectural',
           peso: '0.85',
           activo: 1,
-          url: expect.stringContaining('/referencias/40/'),
+          url: expect.stringContaining(`/referencias/${trabajoId}/`),
         }),
       ])
     );
@@ -118,7 +133,7 @@ describe('API referencias - integración HTTP', () => {
 
   it('debe devolver 404 al consultar una referencia eliminada', async () => {
     const response = await agent
-      .get('/api/referencias/trabajos/40')
+      .get(`/api/referencias/trabajos/${trabajoId}`)
       .set('Authorization', `Bearer ${accessToken}`);
 
     expect(response.status).toBe(200);

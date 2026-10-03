@@ -103,11 +103,11 @@ describe('material.repository', () => {
 
       db.query.mockResolvedValueOnce([resultDb]);
 
-      const result = await Material.updateVarianteInfo(10, 25, 8.75);
+      const result = await Material.updateVarianteInfo(10, 25, 8.75, 5);
 
       expect(db.query).toHaveBeenCalledWith(
-        'UPDATE materiales_variantes SET stock = ?, precio = ? WHERE id = ?',
-        [25, 8.75, 10]
+        expect.stringContaining('UPDATE materiales_variantes mv'),
+        [25, 8.75, 10, 5]
       );
       expect(result).toEqual([resultDb]);
     });
@@ -119,7 +119,7 @@ describe('material.repository', () => {
 
       db.query.mockResolvedValueOnce([resultDb]);
 
-      const result = await Material.updateVarianteInfo(999, 0, 0);
+      const result = await Material.updateVarianteInfo(999, 0, 0, 5);
 
       expect(result).toEqual([resultDb]);
     });
@@ -167,11 +167,11 @@ describe('material.repository', () => {
 
       db.query.mockResolvedValueOnce([[material]]);
 
-      const result = await Material.getById(10);
+      const result = await Material.getById(10, 5);
 
       expect(db.query).toHaveBeenCalledWith(
         expect.stringContaining('SELECT mv.*, m.empresa_id'),
-        [10]
+        [10, 5]
       );
       expect(result).toEqual(material);
     });
@@ -179,7 +179,7 @@ describe('material.repository', () => {
     it('debe retornar undefined cuando no existe la variante', async () => {
       db.query.mockResolvedValueOnce([[]]);
 
-      const result = await Material.getById(999);
+      const result = await Material.getById(999, 5);
 
       expect(result).toBeUndefined();
     });

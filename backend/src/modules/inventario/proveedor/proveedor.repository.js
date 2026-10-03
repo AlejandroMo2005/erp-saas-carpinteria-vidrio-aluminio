@@ -15,9 +15,14 @@ const getAll = async (empresaId) => {
   const [rows] = await db.query(`
     SELECT
       p.*,
-      COUNT(pm.material_id) AS total_materiales
+      COUNT(m.id) AS total_materiales
     FROM proveedores p
-    LEFT JOIN proveedor_materiales pm ON pm.proveedor_id = p.id
+    LEFT JOIN proveedor_materiales pm
+      ON pm.proveedor_id = p.id
+    LEFT JOIN materiales m
+      ON m.id = pm.material_id
+     AND m.empresa_id = p.empresa_id
+     AND m.deleted_at IS NULL
     WHERE p.empresa_id = ? AND p.activo = 1 AND p.deleted_at IS NULL
     GROUP BY p.id
     ORDER BY p.nombre
@@ -53,33 +58,56 @@ const create = async (data, materialIds = []) => {
   `, [empresa_id, nombre, ciudad, telefono_whatsapp, email, notas]);
 
   const proveedorId = result.insertId;
-  if (materialIds.length > 0) await _asignarMateriales(proveedorId, materialIds);
+  if (materialIds.length > 0) {
+    await _asignarMateriales(proveedorId, materialIds, empresa_id);
+  }
 
-  const [rows] = await db.query('SELECT * FROM proveedores WHERE id = ?', [proveedorId]);
+  const [rows] = await db.query(
+    'SELECT * FROM proveedores WHERE id = ? AND empresa_id = ?',
+    [proveedorId, empresa_id]
+  );
   return rows[0];
 };
 
 const update = async (id, data, materialIds = [], empresaId) => {
   const { nombre, ciudad, telefono_whatsapp, email, notas } = data;
-  await db.query(`
+  const [resultado] = await db.query(`
     UPDATE proveedores
     SET nombre = ?, ciudad = ?, telefono_whatsapp = ?, email = ?, notas = ?
     WHERE id = ? AND empresa_id = ?
   `, [nombre, ciudad, telefono_whatsapp, email, notas, id, empresaId]);
 
-  await db.query('DELETE FROM proveedor_materiales WHERE proveedor_id = ?', [id]);
-  if (materialIds.length > 0) await _asignarMateriales(id, materialIds);
+  if (!resultado?.affectedRows) {
+    return null;
+  }
 
-  const [rows] = await db.query('SELECT * FROM proveedores WHERE id = ?', [id]);
+  await db.query(
+    `DELETE pm
+     FROM proveedor_materiales pm
+     INNER JOIN proveedores p ON p.id = pm.proveedor_id
+     WHERE pm.proveedor_id = ? AND p.empresa_id = ?`,
+    [id, empresaId]
+  );
+
+  if (materialIds.length > 0) {
+    await _asignarMateriales(id, materialIds, empresaId);
+  }
+
+  const [rows] = await db.query(
+    'SELECT * FROM proveedores WHERE id = ? AND empresa_id = ?',
+    [id, empresaId]
+  );
   return rows[0];
 };
 
-const _asignarMateriales = async (proveedorId, materialIds) => {
-  const values = materialIds.map(() => '(?, ?)').join(', ');
-  const params = materialIds.flatMap(mid => [proveedorId, mid]);
+const _asignarMateriales = async (proveedorId, materialIds, empresaId) => {
   await db.query(
-    `INSERT IGNORE INTO proveedor_materiales (proveedor_id, material_id) VALUES ${values}`,
-    params
+    `INSERT IGNORE INTO proveedor_materiales (proveedor_id, material_id)
+     SELECT ?, m.id
+     FROM materiales m
+     WHERE m.id IN (${materialIds.map(() => '?').join(',')})
+       AND m.empresa_id = ?`,
+    [proveedorId, ...materialIds, empresaId]
   );
 };
 
@@ -104,6 +132,7 @@ const getAlertasStock = async (empresaId) => {
     FROM materiales_variantes mv
     LEFT JOIN materiales m            ON mv.material_id    = m.id
     JOIN      colores c               ON mv.color_id       = c.id
+                                         AND c.empresa_id   = ?
     LEFT JOIN proveedor_materiales pm ON pm.material_id    = mv.material_id
     LEFT JOIN proveedores p           ON p.id              = pm.proveedor_id
                                      AND p.activo          = 1
@@ -112,7 +141,7 @@ const getAlertasStock = async (empresaId) => {
       AND (m.activo = 1 OR m.id IS NULL)
       AND mv.stock <= COALESCE(m.stock_minimo, 10)
     ORDER BY (COALESCE(m.stock_minimo, 10) - mv.stock) DESC, material, c.nombre
-  `, [empresaId, empresaId]);
+  `, [empresaId, empresaId, empresaId]);
   return rows;
 };
 
@@ -125,6 +154,18 @@ const createSolicitud = async (data, items) => {
   const connection = await db.getConnection();
   try {
     await connection.beginTransaction();
+
+    const [proveedorCheck] = await connection.query(
+      `SELECT id
+       FROM proveedores
+       WHERE id = ? AND empresa_id = ? AND deleted_at IS NULL
+       LIMIT 1`,
+      [proveedor_id, empresa_id]
+    );
+
+    if (!proveedorCheck.length) {
+      throw new Error('Proveedor no pertenece a la empresa');
+    }
 
     const [result] = await connection.query(`
       INSERT INTO solicitudes_materiales (empresa_id, proveedor_id, usuario_id, plantilla_texto)
@@ -142,12 +183,30 @@ const createSolicitud = async (data, items) => {
         );
         materialIdSeguro = check.length > 0 ? item.material_id : null;
       }
+
+      let varianteIdSegura = null;
+      if (item.variante_id) {
+        const [check] = await connection.query(
+          `SELECT mv.id
+           FROM materiales_variantes mv
+           INNER JOIN materiales m ON m.id = mv.material_id
+           WHERE mv.id = ?
+             AND m.empresa_id = ?
+             ${item.material_id ? 'AND mv.material_id = ?' : ''}
+           LIMIT 1`,
+          item.material_id
+            ? [item.variante_id, empresa_id, item.material_id]
+            : [item.variante_id, empresa_id]
+        );
+        varianteIdSegura = check.length > 0 ? item.variante_id : null;
+      }
+
       await connection.query(`
         INSERT INTO solicitud_items
           (solicitud_id, material_id, variante_id, nombre_material, color, cantidad, unidad)
         VALUES (?, ?, ?, ?, ?, ?, ?)
       `, [
-        solicitudId, materialIdSeguro, item.variante_id || null,
+        solicitudId, materialIdSeguro, varianteIdSegura,
         item.nombre_material, item.color || null,
         item.cantidad, item.unidad || 'unidad',
       ]);
@@ -155,7 +214,8 @@ const createSolicitud = async (data, items) => {
 
     await connection.commit();
     const [rows] = await connection.query(
-      'SELECT * FROM solicitudes_materiales WHERE id = ?', [solicitudId]
+      'SELECT * FROM solicitudes_materiales WHERE id = ? AND empresa_id = ?',
+      [solicitudId, empresa_id]
     );
     return rows[0];
   } catch (error) {
@@ -166,13 +226,14 @@ const createSolicitud = async (data, items) => {
   }
 };
 
-const marcarEnviada = async (solicitudId) => {
+const marcarEnviada = async (solicitudId, empresaId) => {
   await db.query(
-    "UPDATE solicitudes_materiales SET estado = 'enviada' WHERE id = ?",
-    [solicitudId]
+    "UPDATE solicitudes_materiales SET estado = 'enviada' WHERE id = ? AND empresa_id = ?",
+    [solicitudId, empresaId]
   );
   const [rows] = await db.query(
-    'SELECT * FROM solicitudes_materiales WHERE id = ?', [solicitudId]
+    'SELECT * FROM solicitudes_materiales WHERE id = ? AND empresa_id = ?',
+    [solicitudId, empresaId]
   );
   return rows[0];
 };
@@ -186,8 +247,12 @@ const getSolicitudes = async (empresaId, { limit = 50 } = {}) => {
       p.telefono_whatsapp,
       u.nombre_completo AS usuario_nombre
     FROM solicitudes_materiales s
-    LEFT JOIN proveedores p ON p.id = s.proveedor_id
-    LEFT JOIN usuarios    u ON u.id = s.usuario_id
+    LEFT JOIN proveedores p
+      ON p.id = s.proveedor_id
+     AND p.empresa_id = s.empresa_id
+    LEFT JOIN usuarios u
+      ON u.id = s.usuario_id
+     AND u.empresa_id = s.empresa_id
     WHERE s.empresa_id = ?
     ORDER BY s.created_at DESC
     LIMIT ?

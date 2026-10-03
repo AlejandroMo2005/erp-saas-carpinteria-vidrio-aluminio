@@ -67,3 +67,50 @@ jobs:
           path: backend/coverage
           if-no-files-found: ignore
           retention-days: 14
+
+  backend-integration:
+    name: Backend - Integration Tests
+    runs-on: ubuntu-latest
+
+    defaults:
+      run:
+        working-directory: backend
+
+    env:
+      NODE_ENV: test
+      DB_HOST: 127.0.0.1
+      DB_PORT: 3307
+      DB_USER: root
+      DB_PASSWORD: e2e-root
+      DB_NAME: inventario_proformas_e2e
+      REDIS_HOST: 127.0.0.1
+      REDIS_PORT: 6380
+      JWT_SECRET: ci-test-secret-not-for-production
+      JWT_EXPIRE: 15m
+      JWT_EXPIRE_MINUTES: 15
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20.19.4
+          cache: npm
+          cache-dependency-path: backend/package-lock.json
+
+      - name: Start E2E infrastructure
+        working-directory: .
+        run: docker compose -f docker-compose.e2e.yml up -d --wait
+
+      - name: Install backend dependencies
+        run: npm ci
+
+      - name: Run integration tests
+        run: npm run test:integration
+
+      - name: Stop E2E infrastructure
+        if: always()
+        working-directory: .
+        run: docker compose -f docker-compose.e2e.yml down -v

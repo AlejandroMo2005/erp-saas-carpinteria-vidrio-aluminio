@@ -18,11 +18,9 @@ const service = {
   round2: vi.fn((n) =>
     Math.round((Number(n) + Number.EPSILON) * 100) / 100
   ),
-  isLegacyItems: vi.fn(),
   isRecipeItems: vi.fn(),
   safeDate: vi.fn((d) => d || '2026-09-23'),
   validarYRestarStock: vi.fn(),
-  validarYRestarStockLegacy: vi.fn(),
   calcularPorRecetas: vi.fn(),
   buildWhatsAppText: vi.fn(),
 };
@@ -94,7 +92,6 @@ describe('proforma handler - agendarPedido', () => {
     vi.clearAllMocks();
 
     service.isRecipeItems.mockReturnValue(false);
-    service.isLegacyItems.mockReturnValue(false);
     service.safeDate.mockImplementation((d) => d || '2026-09-23');
 
     service.round2.mockImplementation((n) =>
@@ -110,6 +107,7 @@ describe('proforma handler - agendarPedido', () => {
       materialesAgregados: [
         {
           material_id: 10,
+          color_id: 4,
           cantidad: 2,
           precio_unitario: 15,
         },
@@ -340,7 +338,8 @@ it('debe rechazar el modo recetas cuando el cálculo no está disponible', async
       expect(connection.beginTransaction).toHaveBeenCalled();
       expect(service.calcularPorRecetas).toHaveBeenCalledWith(
         connection,
-        req.body
+        req.body,
+        7
       );
       expect(service.buildWhatsAppText).toHaveBeenCalledWith(
         expect.objectContaining({ total: 250 })
@@ -367,7 +366,7 @@ it('debe rechazar el modo recetas cuando el cálculo no está disponible', async
       expect(query).toHaveBeenNthCalledWith(
         3,
         expect.stringContaining('INSERT INTO proforma_detalle'),
-        [101, 10, 2, 15]
+        [101, 10, 4, 2, 15]
       );
 
       expect(query).toHaveBeenNthCalledWith(
@@ -379,7 +378,7 @@ it('debe rechazar el modo recetas cuando el cálculo no está disponible', async
       expect(query).toHaveBeenNthCalledWith(
         5,
         expect.stringContaining('INSERT INTO pedido_detalle'),
-        [301, 10, 2, 15]
+        [301, 10, 4, 2, 15]
       );
 
       expect(connection.commit).toHaveBeenCalled();
@@ -441,13 +440,10 @@ it('debe rechazar el modo recetas cuando el cálculo no está disponible', async
       expect(res.status).toHaveBeenCalledWith(201);
     });
 
-    it('debe continuar si falla la inserción de proforma_items y registrar warning', async () => {
+    it('debe hacer rollback si falla la inserción de proforma_items', async () => {
       const query = vi.fn()
         .mockResolvedValueOnce([{ insertId: 103 }])
-        .mockRejectedValueOnce(new Error('proforma_items error'))
-        .mockResolvedValueOnce([{}])
-        .mockResolvedValueOnce([{ insertId: 303 }])
-        .mockResolvedValueOnce([{}]);
+        .mockRejectedValueOnce(new Error('proforma_items error'));
 
       const connection = createConnection(query);
       database.getConnection.mockResolvedValueOnce(connection);
@@ -463,409 +459,16 @@ it('debe rechazar el modo recetas cuando el cálculo no está disponible', async
 
       await handlers.agendarPedido(req, res);
 
-      expect(logger.warn).toHaveBeenCalledWith(
-        'PROFORMA_ITEMS_INSERT_WARN',
-        {
-          event: 'proforma.items_insert_warning',
-          message: 'proforma_items error',
-        }
-      );
-
-      expect(connection.commit).toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(201);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          success: true,
-          proforma_id: 103,
-          pedido_id: 303,
-        })
-      );
-    });
-
-    it('debe usar fallback al insertar pedido si falla con proforma_id', async () => {
-      const query = vi.fn()
-        .mockResolvedValueOnce([{ insertId: 104 }])
-        .mockResolvedValueOnce([{}])
-        .mockResolvedValueOnce([{}])
-        .mockRejectedValueOnce(new Error('Unknown column proforma_id'))
-        .mockResolvedValueOnce([{ insertId: 304 }])
-        .mockResolvedValueOnce([{}]);
-
-      const connection = createConnection(query);
-      database.getConnection.mockResolvedValueOnce(connection);
-
-      service.isRecipeItems.mockReturnValue(true);
-
-      service.calcularPorRecetas.mockImplementationOnce(async () => ({
-        fecha: '2026-09-23',
-        cliente: 'Cliente Recetas',
-        telefono: '0988888888',
-        fecha_agendamiento: null,
-        total: 250,
-        materialesAgregados: [
-          {
-            material_id: 10,
-            cantidad: 2,
-            precio_unitario: 15,
-          },
-        ],
-        items: [
-          {
-            trabajo_id: 3,
-            color_id: 4,
-            ancho: 1.2,
-            alto: 2,
-            cantidad: 1,
-            detalle: 'Puerta',
-            precio_unitario: 250.126,
-            subtotal: 250.126,
-          },
-        ],
-      }));
-
-
-
-      const req = createRequest({
-        body: {
-          items: [{ trabajo_id: 3 }],
-        },
-      });
-      const res = createResponse();
-
-      await handlers.agendarPedido(req, res);
-
-      expect(query).toHaveBeenNthCalledWith(
-        5,
-        expect.stringContaining(
-          'INSERT INTO pedidos (empresa_id, fecha, estado, total, usuario_id, created_at, updated_at)'
-        ),
-        [7, '2026-09-23', 250, 25]
-      );
-
-      expect(connection.commit).toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(201);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          pedido_id: 304,
-        })
-      );
-    });
-  });
-
-  describe('modo legacy', () => {
-    it('debe agendar correctamente una proforma legacy', async () => {
-      const query = vi.fn()
-        .mockResolvedValueOnce([{ insertId: 105 }])
-        .mockResolvedValueOnce([{ insertId: 305 }])
-        .mockResolvedValueOnce([{}])
-        .mockResolvedValueOnce([{}]);
-
-      const connection = createConnection(query);
-      database.getConnection.mockResolvedValueOnce(connection);
-
-      service.isLegacyItems.mockReturnValue(true);
-
-      const req = createRequest({
-        body: {
-          cliente: '  Cliente Legacy  ',
-          fecha: '2026-09-24',
-          total: '180',
-          telefono: ' 0991234567 ',
-          fecha_agendamiento: '2026-09-26',
-          items: [
-            {
-              material_id: 10,
-              cantidad: '2',
-              precio_unitario: '25.50',
-            },
-          ],
-        },
-      });
-
-      const res = createResponse();
-
-      await handlers.agendarPedido(req, res);
-
-      expect(service.validarYRestarStockLegacy).toHaveBeenCalledWith(
-        connection,
-        req.body.items,
-        7
-      );
-
-      expect(query).toHaveBeenNthCalledWith(
-        1,
-        expect.stringContaining('INSERT INTO proformas'),
-        [7, '2026-09-24', 'Cliente Legacy', '0991234567', '2026-09-26', 180, 25]
-      );
-
-      expect(query).toHaveBeenNthCalledWith(
-        2,
-        expect.stringContaining('INSERT INTO pedidos'),
-        [7, '2026-09-24', 180, 25, 105]
-      );
-
-      expect(query).toHaveBeenNthCalledWith(
-        3,
-        expect.stringContaining('INSERT INTO proforma_detalle'),
-        [105, 10, 2, 25.5]
-      );
-
-      expect(query).toHaveBeenNthCalledWith(
-        4,
-        expect.stringContaining('INSERT INTO pedido_detalle'),
-        [305, 10, 2, 25.5]
-      );
-
-      expect(connection.commit).toHaveBeenCalled();
-      expect(logger.info).toHaveBeenCalledWith(
-        'PROFORMA_AGENDADA_LEGACY',
-        expect.objectContaining({
-          proformaId: 105,
-          pedidoId: 305,
-          userId: 25,
-          empresaId: 7,
-          total: 180,
-        })
-      );
-
-      expect(res.status).toHaveBeenCalledWith(201);
-      expect(res.json).toHaveBeenCalledWith({
-        success: true,
-        message: 'Agendado en modo legacy correctamente',
-        proforma_id: 105,
-        pedido_id: 305,
-      });
-    });
-
-    it('no debe descontar stock para un CLIENTE', async () => {
-      const query = vi.fn()
-        .mockResolvedValueOnce([{ insertId: 106 }])
-        .mockResolvedValueOnce([{ insertId: 306 }])
-        .mockResolvedValueOnce([{}])
-        .mockResolvedValueOnce([{}]);
-
-      const connection = createConnection(query);
-      database.getConnection.mockResolvedValueOnce(connection);
-
-      service.isLegacyItems.mockReturnValue(true);
-
-      const req = createRequest({
-        user: {
-          id: 31,
-          rol: 'CLIENTE',
-        },
-        body: {
-          cliente: 'Cliente Cliente',
-          items: [
-            {
-              material_id: 10,
-              cantidad: 1,
-              precio_unitario: 20,
-            },
-          ],
-        },
-      });
-
-      const res = createResponse();
-
-      await handlers.agendarPedido(req, res);
-
-      expect(service.validarYRestarStockLegacy).not.toHaveBeenCalled();
-      expect(connection.commit).toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(201);
-    });
-
-    it('debe usar fallback de pedido en modo legacy', async () => {
-      const query = vi.fn()
-        .mockResolvedValueOnce([{ insertId: 107 }])
-        .mockRejectedValueOnce(new Error('proforma_id no existe'))
-        .mockResolvedValueOnce([{ insertId: 307 }])
-        .mockResolvedValueOnce([{}])
-        .mockResolvedValueOnce([{}]);
-
-      const connection = createConnection(query);
-      database.getConnection.mockResolvedValueOnce(connection);
-
-      service.isLegacyItems.mockReturnValue(true);
-
-      const req = createRequest({
-        body: {
-            cliente: 'Cliente Fallback',
-            total: 150,
-            items: [
-            {
-              material_id: 10,
-              cantidad: 1,
-              precio_unitario: 20,
-            },
-          ],
-        },
-      });
-
-      const res = createResponse();
-
-      await handlers.agendarPedido(req, res);
-
-      expect(query).toHaveBeenNthCalledWith(
-        3,
-        expect.stringContaining(
-          'INSERT INTO pedidos (empresa_id, fecha, estado, total, usuario_id, created_at, updated_at)'
-        ),
-        [7, '2026-09-23', 150, 25]
-      );
-
-      expect(connection.commit).toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(201);
-      expect(res.json).toHaveBeenCalledWith(
-        expect.objectContaining({
-          pedido_id: 307,
-        })
-      );
-    });
-
-    it('debe rechazar cliente vacío', async () => {
-      const connection = createConnection();
-      database.getConnection.mockResolvedValueOnce(connection);
-
-      service.isLegacyItems.mockReturnValue(true);
-
-      const req = createRequest({
-        body: {
-          cliente: '   ',
-          items: [
-            {
-              material_id: 10,
-              cantidad: 1,
-              precio_unitario: 20,
-            },
-          ],
-        },
-      });
-
-      const res = createResponse();
-
-      await handlers.agendarPedido(req, res);
-
+      expect(logger.warn).not.toHaveBeenCalled();
       expect(connection.rollback).toHaveBeenCalled();
-      expect(logger.error).toHaveBeenCalledWith(
-        'PROFORMA_AGENDAR_ERROR',
-        expect.objectContaining({
-          event: 'proforma.agendar_error',
-          message: 'Cliente es requerido',
-          userId: 25,
-        })
-      );
+      expect(connection.commit).not.toHaveBeenCalled();
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({
         success: false,
-        error: 'Cliente es requerido',
-      });
-      expect(connection.release).toHaveBeenCalled();
-    });
-
-    it('debe rechazar material_id faltante en legacy', async () => {
-      const query = vi.fn()
-        .mockResolvedValueOnce([{ insertId: 108 }])
-        .mockResolvedValueOnce([{ insertId: 308 }]);
-
-      const connection = createConnection(query);
-      database.getConnection.mockResolvedValueOnce(connection);
-
-      service.isLegacyItems.mockReturnValue(true);
-
-      const req = createRequest({
-        body: {
-            cliente: 'Cliente Test',
-          items: [
-            {
-              cantidad: 1,
-              precio_unitario: 20,
-            },
-          ],
-        },
-      });
-
-      const res = createResponse();
-
-      await handlers.agendarPedido(req, res);
-
-      expect(connection.rollback).toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({
-        success: false,
-        error: 'Falta material_id en item #1',
+        error: 'proforma_items error',
       });
     });
 
-    it('debe rechazar cantidad inválida en legacy', async () => {
-      const query = vi.fn()
-        .mockResolvedValueOnce([{ insertId: 109 }])
-        .mockResolvedValueOnce([{ insertId: 309 }]);
-
-      const connection = createConnection(query);
-      database.getConnection.mockResolvedValueOnce(connection);
-
-      service.isLegacyItems.mockReturnValue(true);
-
-      const req = createRequest({
-        body: {
-            cliente: 'Cliente Test',
-          items: [
-            {
-              material_id: 10,
-              cantidad: 0,
-              precio_unitario: 20,
-            },
-          ],
-        },
-      });
-
-      const res = createResponse();
-
-      await handlers.agendarPedido(req, res);
-
-      expect(connection.rollback).toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({
-        success: false,
-        error: 'Cantidad invalida en item #1',
-      });
-    });
-
-    it('debe rechazar precio inválido en legacy', async () => {
-      const query = vi.fn()
-        .mockResolvedValueOnce([{ insertId: 110 }])
-        .mockResolvedValueOnce([{ insertId: 310 }]);
-
-      const connection = createConnection(query);
-      database.getConnection.mockResolvedValueOnce(connection);
-
-      service.isLegacyItems.mockReturnValue(true);
-
-      const req = createRequest({
-        body: {
-            cliente: 'Cliente Test',
-          items: [
-            {
-              material_id: 10,
-              cantidad: 1,
-              precio_unitario: -5,
-            },
-          ],
-        },
-      });
-
-      const res = createResponse();
-
-      await handlers.agendarPedido(req, res);
-
-      expect(connection.rollback).toHaveBeenCalled();
-      expect(res.status).toHaveBeenCalledWith(500);
-      expect(res.json).toHaveBeenCalledWith({
-        success: false,
-        error: 'Precio invalido en item #1',
-      });
-    });
   });
 
   describe('validaciones generales y errores', () => {
@@ -911,14 +514,14 @@ it('debe rechazar el modo recetas cuando el cálculo no está disponible', async
         'PROFORMA_AGENDAR_ERROR',
         expect.objectContaining({
           message:
-            'Items invalidos: debe ser modo recetas (trabajo_id) o modo legacy (material_id)',
+            'Items invalidos: cada item debe incluir trabajo_id',
         })
       );
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({
         success: false,
         error:
-          'Items invalidos: debe ser modo recetas (trabajo_id) o modo legacy (material_id)',
+          'Items invalidos: cada item debe incluir trabajo_id',
       });
       expect(connection.release).toHaveBeenCalled();
     });
@@ -993,18 +596,12 @@ it('debe rechazar el modo recetas cuando el cálculo no está disponible', async
       const connection = createConnection(query);
       database.getConnection.mockResolvedValueOnce(connection);
 
-      service.isLegacyItems.mockReturnValue(true);
+      service.isRecipeItems.mockReturnValue(true);
 
       const req = createRequest({
         body: {
-            cliente: 'Cliente Error',
-          items: [
-            {
-              material_id: 10,
-              cantidad: 1,
-              precio_unitario: 20,
-            },
-          ],
+          cliente: 'Cliente Error',
+          items: [{ trabajo_id: 3 }],
         },
       });
 

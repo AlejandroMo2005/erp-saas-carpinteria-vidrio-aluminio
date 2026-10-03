@@ -136,13 +136,13 @@ describe('referencia.controller', () => {
     dbMock.query.mockResolvedValueOnce([refs]);
 
     await controller.listarReferencias(
-      { params: { trabajo_id: '5' } },
+      { params: { trabajo_id: '5' }, empresaId: 7 },
       res,
     );
 
     expect(dbMock.query).toHaveBeenCalledWith(
-      expect.stringContaining('FROM trabajo_referencias'),
-      [5],
+      expect.stringContaining('t.empresa_id = ?'),
+      [5, 7],
     );
 
     expect(res.json).toHaveBeenCalledWith({
@@ -207,11 +207,12 @@ describe('referencia.controller', () => {
     const controller = loadController();
     const res = makeRes();
 
-    dbMock.query.mockResolvedValueOnce([{}]);
+    dbMock.query.mockResolvedValueOnce([{ affectedRows: 1 }]);
 
     await controller.actualizarReferencia(
       {
         params: { id: '10' },
+        empresaId: 7,
         body: {
           descriptores: 'black aluminum',
           peso: '0.9',
@@ -222,10 +223,8 @@ describe('referencia.controller', () => {
     );
 
     expect(dbMock.query).toHaveBeenCalledWith(
-      expect.stringContaining(
-        'UPDATE trabajo_referencias SET descriptores = ?, peso = ?, activo = ? WHERE id = ?',
-      ),
-      ['black aluminum', 0.9, 0, 10],
+      expect.stringContaining('UPDATE trabajo_referencias tr'),
+      ['black aluminum', 0.9, 0, 10, 7],
     );
 
     expect(res.json).toHaveBeenCalledWith({ ok: true });
@@ -273,7 +272,7 @@ describe('referencia.controller', () => {
     dbMock.query.mockResolvedValueOnce([[]]);
 
     await controller.eliminarReferencia(
-      { params: { id: '10' } },
+      { params: { id: '10' }, empresaId: 7 },
       res,
     );
 
@@ -297,13 +296,13 @@ describe('referencia.controller', () => {
     fsMock.existsSync.mockReturnValue(true);
 
     await controller.eliminarReferencia(
-      { params: { id: '10' } },
+      { params: { id: '10' }, empresaId: 7 },
       res,
     );
 
     expect(dbMock.query).toHaveBeenNthCalledWith(
       2,
-      'DELETE FROM trabajo_referencias WHERE id = ?',
+      expect.stringContaining('DELETE FROM trabajo_referencias'),
       [10],
     );
 
@@ -325,7 +324,7 @@ describe('referencia.controller', () => {
     fsMock.existsSync.mockReturnValue(false);
 
     await controller.eliminarReferencia(
-      { params: { id: '10' } },
+      { params: { id: '10' }, empresaId: 7 },
       res,
     );
 
@@ -340,7 +339,7 @@ describe('referencia.controller', () => {
     dbMock.query.mockRejectedValueOnce(new Error('DB error'));
 
     await controller.eliminarReferencia(
-      { params: { id: '10' } },
+      { params: { id: '10' }, empresaId: 7 },
       res,
     );
 
@@ -576,6 +575,7 @@ describe('referencia.controller', () => {
 
     const req = {
       params: { id: '8' },
+      empresaId: 7,
       body: { activo: true },
     };
     const res = makeRes();
@@ -583,8 +583,8 @@ describe('referencia.controller', () => {
     await controller.actualizarReferencia(req, res);
 
     expect(dbMock.query).toHaveBeenCalledWith(
-      expect.stringContaining('UPDATE trabajo_referencias'),
-      [1, 8]
+      expect.stringContaining('UPDATE trabajo_referencias tr'),
+      [1, 8, 7]
     );
 
     expect(res.json).toHaveBeenCalledWith({

@@ -7,6 +7,7 @@ const app = require(`${process.cwd()}/app.js`);
 
 describe('API materiales - integración HTTP', () => {
   let accessToken;
+  let empresaId;
 
   it('debe autenticar al usuario E2E', async () => {
     const response = await request(app)
@@ -21,6 +22,18 @@ describe('API materiales - integración HTTP', () => {
     expect(response.body.data.accessToken).toBeTruthy();
 
     accessToken = response.body.data.accessToken;
+
+    const db = require(`${process.cwd()}/src/config/database.js`);
+    const [empresas] = await db.query(
+      `SELECT id
+       FROM empresas
+       WHERE ruc = ?
+       LIMIT 1`,
+      ['9999999999001']
+    );
+
+    expect(empresas).toHaveLength(1);
+    empresaId = empresas[0].id;
   });
 
   it('debe obtener materiales de la empresa autenticada', async () => {
@@ -33,8 +46,8 @@ describe('API materiales - integración HTTP', () => {
     expect(response.body.data).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          id: 41,
-          empresa_id: 2,
+          id: expect.any(Number),
+          empresa_id: empresaId,
           nombre: 'Material E2E',
         }),
       ])

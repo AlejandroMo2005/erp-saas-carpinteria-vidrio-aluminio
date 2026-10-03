@@ -17,10 +17,6 @@ const validateBody = vi.fn((schema) => {
   return middleware;
 });
 
-const agendarPedidoTrabajoSchema = {
-  name: 'agendarPedidoTrabajoSchema',
-};
-
 const originalLoad = Module._load;
 
 Module._load = function (request, parent, isMain) {
@@ -30,9 +26,6 @@ Module._load = function (request, parent, isMain) {
     return { validateBody };
   }
 
-  if (request === '../../../shared/validators/trabajo.validators') {
-    return { agendarPedidoTrabajoSchema };
-  }
 
   return originalLoad.call(this, request, parent, isMain);
 };
@@ -43,7 +36,7 @@ const router = require(
 
 Module._load = originalLoad;
 
-describe('trabajo.routes', () => {  it('debe registrar las rutas GET y POST', () => {
+describe('trabajo.routes', () => {  it('debe registrar las rutas GET', () => {
     const routes = router.stack
       .filter((layer) => layer.route)
       .map((layer) => ({
@@ -63,10 +56,6 @@ describe('trabajo.routes', () => {  it('debe registrar las rutas GET y POST', ()
       {
         path: '/:id/recetas',
         methods: ['get'],
-      },
-      {
-        path: '/agendar',
-        methods: ['post'],
       },
     ]);
   });
@@ -105,35 +94,5 @@ describe('trabajo.routes', () => {  it('debe registrar las rutas GET y POST', ()
     );
   });
 
-  it('debe registrar POST /agendar con dos middlewares', () => {
-    const layer = router.stack.find(
-      (item) =>
-        item.route?.path === '/agendar' &&
-        item.route?.methods.post
-    );
 
-    expect(layer).toBeDefined();
-    expect(layer.route.stack).toHaveLength(2);
-
-    expect(layer.route.stack[0].handle).toEqual(
-      expect.any(Function)
-    );
-
-    expect(layer.route.stack[1].handle).toBe(ctrl.agendarPedido);
-  });
-
-  it('debe construir validateBody con el schema correcto', () => {
-    expect(validateBody).toHaveBeenCalledTimes(1);
-    expect(validateBody).toHaveBeenCalledWith(
-      agendarPedidoTrabajoSchema
-    );
-
-    const middleware = router.stack.find(
-      (layer) =>
-        layer.route?.path === '/agendar' &&
-        layer.route?.methods.post
-    ).route.stack[0].handle;
-
-    expect(middleware.schema).toBe(agendarPedidoTrabajoSchema);
-  });
 });

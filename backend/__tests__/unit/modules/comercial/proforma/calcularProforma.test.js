@@ -14,7 +14,6 @@ const logger = {
 
 const service = {
   round2: vi.fn((n) => Math.round((Number(n) + Number.EPSILON) * 100) / 100),
-  isLegacyItems: vi.fn(),
   isRecipeItems: vi.fn(),
   safeDate: vi.fn(),
   calcularPorRecetas: vi.fn(),
@@ -70,7 +69,6 @@ describe('proforma handlers - calcularProforma', () => {
     database.getConnection.mockResolvedValue(connection);
 
     service.isRecipeItems.mockReturnValue(false);
-    service.isLegacyItems.mockReturnValue(false);
     service.calcularPorRecetas.mockResolvedValue({
       subtotal: 100,
       iva: 15,
@@ -121,6 +119,7 @@ describe('proforma handlers - calcularProforma', () => {
   describe('modo recetas', () => {
     it('debe calcular una proforma en modo recetas', async () => {
       const req = {
+        empresaId: 7,
         body: {
           cliente: 'Juan',
           items: [{ trabajo_id: 10 }],
@@ -142,7 +141,8 @@ describe('proforma handlers - calcularProforma', () => {
 
       expect(service.calcularPorRecetas).toHaveBeenCalledWith(
         connection,
-        req.body
+        req.body,
+        7
       );
 
       expect(service.buildWhatsAppText).toHaveBeenCalledWith(calc);
@@ -202,10 +202,10 @@ describe('proforma handlers - calcularProforma', () => {
 
       await isolatedHandler.calcularProforma(req, res);
 
-      expect(res.status).toHaveBeenCalledWith(400);
+      expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Modo recetas no disponible: falta services/proformaCalculator.js',
+        message: 'Calculador de proformas no disponible',
       });
 
       expect(connection.release).toHaveBeenCalled();
@@ -221,289 +221,6 @@ describe('proforma handlers - calcularProforma', () => {
     }
   });
 
-  describe('modo legacy', () => {
-    it('debe calcular correctamente usando precios enviados en los items', async () => {
-      const req = {
-        empresaId: 7,
-        body: {
-          cliente: 'Juan Pérez',
-          fecha: '2026-09-23',
-          items: [
-            {
-              material_id: 1,
-              cantidad: 2,
-              precio_unitario: 10,
-            },
-            {
-              material_id: 2,
-              cantidad: 3,
-              precio_unitario: 5,
-            },
-          ],
-        },
-      };
-      const res = createResponse();
-
-      service.isLegacyItems.mockReturnValue(true);
-
-      connection.query.mockResolvedValueOnce([[{ valor: 0.15 }]]);
-
-      await handler.calcularProforma(req, res);
-
-      expect(connection.query).toHaveBeenCalledWith(
-        "SELECT valor FROM configuracion WHERE empresa_id = ? AND clave = 'IVA' LIMIT 1",
-        [7]
-      );
-
-      expect(res.status).toHaveBeenCalledWith(200);
-      expect(res.json).toHaveBeenCalledWith({
-        success: true,
-        data: expect.objectContaining({
-          cliente: 'Juan Pérez',
-          fecha: '2026-09-23',
-          subtotal: 35,
-          iva: 5.25,
-          total: 40.25,
-          iva_valor: 0.15,
-          items: req.body.items,
-          whatsapp_text: expect.stringContaining('$40.25'),
-        }),
-      });
-
-      expect(connection.release).toHaveBeenCalled();
-    });
-
-    it('debe usar SIN NOMBRE cuando el cliente está vacío', async () => {
-      const req = {
-        empresaId: 7,
-        body: {
-          cliente: '   ',
-          fecha: '2026-09-23',
-          items: [
-            {
-              material_id: 1,
-              cantidad: 1,
-              precio_unitario: 20,
-            },
-          ],
-        },
-      };
-      const res = createResponse();
-
-      service.isLegacyItems.mockReturnValue(true);
-      connection.query.mockResolvedValueOnce([[{ valor: 0.15 }]]);
-
-      await handler.calcularProforma(req, res);
-
-      expect(res.json).toHaveBeenCalledWith({
-        success: true,
-        data: expect.objectContaining({
-          cliente: 'SIN NOMBRE',
-        }),
-      });
-    });
-
-    it('debe usar IVA 0.15 cuando no existe configuración', async () => {
-      const req = {
-        empresaId: 7,
-        body: {
-          items: [
-            {
-              material_id: 1,
-              cantidad: 2,
-              precio_unitario: 10,
-            },
-          ],
-        },
-      };
-      const res = createResponse();
-
-      service.isLegacyItems.mockReturnValue(true);
-      connection.query.mockResolvedValueOnce([[]]);
-
-      await handler.calcularProforma(req, res);
-
-      expect(res.json).toHaveBeenCalledWith({
-        success: true,
-        data: expect.objectContaining({
-          subtotal: 20,
-          iva: 3,
-          total: 23,
-          iva_valor: 0.15,
-        }),
-      });
-    });
-
-    it('debe buscar el precio del material cuando no se envía precio_unitario', async () => {
-      const req = {
-        empresaId: 7,
-        body: {
-          items: [
-            {
-              material_id: 10,
-              cantidad: 2,
-            },
-          ],
-        },
-      };
-      const res = createResponse();
-
-      service.isLegacyItems.mockReturnValue(true);
-
-      connection.query
-        .mockResolvedValueOnce([[{ valor: 0.15 }]])
-        .mockResolvedValueOnce([[{ precio: 12 }]]);
-
-      await handler.calcularProforma(req, res);
-
-      expect(connection.query).toHaveBeenNthCalledWith(
-        2,
-        'SELECT precio FROM materiales WHERE id = ? AND empresa_id = ? LIMIT 1',
-        [10, 7]
-      );
-
-      expect(res.json).toHaveBeenCalledWith({
-        success: true,
-        data: expect.objectContaining({
-          subtotal: 24,
-          iva: 3.6,
-          total: 27.6,
-        }),
-      });
-    });
-
-    it('debe responder 400 cuando falta material_id', async () => {
-      const req = {
-        empresaId: 7,
-        body: {
-          items: [
-            {
-              cantidad: 2,
-              precio_unitario: 10,
-            },
-          ],
-        },
-      };
-      const res = createResponse();
-
-      service.isLegacyItems.mockReturnValue(true);
-      connection.query.mockResolvedValueOnce([[{ valor: 0.15 }]]);
-
-      await handler.calcularProforma(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({
-        success: false,
-        message: 'Falta material_id en item #1',
-      });
-    });
-
-    it('debe responder 400 cuando la cantidad es inválida', async () => {
-      const req = {
-        empresaId: 7,
-        body: {
-          items: [
-            {
-              material_id: 1,
-              cantidad: 0,
-              precio_unitario: 10,
-            },
-          ],
-        },
-      };
-      const res = createResponse();
-
-      service.isLegacyItems.mockReturnValue(true);
-      connection.query.mockResolvedValueOnce([[{ valor: 0.15 }]]);
-
-      await handler.calcularProforma(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({
-        success: false,
-        message: 'Cantidad invalida en item #1',
-      });
-    });
-
-    it('debe responder 400 cuando el material no existe', async () => {
-      const req = {
-        empresaId: 7,
-        body: {
-          items: [
-            {
-              material_id: 99,
-              cantidad: 1,
-            },
-          ],
-        },
-      };
-      const res = createResponse();
-
-      service.isLegacyItems.mockReturnValue(true);
-
-      connection.query
-        .mockResolvedValueOnce([[{ valor: 0.15 }]])
-        .mockResolvedValueOnce([[]]);
-
-      await handler.calcularProforma(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({
-        success: false,
-        message: 'Material no existe: material_id=99',
-      });
-    });
-
-    it('debe responder 400 cuando el precio es inválido', async () => {
-      const req = {
-        empresaId: 7,
-        body: {
-          items: [
-            {
-              material_id: 1,
-              cantidad: 1,
-              precio_unitario: -5,
-            },
-          ],
-        },
-      };
-      const res = createResponse();
-
-      service.isLegacyItems.mockReturnValue(true);
-      connection.query.mockResolvedValueOnce([[{ valor: 0.15 }]]);
-
-      await handler.calcularProforma(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({
-        success: false,
-        message: 'Precio invalido en item #1',
-      });
-    });
-
-    it('debe responder 400 cuando ningún modo de items es válido', async () => {
-      const req = {
-        empresaId: 7,
-        body: {
-          items: [{ descripcion: 'item inválido' }],
-        },
-      };
-      const res = createResponse();
-
-      service.isRecipeItems.mockReturnValue(false);
-      service.isLegacyItems.mockReturnValue(false);
-
-      await handler.calcularProforma(req, res);
-
-      expect(res.status).toHaveBeenCalledWith(400);
-      expect(res.json).toHaveBeenCalledWith({
-        success: false,
-        message:
-          'Payload invalido. Envie items con trabajo_id (recetas) o material_id (legacy).',
-      });
-    });
-  });
-
   describe('manejo de errores', () => {
     it('debe responder 500 cuando falla una consulta y liberar la conexión', async () => {
       const req = {
@@ -512,9 +229,8 @@ describe('proforma handlers - calcularProforma', () => {
         body: {
           items: [
             {
-              material_id: 1,
+              trabajo_id: 1,
               cantidad: 1,
-              precio_unitario: 10,
             },
           ],
         },
@@ -522,9 +238,8 @@ describe('proforma handlers - calcularProforma', () => {
       const res = createResponse();
       const error = new Error('Database failure');
 
-      service.isLegacyItems.mockReturnValue(true);
-
-      connection.query.mockRejectedValueOnce(error);
+      service.isRecipeItems.mockReturnValue(true);
+      service.calcularPorRecetas.mockRejectedValueOnce(error);
 
       await handler.calcularProforma(req, res);
 

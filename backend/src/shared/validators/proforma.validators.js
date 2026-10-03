@@ -40,43 +40,8 @@ const itemRecetaSchema = z.object({
     .nullable(),
 });
 
-const itemLegacySchema = z.object({
-  material_id: z
-    .number({
-      required_error: 'material_id es requerido',
-      invalid_type_error: 'material_id debe ser un número',
-    })
-    .int()
-    .positive(),
-
-  cantidad: z
-    .number({
-      required_error: 'cantidad es requerida',
-      invalid_type_error: 'cantidad debe ser un número',
-    })
-    .positive(),
-
-  precio_unitario: z
-    .number()
-    .nonnegative()
-    .optional(),
-
-  color_id: z
-    .number()
-    .int()
-    .positive()
-    .optional()
-    .nullable(),
-});
-
-// Discriminante: presencia de trabajo_id (receta) vs material_id (legacy)
-const itemSchema = z.union(
-  [itemRecetaSchema, itemLegacySchema],
-  {
-    error:
-      'Cada item debe tener trabajo_id (modo recetas) o material_id (modo legacy)',
-  }
-);
+// Contrato único: cada item de proforma se calcula mediante una receta de trabajo.
+const itemSchema = itemRecetaSchema;
 
 // POST /api/proformas/calcular — calcula precios sin guardar
 const calcularProformaSchema = z.object({

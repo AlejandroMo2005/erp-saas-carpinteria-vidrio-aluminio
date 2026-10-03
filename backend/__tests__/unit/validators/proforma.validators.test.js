@@ -15,12 +15,7 @@ describe('proforma.validators', () => {
     detalle: 'Ventana corrediza',
   };
 
-  const itemLegacyValido = {
-    material_id: 10,
-    cantidad: 5,
-    precio_unitario: 25.5,
-    color_id: 3,
-  };
+
 
   describe('itemRecetaSchema mediante calcularProformaSchema', () => {
     it('debe aceptar un item de receta completo', () => {
@@ -217,170 +212,6 @@ describe('proforma.validators', () => {
     });
   });
 
-  describe('itemLegacySchema mediante calcularProformaSchema', () => {
-    it('debe aceptar un item legacy completo', () => {
-      const result = calcularProformaSchema.safeParse({
-        items: [itemLegacyValido],
-      });
-
-      expect(result.success).toBe(true);
-    });
-
-    it('debe aceptar item legacy sin precio_unitario', () => {
-      const result = calcularProformaSchema.safeParse({
-        items: [{
-          material_id: 1,
-          cantidad: 2,
-        }],
-      });
-
-      expect(result.success).toBe(true);
-    });
-
-    it('debe aceptar precio_unitario igual a cero', () => {
-      const result = calcularProformaSchema.safeParse({
-        items: [{
-          material_id: 1,
-          cantidad: 2,
-          precio_unitario: 0,
-        }],
-      });
-
-      expect(result.success).toBe(true);
-    });
-
-    it('debe aceptar color_id null', () => {
-      const result = calcularProformaSchema.safeParse({
-        items: [{
-          material_id: 1,
-          cantidad: 2,
-          color_id: null,
-        }],
-      });
-
-      expect(result.success).toBe(true);
-    });
-
-    it('debe rechazar material_id ausente', () => {
-      const result = calcularProformaSchema.safeParse({
-        items: [{ cantidad: 2 }],
-      });
-
-      expect(result.success).toBe(false);
-    });
-
-    it('debe rechazar material_id cero', () => {
-      const result = calcularProformaSchema.safeParse({
-        items: [{
-          material_id: 0,
-          cantidad: 2,
-        }],
-      });
-
-      expect(result.success).toBe(false);
-    });
-
-    it('debe rechazar material_id negativo', () => {
-      const result = calcularProformaSchema.safeParse({
-        items: [{
-          material_id: -1,
-          cantidad: 2,
-        }],
-      });
-
-      expect(result.success).toBe(false);
-    });
-
-    it('debe rechazar material_id decimal', () => {
-      const result = calcularProformaSchema.safeParse({
-        items: [{
-          material_id: 1.5,
-          cantidad: 2,
-        }],
-      });
-
-      expect(result.success).toBe(false);
-    });
-
-    it('debe rechazar material_id como string', () => {
-      const result = calcularProformaSchema.safeParse({
-        items: {
-          material_id: '1',
-          cantidad: 2,
-        },
-      });
-
-      expect(result.success).toBe(false);
-    });
-
-    it('debe rechazar cantidad ausente', () => {
-      const result = calcularProformaSchema.safeParse({
-        items: [{
-          material_id: 1,
-        }],
-      });
-
-      expect(result.success).toBe(false);
-    });
-
-    it('debe rechazar cantidad cero', () => {
-      const result = calcularProformaSchema.safeParse({
-        items: [{
-          material_id: 1,
-          cantidad: 0,
-        }],
-      });
-
-      expect(result.success).toBe(false);
-    });
-
-    it('debe rechazar cantidad negativa', () => {
-      const result = calcularProformaSchema.safeParse({
-        items: [{
-          material_id: 1,
-          cantidad: -1,
-        }],
-      });
-
-      expect(result.success).toBe(false);
-    });
-
-    it('debe rechazar cantidad como string', () => {
-      const result = calcularProformaSchema.safeParse({
-        items: [{
-          material_id: 1,
-          cantidad: '2',
-        }],
-      });
-
-      expect(result.success).toBe(false);
-    });
-
-    it('debe rechazar precio_unitario negativo', () => {
-      const result = calcularProformaSchema.safeParse({
-        items: [{
-          material_id: 1,
-          cantidad: 2,
-          precio_unitario: -0.01,
-        }],
-      });
-
-      expect(result.success).toBe(false);
-    });
-
-    it('debe rechazar precio_unitario con tipo no numérico', () => {
-      const result = calcularProformaSchema.safeParse({
-        items: [{
-          material_id: 1,
-          cantidad: 2,
-          precio_unitario: '25',
-        }],
-      });
-
-      expect(result.success).toBe(false);
-    });
-  });
-
   describe('itemSchema y discriminación entre modos', () => {
     it('debe rechazar un item vacío', () => {
       const result = calcularProformaSchema.safeParse({
@@ -420,11 +251,11 @@ describe('proforma.validators', () => {
   });
 
   describe('calcularProformaSchema', () => {
-    it('debe aceptar múltiples items', () => {
+    it('debe aceptar múltiples items de receta', () => {
       const result = calcularProformaSchema.safeParse({
         items: [
           { trabajo_id: 1 },
-          { material_id: 2, cantidad: 3 },
+          { trabajo_id: 2, cantidad: 3 },
         ],
       });
 
@@ -547,7 +378,10 @@ describe('proforma.validators', () => {
 
     it('debe aceptar un pedido completo', () => {
       const result = agendarPedidoSchema.safeParse({
-        items: [itemRecetaValido, itemLegacyValido],
+        items: [
+          itemRecetaValido,
+          { trabajo_id: 2, cantidad: 2 },
+        ],
         cliente: 'Juan Pérez',
         total: 350.75,
         telefono: '0999999999',

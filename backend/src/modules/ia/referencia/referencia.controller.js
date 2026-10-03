@@ -67,7 +67,13 @@ async function subirReferencia(req, res) {
   if (!archivo) return res.status(422).json({ error: 'Se requiere el archivo imagen' });
 
   try {
-    const [trabajos] = await db.query(`SELECT id, nombre FROM trabajos WHERE id = ?`, [trabajoId]);
+    const [trabajos] = await db.query(
+      `SELECT id, nombre
+       FROM trabajos
+       WHERE id = ? AND empresa_id = ?
+       LIMIT 1`,
+      [trabajoId, req.empresaId]
+    );
     if (!trabajos.length) return res.status(404).json({ error: 'Trabajo no encontrado' });
 
     const dir      = asegurarDirectorio(trabajoId);
@@ -109,9 +115,12 @@ async function listarReferencias(req, res) {
 
   try {
     const [refs] = await db.query(
-      `SELECT id, filename, descriptores, peso, activo, created_at
-       FROM trabajo_referencias WHERE trabajo_id = ? ORDER BY created_at DESC`,
-      [trabajoId]
+      `SELECT tr.id, tr.filename, tr.descriptores, tr.peso, tr.activo, tr.created_at
+       FROM trabajo_referencias tr
+       INNER JOIN trabajos t ON t.id = tr.trabajo_id
+       WHERE tr.trabajo_id = ? AND t.empresa_id = ?
+       ORDER BY tr.created_at DESC`,
+      [trabajoId, req.empresaId]
     );
     return res.json({
       trabajo_id: trabajoId,
@@ -132,14 +141,35 @@ async function actualizarReferencia(req, res) {
 
   const { descriptores, peso, activo } = req.body ?? {};
   const campos = [], valores = [];
-  if (descriptores !== undefined) { campos.push('descriptores = ?'); valores.push(descriptores); }
-  if (peso          !== undefined) { campos.push('peso = ?');         valores.push(Number(peso)); }
-  if (activo        !== undefined) { campos.push('activo = ?');       valores.push(activo ? 1 : 0); }
+  if (descriptores !== undefined) { campos.push('tr.descriptores = ?'); valores.push(descriptores); }
+  if (peso          !== undefined) { campos.push('tr.peso = ?');         valores.push(Number(peso)); }
+  if (activo        !== undefined) { campos.push('tr.activo = ?');       valores.push(activo ? 1 : 0); }
   if (!campos.length) return res.status(400).json({ error: 'Nada que actualizar' });
 
   try {
-    valores.push(id);
-    await db.query(`UPDATE trabajo_referencias SET ${campos.join(', ')} WHERE id = ?`, valores);
+    valores.push(id, req.empresaId);
+    const [result] = await db.query(
+      `UPDATE trabajo_referencias tr
+       INNER JOIN trabajos t ON t.id = tr.trabajo_id
+       SET ${campos.join(', ')}
+       WHERE tr.id = ? AND t.empresa_id = ?`,
+      valores
+    );
+
+    if (result.affectedRows === 0) {
+      const [refs] = await db.query(
+        `SELECT tr.id
+         FROM trabajo_referencias tr
+         INNER JOIN trabajos t ON t.id = tr.trabajo_id
+         WHERE tr.id = ? AND t.empresa_id = ?
+         LIMIT 1`,
+        [id, req.empresaId]
+      );
+      if (!refs.length) {
+        return res.status(404).json({ error: 'Referencia no encontrada' });
+      }
+    }
+
     return res.json({ ok: true });
   } catch (err) {
     console.error('[Ref] actualizarReferencia error:', err.message);
@@ -155,11 +185,22 @@ async function eliminarReferencia(req, res) {
   if (!id || isNaN(id)) return res.status(400).json({ error: 'id inválido' });
 
   try {
-    const [refs] = await db.query(`SELECT trabajo_id, filename FROM trabajo_referencias WHERE id = ?`, [id]);
+    const [refs] = await db.query(
+      `SELECT tr.trabajo_id, tr.filename
+       FROM trabajo_referencias tr
+       INNER JOIN trabajos t ON t.id = tr.trabajo_id
+       WHERE tr.id = ? AND t.empresa_id = ?
+       LIMIT 1`,
+      [id, req.empresaId]
+    );
     if (!refs.length) return res.status(404).json({ error: 'Referencia no encontrada' });
 
     const { trabajo_id, filename } = refs[0];
-    await db.query(`DELETE FROM trabajo_referencias WHERE id = ?`, [id]);
+    await db.query(
+      `DELETE FROM trabajo_referencias
+       WHERE id = ?`,
+      [id]
+    );
 
     try {
       const filePath = path.join(DIR_BASE, String(trabajo_id), filename);

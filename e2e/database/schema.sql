@@ -43,7 +43,7 @@ CREATE TABLE `auditoria_acciones` (
   KEY `idx_auditoria_empresa_fecha` (`empresa_id`,`created_at`),
   CONSTRAINT `fk_auditoria_empresa` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `fk_auditoria_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2516 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Auditoría de operaciones críticas — Sprint 10';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Auditoría de operaciones críticas — Sprint 10';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -92,7 +92,7 @@ CREATE TABLE `clientes` (
   KEY `idx_clientes_nombre` (`nombre`),
   KEY `idx_clientes_empresa` (`empresa_id`),
   CONSTRAINT `fk_clientes_empresa` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -112,7 +112,7 @@ CREATE TABLE `colores` (
   PRIMARY KEY (`id`),
   KEY `idx_colores_empresa` (`empresa_id`),
   CONSTRAINT `fk_colores_empresa` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=11 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -155,7 +155,7 @@ CREATE TABLE `empresas` (
   `updated_at` timestamp NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_empresas_ruc` (`ruc`)
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tabla maestra de empresas — Sprint 19 Multi-tenant';
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='Tabla maestra de empresas — Sprint 19 Multi-tenant';
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -190,7 +190,7 @@ CREATE TABLE `factura_detalle` (
   CONSTRAINT `chk_fd_precio_unitario` CHECK ((`precio_unitario` >= 0)),
   CONSTRAINT `chk_fd_total_sin_iva` CHECK ((`precio_total_sin_iva` >= 0)),
   CONSTRAINT `chk_fd_valor_iva` CHECK ((`valor_iva` >= 0))
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -296,7 +296,7 @@ CREATE TABLE `facturas` (
   CONSTRAINT `chk_subtotal_con_iva` CHECK ((`subtotal_con_iva` >= 0)),
   CONSTRAINT `chk_subtotal_sin_iva` CHECK ((`subtotal_sin_iva` >= 0)),
   CONSTRAINT `chk_total_positivo` CHECK ((`total` >= 0))
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -326,7 +326,7 @@ CREATE TABLE `ia_requests` (
   KEY `idx_ia_empresa` (`empresa_id`),
   CONSTRAINT `fk_ia_empresa` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `fk_ia_requests_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=20 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -345,7 +345,7 @@ CREATE TABLE `material_colores` (
   KEY `color_id` (`color_id`),
   CONSTRAINT `material_colores_ibfk_1` FOREIGN KEY (`material_id`) REFERENCES `materiales` (`id`),
   CONSTRAINT `material_colores_ibfk_2` FOREIGN KEY (`color_id`) REFERENCES `colores` (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -375,7 +375,7 @@ CREATE TABLE `materiales` (
   CONSTRAINT `fk_materiales_empresa` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `chk_materiales_precio` CHECK ((`precio` >= 0)),
   CONSTRAINT `chk_materiales_stock` CHECK ((`stock` >= 0))
-) ENGINE=InnoDB AUTO_INCREMENT=41 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -397,7 +397,7 @@ CREATE TABLE `materiales_variantes` (
   KEY `color_id` (`color_id`),
   CONSTRAINT `materiales_variantes_ibfk_1` FOREIGN KEY (`material_id`) REFERENCES `materiales` (`id`) ON DELETE CASCADE,
   CONSTRAINT `materiales_variantes_ibfk_2` FOREIGN KEY (`color_id`) REFERENCES `colores` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=114 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -420,7 +420,7 @@ CREATE TABLE `password_resets` (
   KEY `idx_token` (`token`),
   KEY `idx_expires` (`expires_at`),
   CONSTRAINT `password_resets_ibfk_1` FOREIGN KEY (`user_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=6 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -434,17 +434,20 @@ CREATE TABLE `pedido_detalle` (
   `id` int NOT NULL AUTO_INCREMENT,
   `pedido_id` int NOT NULL,
   `material_id` int NOT NULL,
+  `color_id` int DEFAULT NULL,
   `cantidad` decimal(10,2) NOT NULL,
   `precio_unitario` decimal(10,2) NOT NULL,
   `detalle` text COLLATE utf8mb4_unicode_ci,
   PRIMARY KEY (`id`),
   KEY `idx_pedido_detalle_pedido_id` (`pedido_id`),
   KEY `idx_pedido_detalle_material_id` (`material_id`),
+  KEY `idx_pedido_detalle_color_id` (`color_id`),
   CONSTRAINT `fk_pedido_detalle_cascade` FOREIGN KEY (`pedido_id`) REFERENCES `pedidos` (`id`) ON DELETE CASCADE,
   CONSTRAINT `pedido_detalle_ibfk_4` FOREIGN KEY (`material_id`) REFERENCES `materiales` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `fk_pedido_detalle_color` FOREIGN KEY (`color_id`) REFERENCES `colores` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `chk_pedido_detalle_cantidad` CHECK ((`cantidad` > 0)),
   CONSTRAINT `chk_pedido_detalle_precio` CHECK ((`precio_unitario` >= 0))
-) ENGINE=InnoDB AUTO_INCREMENT=1018 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -489,7 +492,7 @@ CREATE TABLE `pedidos` (
   CONSTRAINT `fk_pedidos_empresa` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `fk_pedidos_proforma` FOREIGN KEY (`proforma_id`) REFERENCES `proformas` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `fk_pedidos_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=86 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -503,16 +506,19 @@ CREATE TABLE `proforma_detalle` (
   `id` int NOT NULL AUTO_INCREMENT,
   `proforma_id` int NOT NULL,
   `material_id` int NOT NULL,
+  `color_id` int DEFAULT NULL,
   `cantidad` decimal(10,2) NOT NULL,
   `precio_unitario` decimal(10,2) NOT NULL,
   PRIMARY KEY (`id`),
   KEY `idx_proforma_detalle_proforma_id` (`proforma_id`),
   KEY `idx_proforma_detalle_material_id` (`material_id`),
+  KEY `idx_proforma_detalle_color_id` (`color_id`),
   CONSTRAINT `proforma_detalle_ibfk_3` FOREIGN KEY (`proforma_id`) REFERENCES `proformas` (`id`) ON DELETE CASCADE,
   CONSTRAINT `proforma_detalle_ibfk_4` FOREIGN KEY (`material_id`) REFERENCES `materiales` (`id`) ON DELETE RESTRICT,
+  CONSTRAINT `fk_proforma_detalle_color` FOREIGN KEY (`color_id`) REFERENCES `colores` (`id`) ON DELETE RESTRICT,
   CONSTRAINT `chk_proforma_detalle_cantidad` CHECK ((`cantidad` > 0)),
   CONSTRAINT `chk_proforma_detalle_precio` CHECK ((`precio_unitario` >= 0))
-) ENGINE=InnoDB AUTO_INCREMENT=1003 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 /*!50003 SET @saved_cs_client      = @@character_set_client */ ;
 /*!50003 SET @saved_cs_results     = @@character_set_results */ ;
@@ -552,7 +558,7 @@ CREATE TABLE `proforma_items` (
   CONSTRAINT `fk_proforma_items_color` FOREIGN KEY (`color_id`) REFERENCES `colores` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_proforma_items_proforma` FOREIGN KEY (`proforma_id`) REFERENCES `proformas` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_proforma_items_trabajo` FOREIGN KEY (`trabajo_id`) REFERENCES `trabajos` (`id`) ON DELETE RESTRICT
-) ENGINE=InnoDB AUTO_INCREMENT=57 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -583,7 +589,7 @@ CREATE TABLE `proformas` (
   KEY `idx_proformas_empresa_fecha` (`empresa_id`,`fecha`),
   CONSTRAINT `fk_proformas_empresa` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`) ON UPDATE CASCADE,
   CONSTRAINT `fk_proformas_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -602,7 +608,7 @@ CREATE TABLE `proveedor_materiales` (
   KEY `idx_prov_mat_material` (`material_id`),
   CONSTRAINT `fk_prov_mat_material` FOREIGN KEY (`material_id`) REFERENCES `materiales` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_prov_mat_proveedor` FOREIGN KEY (`proveedor_id`) REFERENCES `proveedores` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=24 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -627,7 +633,7 @@ CREATE TABLE `proveedores` (
   KEY `idx_proveedores_deleted` (`deleted_at`),
   KEY `idx_proveedores_empresa` (`empresa_id`),
   CONSTRAINT `fk_proveedores_empresa` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -649,7 +655,7 @@ CREATE TABLE `recetas` (
   KEY `fk_recetas_material` (`material_id`),
   CONSTRAINT `fk_recetas_material` FOREIGN KEY (`material_id`) REFERENCES `materiales` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_recetas_trabajo` FOREIGN KEY (`trabajo_id`) REFERENCES `trabajos` (`id`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=181 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -672,7 +678,7 @@ CREATE TABLE `secuencias_comprobantes` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_secuencia_empresa` (`empresa_id`,`tipo_comprobante`,`establecimiento`,`punto_emision`),
   CONSTRAINT `fk_secuencias_empresa` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=4 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -698,7 +704,7 @@ CREATE TABLE `solicitud_items` (
   CONSTRAINT `fk_item_material` FOREIGN KEY (`material_id`) REFERENCES `materiales` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_item_solicitud` FOREIGN KEY (`solicitud_id`) REFERENCES `solicitudes_materiales` (`id`) ON DELETE CASCADE,
   CONSTRAINT `fk_solicitud_variante` FOREIGN KEY (`variante_id`) REFERENCES `materiales_variantes` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB AUTO_INCREMENT=82 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -724,7 +730,7 @@ CREATE TABLE `solicitudes_materiales` (
   CONSTRAINT `fk_solicitud_proveedor` FOREIGN KEY (`proveedor_id`) REFERENCES `proveedores` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_solicitud_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_solicitudes_empresa` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=35 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -742,7 +748,7 @@ CREATE TABLE `token_blacklist` (
   PRIMARY KEY (`id`),
   UNIQUE KEY `uq_jti` (`jti`),
   KEY `idx_expires` (`expires_at`)
-) ENGINE=InnoDB AUTO_INCREMENT=2150 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -784,7 +790,7 @@ CREATE TABLE `trabajos` (
   UNIQUE KEY `uq_trabajos_nombre_empresa` (`empresa_id`,`nombre`),
   KEY `idx_trabajos_empresa` (`empresa_id`),
   CONSTRAINT `fk_trabajos_empresa` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=40 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -823,7 +829,7 @@ CREATE TABLE `usuarios` (
   KEY `idx_usuarios_last_activity` (`last_activity`),
   KEY `idx_usuarios_empresa` (`empresa_id`),
   CONSTRAINT `fk_usuarios_empresa` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`) ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=7 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -847,7 +853,7 @@ CREATE TABLE `usuarios_sesiones` (
   KEY `idx_sesiones_usuario` (`usuario_id`),
   KEY `idx_sesiones_expires` (`expires_at`),
   CONSTRAINT `fk_sesiones_usuario` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`) ON DELETE CASCADE ON UPDATE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=2417 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --

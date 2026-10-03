@@ -10,6 +10,7 @@ describe('API IA - integración HTTP', () => {
   const agent = request.agent(app);
   let accessToken;
   let csrfToken;
+  let trabajoId;
   let imagenBase64;
 
   beforeAll(async () => {
@@ -40,6 +41,21 @@ describe('API IA - integración HTTP', () => {
 
     expect(response.status).toBe(200);
     accessToken = response.body.data.accessToken;
+
+    const db = require(`${process.cwd()}/src/config/database.js`);
+
+    const [trabajos] = await db.query(
+      `SELECT t.id
+       FROM trabajos t
+       INNER JOIN empresas e ON e.id = t.empresa_id
+       WHERE t.nombre = ? AND e.ruc = ?
+       LIMIT 1`,
+      ['Ventana E2E', '9999999999001']
+    );
+
+    expect(trabajos).toHaveLength(1);
+    trabajoId = trabajos[0].id;
+
   });
 
   it('debe rechazar inpaint sin campos requeridos', async () => {
@@ -72,13 +88,13 @@ describe('API IA - integración HTTP', () => {
 
   it('debe obtener trabajo y colores disponibles', async () => {
     const response = await agent
-      .get('/api/ia/visualizar/trabajos/40/colores')
+      .get(`/api/ia/visualizar/trabajos/${trabajoId}/colores`)
       .set('Authorization', `Bearer ${accessToken}`);
 
     expect(response.status).toBe(200);
     expect(response.body.trabajo).toEqual(
       expect.objectContaining({
-        id: 40,
+        id: trabajoId,
         nombre: 'Ventana E2E',
       })
     );

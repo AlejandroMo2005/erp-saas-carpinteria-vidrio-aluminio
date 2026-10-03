@@ -202,13 +202,11 @@ describe('Pedido.create', () => {
           material_id: 7,
           cantidad: 3,
           precio_unitario: 10,
-          detalle: 'Marco',
         },
         {
           material_id: 9,
           cantidad: 2,
           precio_unitario: 15,
-          detalle: null,
         },
       ]])
       .mockResolvedValueOnce([{ affectedRows: 1 }])
@@ -240,14 +238,16 @@ describe('Pedido.create', () => {
 
     expect(connection.execute).toHaveBeenNthCalledWith(
       3,
-      expect.stringContaining('SELECT material_id, cantidad, precio_unitario'),
+      expect.stringContaining(
+        'SELECT material_id, cantidad, precio_unitario\n           FROM proforma_detalle'
+      ),
       [20]
     );
 
     expect(connection.execute).toHaveBeenNthCalledWith(
       4,
       expect.stringContaining('INSERT INTO pedido_detalle'),
-      [104, 7, 3, 10, 'Marco']
+      [104, 7, 3, 10, null]
     );
 
     expect(connection.execute).toHaveBeenNthCalledWith(
@@ -401,8 +401,8 @@ describe('Pedido.cancelar', () => {
     connection.execute
       .mockResolvedValueOnce([[{ estado: 'PROCESADO' }]])
       .mockResolvedValueOnce([[
-        { material_id: 5, cantidad: 2 },
-        { material_id: 8, cantidad: 3 },
+        { material_id: 5, color_id: null, cantidad: 2 },
+        { material_id: 8, color_id: null, cantidad: 3 },
       ]])
       .mockResolvedValueOnce([{ affectedRows: 1 }])
       .mockResolvedValueOnce([{ affectedRows: 1 }])
@@ -420,7 +420,7 @@ describe('Pedido.cancelar', () => {
 
     expect(connection.execute).toHaveBeenNthCalledWith(
       2,
-      'SELECT material_id, cantidad FROM pedido_detalle WHERE pedido_id = ?',
+      'SELECT material_id, color_id, cantidad FROM pedido_detalle WHERE pedido_id = ?',
       [30]
     );
 
@@ -445,6 +445,47 @@ describe('Pedido.cancelar', () => {
     expect(connection.commit).toHaveBeenCalledTimes(1);
     expect(connection.rollback).not.toHaveBeenCalled();
     expect(connection.release).toHaveBeenCalledTimes(1);
+    expect(result).toBe(true);
+  });
+
+  it('debe restaurar stock en la variante cuando el pedido tiene color', async () => {
+    connection.execute
+      .mockResolvedValueOnce([[{ estado: 'PROCESADO' }]])
+      .mockResolvedValueOnce([[
+        { material_id: 5, color_id: 4, cantidad: 2 },
+      ]])
+      .mockResolvedValueOnce([[{ id: 20 }]])
+      .mockResolvedValueOnce([{ affectedRows: 1 }])
+      .mockResolvedValueOnce([{ affectedRows: 1 }]);
+
+    const result = await Pedido.cancelar(37, 10);
+
+    expect(connection.execute).toHaveBeenNthCalledWith(
+      2,
+      'SELECT material_id, color_id, cantidad FROM pedido_detalle WHERE pedido_id = ?',
+      [37]
+    );
+
+    expect(connection.execute).toHaveBeenNthCalledWith(
+      3,
+      expect.stringContaining('SELECT mv.id'),
+      [5, 4, 10, 10]
+    );
+
+    expect(connection.execute).toHaveBeenNthCalledWith(
+      4,
+      'UPDATE materiales_variantes SET stock = stock + ? WHERE material_id = ? AND color_id = ?',
+      [2, 5, 4]
+    );
+
+    expect(connection.execute).toHaveBeenNthCalledWith(
+      5,
+      expect.stringContaining('UPDATE pedidos SET estado = ?'),
+      ['CANCELADO', 37, 10]
+    );
+
+    expect(connection.commit).toHaveBeenCalledTimes(1);
+    expect(connection.rollback).not.toHaveBeenCalled();
     expect(result).toBe(true);
   });
 

@@ -39,19 +39,19 @@ function mockQueries({
       return [iva];
     }
 
-    if (sql.includes('SELECT id, nombre FROM trabajos')) {
+    if (sql.includes('SELECT id, nombre') && sql.includes('FROM trabajos')) {
       return [trabajos];
     }
 
-    if (sql.includes('SELECT id, nombre FROM colores')) {
+    if (sql.includes('SELECT id, nombre') && sql.includes('FROM colores')) {
       return [colores];
     }
 
-    if (sql.includes('SELECT material_id, unidad_calculo, factor FROM recetas')) {
+    if (sql.includes('SELECT r.material_id, r.unidad_calculo, r.factor') && sql.includes('FROM recetas r')) {
       return [recetas];
     }
 
-    if (sql.includes('SELECT precio FROM materiales_variantes')) {
+    if (sql.includes('SELECT mv.precio') && sql.includes('FROM materiales_variantes mv')) {
       return [variantRows];
     }
 
@@ -88,8 +88,8 @@ describe('proformaCalculator - calcularPorRecetas', () => {
             detalle: 'Vidrio templado',
           },
         ],
-      }
-    );
+      },
+      3);
 
     expect(result.cliente).toBe('Juan');
     expect(result.telefono).toBe('0999999999');
@@ -120,6 +120,63 @@ describe('proformaCalculator - calcularPorRecetas', () => {
     expect(result.iva_valor).toBe(0.15);
   });
 
+  it('mantiene separado el mismo material cuando los items usan colores diferentes', async () => {
+    mockQueries({
+      trabajos: [
+        { id: 1, nombre: 'Ventana' },
+        { id: 2, nombre: 'Puerta' },
+      ],
+      colores: [
+        { id: 2, nombre: 'Negro' },
+        { id: 3, nombre: 'Blanco' },
+      ],
+      recetas: [
+        { material_id: 10, unidad_calculo: 'm2', factor: 1 },
+      ],
+      variantRows: [{ precio: '20' }],
+      materialRows: [{ id: 10, precio: '20' }],
+    });
+
+    const result = await calcularPorRecetas(
+      db,
+      {
+        cliente: 'Cliente colores',
+        items: [
+          {
+            trabajo_id: 1,
+            ancho: 2,
+            alto: 1,
+            cantidad: 1,
+            color_id: 2,
+          },
+          {
+            trabajo_id: 2,
+            ancho: 1,
+            alto: 1,
+            cantidad: 1,
+            color_id: 3,
+          },
+        ],
+      },
+      3);
+
+    expect(result.materialesAgregados).toHaveLength(2);
+    expect(result.materialesAgregados).toEqual(
+      expect.arrayContaining([
+        expect.objectContaining({
+          material_id: 10,
+          color_id: 2,
+          cantidad: 2,
+        }),
+        expect.objectContaining({
+          material_id: 10,
+          color_id: 3,
+          cantidad: 1,
+        }),
+      ])
+    );
+  });
+
   it('usa valores por defecto cuando faltan datos opcionales', async () => {
     mockQueries({
       iva: [],
@@ -139,8 +196,8 @@ describe('proformaCalculator - calcularPorRecetas', () => {
             alto: 2,
           },
         ],
-      }
-    );
+      },
+      3);
 
     expect(result.cliente).toBe('SIN NOMBRE');
     expect(result.telefono).toBeNull();
@@ -171,8 +228,8 @@ describe('proformaCalculator - calcularPorRecetas', () => {
             cantidad: 1,
           },
         ],
-      }
-    );
+      },
+      3);
 
     expect(result.items[0].materiales[0].cantidad).toBe(3);
     expect(result.subtotal).toBe(60);
@@ -197,8 +254,8 @@ describe('proformaCalculator - calcularPorRecetas', () => {
             cantidad: 1,
           },
         ],
-      }
-    );
+      },
+      3);
 
     expect(result.items[0].materiales).toHaveLength(2);
     expect(result.materialesAgregados).toHaveLength(1);
@@ -224,8 +281,8 @@ describe('proformaCalculator - calcularPorRecetas', () => {
             color_id: 2,
           },
         ],
-      }
-    );
+      },
+      3);
 
     expect(result.items[0].materiales[0].precio_unitario).toBe(25);
   });
@@ -247,8 +304,8 @@ describe('proformaCalculator - calcularPorRecetas', () => {
             color_id: 2,
           },
         ],
-      }
-    );
+      },
+      3);
 
     expect(result.items[0].materiales[0].precio_unitario).toBe(30);
   });
@@ -257,7 +314,7 @@ describe('proformaCalculator - calcularPorRecetas', () => {
     mockQueries();
 
     await expect(
-      calcularPorRecetas(db, { items: [] })
+      calcularPorRecetas(db, { items: [] }, 3)
     ).rejects.toThrow('Debe enviar al menos 1 item');
   });
 
@@ -265,7 +322,7 @@ describe('proformaCalculator - calcularPorRecetas', () => {
     mockQueries();
 
     await expect(
-      calcularPorRecetas(db, { items: null })
+      calcularPorRecetas(db, { items: null }, 3)
     ).rejects.toThrow('Debe enviar al menos 1 item');
   });
 
@@ -284,7 +341,7 @@ describe('proformaCalculator - calcularPorRecetas', () => {
             },
           ],
         }
-      )
+      , 3)
     ).rejects.toThrow('Medidas inválidas en item #1');
 
     await expect(
@@ -299,7 +356,7 @@ describe('proformaCalculator - calcularPorRecetas', () => {
             },
           ],
         }
-      )
+      , 3)
     ).rejects.toThrow('Medidas inválidas en item #1');
   });
 
@@ -319,7 +376,7 @@ describe('proformaCalculator - calcularPorRecetas', () => {
             },
           ],
         }
-      )
+      , 3)
     ).rejects.toThrow('Cantidad inválida en item #1');
   });
 
@@ -340,7 +397,7 @@ describe('proformaCalculator - calcularPorRecetas', () => {
             },
           ],
         }
-      )
+      , 3)
     ).rejects.toThrow('Trabajo no existe: trabajo_id=99');
   });
 
@@ -361,7 +418,7 @@ describe('proformaCalculator - calcularPorRecetas', () => {
             },
           ],
         }
-      )
+      , 3)
     ).rejects.toThrow('No hay recetas configuradas para el trabajo: Ventana');
   });
 
@@ -388,7 +445,7 @@ describe('proformaCalculator - calcularPorRecetas', () => {
             },
           ],
         }
-      )
+      , 3)
     ).rejects.toThrow('Receta inválida');
   });
 
@@ -415,7 +472,7 @@ describe('proformaCalculator - calcularPorRecetas', () => {
             },
           ],
         }
-      )
+      , 3)
     ).rejects.toThrow('unidad_calculo no soportada: kg');
   });
 
@@ -434,7 +491,7 @@ describe('proformaCalculator - calcularPorRecetas', () => {
             },
           ],
         }
-      )
+      , 3)
     ).rejects.toThrow('Campo inválido: items[0].trabajo_id');
   });
 
@@ -453,7 +510,7 @@ describe('proformaCalculator - calcularPorRecetas', () => {
             },
           ],
         }
-      )
+      , 3)
     ).rejects.toThrow('Campo inválido: items[0].ancho');
   });
 
@@ -472,7 +529,7 @@ describe('proformaCalculator - calcularPorRecetas', () => {
             },
           ],
         }
-      )
+      , 3)
     ).rejects.toThrow('Campo inválido: items[0].alto');
   });
 
@@ -492,7 +549,7 @@ describe('proformaCalculator - calcularPorRecetas', () => {
             },
           ],
         }
-      )
+      , 3)
     ).rejects.toThrow('Campo inválido: items[0].color_id');
   });
 
@@ -514,7 +571,7 @@ describe('proformaCalculator - calcularPorRecetas', () => {
             },
           ],
         }
-      )
+      , 3)
     ).rejects.toThrow('Material no existe: material_id=10');
   });
 
@@ -536,7 +593,7 @@ describe('proformaCalculator - calcularPorRecetas', () => {
             },
           ],
         }
-      )
+      , 3)
     ).rejects.toThrow('Precio inválido en materiales.id=10');
   });
 
@@ -555,8 +612,8 @@ describe('proformaCalculator - calcularPorRecetas', () => {
             alto: 1,
           },
         ],
-      }
-    );
+      },
+      3);
 
     expect(result.iva_valor).toBe(0.15);
   });
@@ -577,8 +634,8 @@ describe('proformaCalculator - calcularPorRecetas', () => {
             color_id: 99,
           },
         ],
-      }
-    );
+      },
+      3);
 
     expect(result.items[0].color_nombre).toBeNull();
   });
@@ -597,11 +654,63 @@ describe('proformaCalculator - calcularPorRecetas', () => {
             cantidad: 2.7,
           },
         ],
-      }
-    );
+      },
+      3);
 
     expect(result.items[0].cantidad).toBe(3);
   });
+  it('aplica aislamiento por empresa en todas las consultas del cálculo', async () => {
+    mockQueries();
+
+    await calcularPorRecetas(
+      db,
+      {
+        items: [
+          {
+            trabajo_id: 1,
+            ancho: 2,
+            alto: 1,
+            cantidad: 1,
+            color_id: 2,
+          },
+        ],
+      },
+      7
+    );
+
+    const calls = db.query.mock.calls;
+
+    const ivaCall = calls.find(([sql]) =>
+      sql.includes('SELECT valor FROM configuracion')
+    );
+    expect(ivaCall?.[1]).toEqual([7]);
+
+    const trabajosCall = calls.find(([sql]) =>
+      sql.includes('FROM trabajos')
+    );
+    expect(trabajosCall?.[1]).toEqual([1, 7]);
+
+    const coloresCall = calls.find(([sql]) =>
+      sql.includes('FROM colores')
+    );
+    expect(coloresCall?.[1]).toEqual([2, 7]);
+
+    const recetasCall = calls.find(([sql]) =>
+      sql.includes('FROM recetas r')
+    );
+    expect(recetasCall?.[1]).toEqual([1, 7, 7]);
+
+    const varianteCall = calls.find(([sql]) =>
+      sql.includes('FROM materiales_variantes mv')
+    );
+    expect(varianteCall?.[1]).toEqual([10, 2, 7, 7]);
+
+    const materialCall = calls.find(([sql]) =>
+      sql.includes('SELECT precio FROM materiales')
+    );
+    expect(materialCall).toBeUndefined();
+  });
+
 });
 
 describe('proformaCalculator - buildWhatsAppText', () => {

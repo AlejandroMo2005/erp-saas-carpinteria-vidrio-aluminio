@@ -50,12 +50,17 @@ async function cargarImagenReferencia(trabajoId, filename) {
   catch (_) { console.warn(`[IA] No se pudo cargar referencia: ${filePath}`); return null; }
 }
 
-async function obtenerReferencias(trabajoId) {
+async function obtenerReferencias(trabajoId, empresaId) {
   try {
     const [rows] = await db.query(
-      `SELECT filename, descriptores, peso FROM trabajo_referencias
-       WHERE trabajo_id = ? AND activo = 1 ORDER BY peso DESC LIMIT 5`,
-      [trabajoId]
+      `SELECT tr.filename, tr.descriptores, tr.peso
+       FROM trabajo_referencias tr
+       INNER JOIN trabajos t ON t.id = tr.trabajo_id
+       WHERE tr.trabajo_id = ?
+         AND t.empresa_id = ?
+         AND tr.activo = 1
+       ORDER BY tr.peso DESC LIMIT 5`,
+      [trabajoId, empresaId]
     );
     const refs = await Promise.all(rows.map(async (r) => ({
       descriptores: r.descriptores ?? '',
@@ -115,7 +120,12 @@ async function inpaint(req, res) {
 async function getTrabajoConColores(req, res) {
   const { id } = req.params;
   try {
-    const [trabajos] = await db.query(`SELECT id, nombre, descripcion, tipo FROM trabajos WHERE id = ?`, [id]);
+    const [trabajos] = await db.query(
+      `SELECT id, nombre, descripcion, tipo
+       FROM trabajos
+       WHERE id = ? AND empresa_id = ?`,
+      [id, req.empresaId]
+    );
     if (!trabajos.length) return res.status(404).json({ error: 'Trabajo no encontrado' });
 
     const [colores] = await db.query(
@@ -123,8 +133,14 @@ async function getTrabajoConColores(req, res) {
        FROM colores c
        INNER JOIN material_colores mc ON mc.color_id   = c.id
        INNER JOIN recetas r           ON r.material_id = mc.material_id
-       WHERE r.trabajo_id = ? ORDER BY c.nombre ASC`,
-      [id]
+       INNER JOIN trabajos t          ON t.id = r.trabajo_id
+       INNER JOIN materiales m        ON m.id = r.material_id
+       WHERE r.trabajo_id = ?
+         AND t.empresa_id = ?
+         AND c.empresa_id = t.empresa_id
+         AND m.empresa_id = t.empresa_id
+       ORDER BY c.nombre ASC`,
+      [id, req.empresaId]
     );
     return res.json({ trabajo: trabajos[0], colores });
   } catch (err) {
@@ -156,7 +172,13 @@ async function visualizarEspacio(req, res) {
 
     if (color_id && colorIdNum > 0) {
       try {
-        const [coloresDB] = await db.query(`SELECT id, nombre, valor FROM colores WHERE id = ? AND activo = 1 LIMIT 1`, [colorIdNum]);
+        const [coloresDB] = await db.query(
+          `SELECT id, nombre, valor
+           FROM colores
+           WHERE id = ? AND empresa_id = ? AND activo = 1
+           LIMIT 1`,
+          [colorIdNum, req.empresaId]
+        );
         if (coloresDB.length) colorParaPrompt = coloresDB[0];
       } catch (err) { console.warn('[IA] Error al consultar color:', err.message); }
     }
@@ -177,22 +199,44 @@ async function visualizarEspacio(req, res) {
   if (!trabajo_id || !color_id) return res.status(422).json({ error: 'trabajo_id y color_id son requeridos' });
 
   try {
-    const [trabajos] = await db.query(`SELECT id, nombre, descripcion, tipo, prompt_base FROM trabajos WHERE id = ?`, [trabajo_id]);
+    const [trabajos] = await db.query(
+      `SELECT id, nombre, descripcion, tipo, prompt_base
+       FROM trabajos
+       WHERE id = ? AND empresa_id = ?`,
+      [trabajo_id, req.empresaId]
+    );
     if (!trabajos.length) return res.status(404).json({ error: 'Trabajo no encontrado' });
 
     const [colores] = await db.query(
       `SELECT c.id, c.nombre, c.valor FROM colores c
        INNER JOIN material_colores mc ON mc.color_id = c.id
        INNER JOIN recetas r ON r.material_id = mc.material_id
-       WHERE c.id = ? AND r.trabajo_id = ? LIMIT 1`,
-      [color_id, trabajo_id]
+       INNER JOIN trabajos t ON t.id = r.trabajo_id
+       INNER JOIN materiales m ON m.id = r.material_id
+       WHERE c.id = ?
+         AND r.trabajo_id = ?
+         AND c.empresa_id = t.empresa_id
+         AND t.empresa_id = ?
+         AND m.empresa_id = ?
+       LIMIT 1`,
+      [color_id, trabajo_id, req.empresaId, req.empresaId]
     );
     if (!colores.length) return res.status(404).json({ error: 'Color no disponible para este trabajo' });
 
-    const [variantes] = await db.query(`SELECT m.nombre AS material FROM recetas r INNER JOIN materiales m ON m.id = r.material_id WHERE r.trabajo_id = ? LIMIT 1`, [trabajo_id]);
+    const [variantes] = await db.query(
+      `SELECT m.nombre AS material
+       FROM recetas r
+       INNER JOIN materiales m ON m.id = r.material_id
+       INNER JOIN trabajos t ON t.id = r.trabajo_id
+       WHERE r.trabajo_id = ?
+         AND t.empresa_id = ?
+         AND m.empresa_id = ?
+       LIMIT 1`,
+      [trabajo_id, req.empresaId, req.empresaId]
+    );
     const materialDesc = variantes[0]?.material ?? null;
     const prompt       = construirPrompt({ trabajo: trabajos[0], color: { nombre: colores[0].nombre, hex: colores[0].valor }, material: materialDesc });
-    const referencias  = await obtenerReferencias(trabajo_id);
+    const referencias  = await obtenerReferencias(trabajo_id, req.empresaId);
 
     const imagenResultado = await generarVisualizacion({ imagenBuffer: imagenFile.buffer, mascaraBuffer: mascaraFile.buffer, imagenMimeType: imagenFile.mimetype, prompt, referencias });
     logearSolicitud({ usuario_id, trabajo_tipo: trabajos[0].nombre, prompt, imagen_input_hash: null, modelo: 'stability-v2beta-inpaint', duracion_ms: null, status: 'OK' });

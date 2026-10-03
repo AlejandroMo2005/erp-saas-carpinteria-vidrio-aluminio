@@ -91,10 +91,14 @@ const getTopProductos = async (limite = 12, desde = null, hasta = null, empresaI
       COALESCE(SUM(pd.cantidad), 0)                      AS cantidad_vendida,
       COALESCE(SUM(pd.cantidad * pd.precio_unitario), 0) AS ingreso_generado
     FROM materiales m
-    LEFT JOIN pedido_detalle pd ON pd.material_id = m.id
-    LEFT JOIN pedidos p         ON pd.pedido_id   = p.id
-                               AND p.empresa_id   = ?
-                               AND p.fecha IS NOT NULL
+    LEFT JOIN (
+      pedido_detalle pd
+      INNER JOIN pedidos p
+        ON p.id = pd.pedido_id
+       AND p.empresa_id = ?
+       AND p.fecha IS NOT NULL
+    )
+      ON pd.material_id = m.id
     ${where}
     GROUP BY m.id, m.nombre, m.precio
     ORDER BY cantidad_vendida DESC
@@ -117,7 +121,9 @@ const getMaterialesVariantes = async (empresaId) => {
       mv.precio AS precio_variante
     FROM materiales m
     LEFT JOIN materiales_variantes mv ON mv.material_id = m.id
-    LEFT JOIN colores c               ON mv.color_id    = c.id
+    LEFT JOIN colores c
+      ON mv.color_id = c.id
+     AND c.empresa_id = m.empresa_id
     WHERE m.empresa_id = ? AND m.deleted_at IS NULL
     ORDER BY m.nombre ASC, c.nombre ASC
   `, [empresaId]);

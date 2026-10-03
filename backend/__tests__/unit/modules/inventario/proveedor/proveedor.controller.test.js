@@ -814,10 +814,28 @@ describe('proveedor.controller', () => {
 
       await controller.marcarEnviada(req, res);
 
-      expect(Proveedor.marcarEnviada).toHaveBeenCalledWith('30');
+      expect(Proveedor.marcarEnviada).toHaveBeenCalledWith('30', 5);
       expect(res.json).toHaveBeenCalledWith({
         success: true,
         data: solicitud,
+      });
+    });
+
+    it('debe retornar 404 si la solicitud no pertenece a la empresa', async () => {
+      const req = createReq({
+        params: { id: '30' },
+      });
+      const res = createRes();
+
+      Proveedor.marcarEnviada.mockResolvedValueOnce(null);
+
+      await controller.marcarEnviada(req, res);
+
+      expect(Proveedor.marcarEnviada).toHaveBeenCalledWith('30', 5);
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({
+        success: false,
+        message: 'Solicitud no encontrada',
       });
     });
 

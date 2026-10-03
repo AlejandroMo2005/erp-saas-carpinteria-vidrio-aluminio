@@ -41,17 +41,23 @@ exports.updateVariante = async (req, res) => {
     const { id }            = req.params;
     const { stock, precio } = req.body;
 
-    await Material.updateVarianteInfo(id, stock, precio);
-    const variante = await Material.getById(id);
+    const [resultado] = await Material.updateVarianteInfo(
+      id,
+      stock,
+      precio,
+      req.empresaId
+    );
+
+    if (!resultado?.affectedRows) {
+      return res.status(404).json({
+        success: false,
+        message: 'No se encontró la variante para sincronizar.',
+      });
+    }
+
+    const variante = await Material.getById(id, req.empresaId);
 
     if (variante) {
-      const [check] = await db.query(
-        'SELECT id FROM materiales WHERE id = ? AND empresa_id = ? LIMIT 1',
-        [variante.material_id, req.empresaId]
-      );
-      if (!check.length)
-        return res.status(403).json({ success: false, message: 'Material no pertenece a esta empresa' });
-
       await Material.updateBasePrice(variante.material_id, precio, req.empresaId);
 
       const stockNum = Number(stock);

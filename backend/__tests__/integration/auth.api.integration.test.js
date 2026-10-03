@@ -61,7 +61,7 @@ describe('API auth - integración HTTP', () => {
         accessToken: expect.any(String),
         expiresIn: expect.any(String),
         user: expect.objectContaining({
-          id: 7,
+          id: expect.any(Number),
           email: 'e2e.admin@example.com',
           rol: 'ADMIN',
         }),
@@ -86,7 +86,7 @@ describe('API auth - integración HTTP', () => {
     expect(response.body.success).toBe(true);
     expect(response.body.data).toEqual(
       expect.objectContaining({
-        id: 7,
+        id: expect.any(Number),
         email: 'e2e.admin@example.com',
         rol: 'ADMIN',
       })

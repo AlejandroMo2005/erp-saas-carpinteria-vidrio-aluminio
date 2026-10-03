@@ -40,9 +40,12 @@ const calcularModulo11 = (cadena) => {
 const formatearNumeroFactura = (establecimiento, puntoEmision, secuencia) =>
   `${establecimiento.padStart(3, '0')}-${puntoEmision.padStart(3, '0')}-${secuencia.toString().padStart(9, '0')}`;
 
-const obtenerPorcentajeIVA = async () => {
+const obtenerPorcentajeIVA = async (empresaId) => {
   try {
-    const [rows] = await db.query("SELECT valor FROM configuracion WHERE clave = 'IVA' LIMIT 1");
+    const [rows] = await db.query(
+      "SELECT valor FROM configuracion WHERE clave = 'IVA' AND empresa_id = ? LIMIT 1",
+      [empresaId]
+    );
     return rows.length > 0 ? parseFloat(rows[0].valor) : 0.15;
   } catch (error) {
     logger.warn('IVA_CONFIG_FALLBACK', { event: 'facturacion.iva_fallback', message: error.message });
@@ -54,11 +57,16 @@ const obtenerSiguienteSecuencia = async (
   tipoComprobante = 'FACTURA',
   establecimiento = '001',
   puntoEmision    = '001',
-  _empresaId      = null
+  empresaId       = null
 ) => {
   const connection = await db.getConnection();
   try {
     await connection.beginTransaction();
+
+    const empresaClause = empresaId ? 'AND empresa_id = ?' : '';
+    const params = empresaId
+      ? [tipoComprobante, establecimiento, puntoEmision, empresaId]
+      : [tipoComprobante, establecimiento, puntoEmision];
 
     const [rows] = await connection.query(
       `SELECT id, secuencia_actual
@@ -67,8 +75,9 @@ const obtenerSiguienteSecuencia = async (
          AND establecimiento  = ?
          AND punto_emision    = ?
          AND activo = 1
+         ${empresaClause}
        FOR UPDATE`,
-      [tipoComprobante, establecimiento, puntoEmision]
+      params
     );
 
     if (rows.length === 0)
@@ -93,7 +102,11 @@ const obtenerSiguienteSecuencia = async (
   }
 };
 
-const crearFacturaDesdePedido = async (pedidoId, usuarioId, datosAdicionales = {}, empresaId = null) => {
+const crearFacturaDesdePedido = async (pedidoId, usuarioId, datosAdicionales = {}, empresaId) => {
+  if (!empresaId) {
+    throw new Error('empresaId es requerido para crear una factura');
+  }
+
   const connection = await db.getConnection();
   try {
     await connection.beginTransaction();
@@ -103,8 +116,8 @@ const crearFacturaDesdePedido = async (pedidoId, usuarioId, datosAdicionales = {
               pr.cliente AS cliente_nombre, pr.telefono AS cliente_telefono
        FROM pedidos p
        INNER JOIN proformas pr ON pr.id = p.proforma_id
-       WHERE p.id = ? AND p.deleted_at IS NULL`,
-      [pedidoId]
+       WHERE p.id = ? AND p.empresa_id = ? AND p.deleted_at IS NULL`,
+      [pedidoId, empresaId]
     );
 
     if (pedidos.length === 0)         throw new Error('Pedido no encontrado');
@@ -133,7 +146,7 @@ const crearFacturaDesdePedido = async (pedidoId, usuarioId, datosAdicionales = {
       ambiente: process.env.SRI_AMBIENTE || '1'
     });
 
-    const porcentajeIVA = await obtenerPorcentajeIVA();
+    const porcentajeIVA = await obtenerPorcentajeIVA(empresaId);
     let subtotalConIVA = 0, totalIVA = 0;
 
     const detalleCalculado = items.map(item => {
@@ -165,14 +178,14 @@ const crearFacturaDesdePedido = async (pedidoId, usuarioId, datosAdicionales = {
 
     const [resultFactura] = await connection.query(
       `INSERT INTO facturas (
-        numero_factura, clave_acceso, pedido_id, usuario_id,
+        empresa_id, numero_factura, clave_acceso, pedido_id, usuario_id,
         cliente_tipo_identificacion, cliente_nombre, cliente_identificacion,
         cliente_direccion, cliente_telefono, cliente_email,
         fecha_emision, subtotal_sin_iva, subtotal_con_iva,
         iva, descuento, propina, total, estado, estado_sri, observaciones
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'EMITIDA', 'SIN_ENVIAR', ?)`,
       [
-        numeroFormateado, claveAcceso, pedidoId, usuarioId,
+        empresaId, numeroFormateado, claveAcceso, pedidoId, usuarioId,
         datosAdicionales.tipoIdentificacion   || 'CONSUMIDOR_FINAL',
         clienteNombre,
         datosAdicionales.clienteIdentificacion || null,

@@ -55,7 +55,7 @@ const createReq = (overrides = {}) => ({
 });
 
 beforeEach(() => {
-  vi.clearAllMocks();
+  vi.resetAllMocks();
 });
 
 describe('material.controller', () => {
@@ -182,10 +182,6 @@ describe('material.controller', () => {
 
       Material.getById.mockResolvedValueOnce(variante);
 
-      db.query.mockResolvedValueOnce([
-        [{ id: 3 }],
-      ]);
-
       Material.updateBasePrice.mockResolvedValueOnce([{
         affectedRows: 1,
       }]);
@@ -195,15 +191,13 @@ describe('material.controller', () => {
       expect(Material.updateVarianteInfo).toHaveBeenCalledWith(
         '10',
         20,
-        12.5
+        12.5,
+        5
       );
 
-      expect(Material.getById).toHaveBeenCalledWith('10');
+      expect(Material.getById).toHaveBeenCalledWith('10', 5);
 
-      expect(db.query).toHaveBeenCalledWith(
-        'SELECT id FROM materiales WHERE id = ? AND empresa_id = ? LIMIT 1',
-        [3, 5]
-      );
+      expect(db.query).not.toHaveBeenCalled();
 
       expect(Material.updateBasePrice).toHaveBeenCalledWith(
         3,
@@ -255,10 +249,6 @@ describe('material.controller', () => {
 
       Material.getById.mockResolvedValueOnce(variante);
 
-      db.query.mockResolvedValueOnce([
-        [{ id: 4 }],
-      ]);
-
       Material.updateBasePrice.mockResolvedValueOnce([{
         affectedRows: 1,
       }]);
@@ -301,10 +291,6 @@ describe('material.controller', () => {
 
       Material.getById.mockResolvedValueOnce(variante);
 
-      db.query.mockResolvedValueOnce([
-        [{ id: 5 }],
-      ]);
-
       Material.updateBasePrice.mockResolvedValueOnce([{
         affectedRows: 1,
       }]);
@@ -341,10 +327,6 @@ describe('material.controller', () => {
 
       Material.getById.mockResolvedValueOnce(variante);
 
-      db.query.mockResolvedValueOnce([
-        [{ id: 6 }],
-      ]);
-
       Material.updateBasePrice.mockResolvedValueOnce([{
         affectedRows: 1,
       }]);
@@ -359,7 +341,7 @@ describe('material.controller', () => {
       );
     });
 
-    it('debe retornar 403 si el material no pertenece a la empresa', async () => {
+    it('debe retornar 404 si la variante no pertenece a la empresa', async () => {
       const req = createReq({
         params: { id: '20' },
         body: {
@@ -369,30 +351,21 @@ describe('material.controller', () => {
       });
       const res = createRes();
 
-      const variante = {
-        id: 20,
-        material_id: 7,
-        nombre: 'Material externo',
-      };
-
       Material.updateVarianteInfo.mockResolvedValueOnce([{
-        affectedRows: 1,
+        affectedRows: 0,
       }]);
-
-      Material.getById.mockResolvedValueOnce(variante);
-
-      db.query.mockResolvedValueOnce([[]]);
 
       await controller.updateVariante(req, res);
 
+      expect(Material.getById).not.toHaveBeenCalled();
       expect(Material.updateBasePrice).not.toHaveBeenCalled();
       expect(logger.stockLow).not.toHaveBeenCalled();
       expect(logger.info).not.toHaveBeenCalled();
 
-      expect(res.status).toHaveBeenCalledWith(403);
+      expect(res.status).toHaveBeenCalledWith(404);
       expect(res.json).toHaveBeenCalledWith({
         success: false,
-        message: 'Material no pertenece a esta empresa',
+        message: 'No se encontró la variante para sincronizar.',
       });
     });
 
@@ -414,7 +387,7 @@ describe('material.controller', () => {
 
       await controller.updateVariante(req, res);
 
-      expect(db.query).not.toHaveBeenCalled();
+      expect(Material.getById).not.toHaveBeenCalled();
       expect(Material.updateBasePrice).not.toHaveBeenCalled();
 
       expect(res.status).toHaveBeenCalledWith(404);
@@ -446,10 +419,6 @@ describe('material.controller', () => {
       }]);
 
       Material.getById.mockResolvedValueOnce(variante);
-
-      db.query.mockResolvedValueOnce([
-        [{ id: 8 }],
-      ]);
 
       Material.updateBasePrice.mockResolvedValueOnce([{
         affectedRows: 1,

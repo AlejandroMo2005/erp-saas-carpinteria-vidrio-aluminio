@@ -24,7 +24,7 @@ Module._load = originalLoad;
 
 describe('proveedor.repository', () => {
   beforeEach(() => {
-    vi.clearAllMocks();
+    vi.resetAllMocks();
   });
 
   describe('getAll', () => {
@@ -183,7 +183,7 @@ describe('proveedor.repository', () => {
         expect.stringContaining(
           'INSERT IGNORE INTO proveedor_materiales'
         ),
-        [21, 3, 21, 7, 21, 9]
+        [21, 3, 7, 9, 5]
       );
     });
   });
@@ -196,7 +196,7 @@ describe('proveedor.repository', () => {
       };
 
       db.query
-        .mockResolvedValueOnce([{}])
+        .mockResolvedValueOnce([{ affectedRows: 1 }])
         .mockResolvedValueOnce([{}])
         .mockResolvedValueOnce([[proveedor]]);
 
@@ -231,8 +231,8 @@ describe('proveedor.repository', () => {
 
       expect(db.query).toHaveBeenNthCalledWith(
         2,
-        'DELETE FROM proveedor_materiales WHERE proveedor_id = ?',
-        [10]
+        expect.stringContaining('DELETE pm'),
+        [10, 5]
       );
     });
 
@@ -243,7 +243,7 @@ describe('proveedor.repository', () => {
       };
 
       db.query
-        .mockResolvedValueOnce([{}])
+        .mockResolvedValueOnce([{ affectedRows: 1 }])
         .mockResolvedValueOnce([{}])
         .mockResolvedValueOnce([{}])
         .mockResolvedValueOnce([[proveedor]]);
@@ -268,7 +268,7 @@ describe('proveedor.repository', () => {
         expect.stringContaining(
           'INSERT IGNORE INTO proveedor_materiales'
         ),
-        [10, 4, 10, 8]
+        [10, 4, 8, 5]
       );
     });
   });
@@ -296,7 +296,7 @@ describe('proveedor.repository', () => {
       expect(result).toEqual(rows);
       expect(db.query).toHaveBeenCalledWith(
         expect.stringContaining('mv.stock <= COALESCE'),
-        [5, 5]
+        [5, 5, 5]
       );
     });
 
@@ -322,8 +322,10 @@ describe('proveedor.repository', () => {
       const connection = createConnectionMock();
 
       connection.query
+        .mockResolvedValueOnce([[{ id: 3 }]])
         .mockResolvedValueOnce([{ insertId: 50 }])
         .mockResolvedValueOnce([[{ id: 7 }]])
+        .mockResolvedValueOnce([[{ id: 11 }]])
         .mockResolvedValueOnce([{}])
         .mockResolvedValueOnce([[{ id: 50, estado: 'pendiente' }]]);
 
@@ -359,13 +361,19 @@ describe('proveedor.repository', () => {
       expect(connection.release).toHaveBeenCalledTimes(1);
 
       expect(connection.query).toHaveBeenNthCalledWith(
-        2,
+        3,
         expect.stringContaining('SELECT id FROM materiales'),
         [7, 5]
       );
 
       expect(connection.query).toHaveBeenNthCalledWith(
-        3,
+        4,
+        expect.stringContaining('AND mv.material_id = ?'),
+        [11, 5, 7]
+      );
+
+      expect(connection.query).toHaveBeenNthCalledWith(
+        5,
         expect.stringContaining('INSERT INTO solicitud_items'),
         [50, 7, 11, 'Perfil', 'Blanco', 10, 'unidad']
       );
@@ -375,6 +383,7 @@ describe('proveedor.repository', () => {
       const connection = createConnectionMock();
 
       connection.query
+        .mockResolvedValueOnce([[{ id: 3 }]])
         .mockResolvedValueOnce([{ insertId: 51 }])
         .mockResolvedValueOnce([[]])
         .mockResolvedValueOnce([{}])
@@ -403,9 +412,56 @@ describe('proveedor.repository', () => {
       expect(result).toEqual({ id: 51 });
 
       expect(connection.query).toHaveBeenNthCalledWith(
-        3,
+        4,
         expect.stringContaining('INSERT INTO solicitud_items'),
         [51, null, null, 'Material inexistente', null, 4, 'unidad']
+      );
+
+      expect(connection.commit).toHaveBeenCalledTimes(1);
+    });
+
+    it('debe ignorar una variante que pertenece a otro material', async () => {
+      const connection = createConnectionMock();
+
+      connection.query
+        .mockResolvedValueOnce([[{ id: 3 }]])
+        .mockResolvedValueOnce([{ insertId: 52 }])
+        .mockResolvedValueOnce([[{ id: 7 }]])
+        .mockResolvedValueOnce([[]])
+        .mockResolvedValueOnce([{}])
+        .mockResolvedValueOnce([[{ id: 52 }]]);
+
+      db.getConnection.mockResolvedValueOnce(connection);
+
+      await repository.createSolicitud(
+        {
+          proveedor_id: 3,
+          usuario_id: 8,
+          plantilla_texto: 'Solicitud',
+          empresa_id: 5,
+        },
+        [
+          {
+            material_id: 7,
+            variante_id: 11,
+            nombre_material: 'Perfil',
+            color: 'Blanco',
+            cantidad: 10,
+            unidad: 'unidad',
+          },
+        ]
+      );
+
+      expect(connection.query).toHaveBeenNthCalledWith(
+        4,
+        expect.stringContaining('AND mv.material_id = ?'),
+        [11, 5, 7]
+      );
+
+      expect(connection.query).toHaveBeenNthCalledWith(
+        5,
+        expect.stringContaining('INSERT INTO solicitud_items'),
+        [52, 7, null, 'Perfil', 'Blanco', 10, 'unidad']
       );
 
       expect(connection.commit).toHaveBeenCalledTimes(1);
@@ -415,6 +471,7 @@ describe('proveedor.repository', () => {
       const connection = createConnectionMock();
 
       connection.query
+        .mockResolvedValueOnce([[{ id: 3 }]])
         .mockResolvedValueOnce([{ insertId: 52 }])
         .mockResolvedValueOnce([{}])
         .mockResolvedValueOnce([[{ id: 52 }]]);
@@ -437,7 +494,7 @@ describe('proveedor.repository', () => {
       );
 
       expect(connection.query).toHaveBeenNthCalledWith(
-        2,
+        3,
         expect.stringContaining('INSERT INTO solicitud_items'),
         [52, null, null, 'Tornillo', null, 20, 'unidad']
       );
@@ -472,8 +529,10 @@ describe('proveedor.repository', () => {
       const connection = createConnectionMock();
 
       connection.query
+        .mockResolvedValueOnce([[{ id: 4 }]])
         .mockResolvedValueOnce([{ insertId: 53 }])
         .mockResolvedValueOnce([[{ id: 1 }]])
+        .mockResolvedValueOnce([[{ id: 2 }]])
         .mockResolvedValueOnce([{}])
         .mockResolvedValueOnce([{}])
         .mockResolvedValueOnce([[{ id: 53 }]]);
@@ -503,11 +562,11 @@ describe('proveedor.repository', () => {
         ]
       );
 
-      expect(connection.query).toHaveBeenCalledTimes(5);
+      expect(connection.query).toHaveBeenCalledTimes(7);
       expect(connection.commit).toHaveBeenCalledTimes(1);
 
       expect(connection.query).toHaveBeenNthCalledWith(
-        4,
+        6,
         expect.stringContaining('INSERT INTO solicitud_items'),
         [53, null, null, 'Silicona', null, 3, 'unidad']
       );
@@ -525,14 +584,14 @@ describe('proveedor.repository', () => {
         .mockResolvedValueOnce([{}])
         .mockResolvedValueOnce([[solicitud]]);
 
-      const result = await repository.marcarEnviada(30);
+      const result = await repository.marcarEnviada(30, 5);
 
       expect(result).toEqual(solicitud);
 
       expect(db.query).toHaveBeenNthCalledWith(
         1,
-        "UPDATE solicitudes_materiales SET estado = 'enviada' WHERE id = ?",
-        [30]
+        "UPDATE solicitudes_materiales SET estado = 'enviada' WHERE id = ? AND empresa_id = ?",
+        [30, 5]
       );
     });
   });

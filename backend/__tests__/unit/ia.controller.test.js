@@ -125,6 +125,7 @@ function crearReq(body = {}, extras = {}) {
     user: extras.user,
     params: extras.params,
     files: extras.files,
+    empresaId: extras.empresaId ?? 1,
   };
 }
 

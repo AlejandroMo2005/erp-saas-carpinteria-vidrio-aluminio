@@ -112,3 +112,26 @@ INSERT INTO recetas (
   'm2',
   1.0000
 );
+
+INSERT INTO configuracion (empresa_id, clave, valor)
+SELECT id, 'IVA', '0.15'
+FROM empresas
+WHERE ruc = '9999999999001';
+
+INSERT INTO secuencias_comprobantes (
+  empresa_id,
+  tipo_comprobante,
+  establecimiento,
+  punto_emision,
+  secuencia_actual,
+  activo
+)
+SELECT
+  id,
+  'FACTURA',
+  '001',
+  '001',
+  0,
+  1
+FROM empresas
+WHERE ruc = '9999999999001';

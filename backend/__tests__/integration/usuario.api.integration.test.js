@@ -10,6 +10,7 @@ describe('API usuarios - integración HTTP', () => {
   let accessToken;
   let csrfToken;
   let usuarioId;
+  let usuarioAdminId;
   const email = `usuario.e2e.${Date.now()}@example.com`;
 
   beforeAll(async () => {
@@ -29,6 +30,7 @@ describe('API usuarios - integración HTTP', () => {
 
     expect(response.status).toBe(200);
     accessToken = response.body.data.accessToken;
+    usuarioAdminId = response.body.data.user.id;
   });
 
   it('debe obtener el perfil del usuario autenticado', async () => {
@@ -40,7 +42,7 @@ describe('API usuarios - integración HTTP', () => {
     expect(response.body.success).toBe(true);
     expect(response.body.data).toEqual(
       expect.objectContaining({
-        id: 7,
+        id: usuarioAdminId,
         email: 'e2e.admin@example.com',
         rol: 'ADMIN',
       })
@@ -57,8 +59,8 @@ describe('API usuarios - integración HTTP', () => {
     expect(response.body.data).toEqual(
       expect.arrayContaining([
         expect.objectContaining({
-          id: 7,
-            email: 'e2e.admin@example.com',
+          id: usuarioAdminId,
+          email: 'e2e.admin@example.com',
           rol: 'ADMIN',
         }),
       ])

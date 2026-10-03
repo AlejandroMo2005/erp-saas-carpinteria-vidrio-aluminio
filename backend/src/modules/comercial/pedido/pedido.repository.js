@@ -42,8 +42,8 @@ class Pedido {
           throw new Error('Proforma no encontrada o no pertenece a esta empresa');
 
         const [proformaItems] = await connection.execute(
-          `SELECT material_id, cantidad, precio_unitario, detalle
-           FROM proforma_items
+          `SELECT material_id, cantidad, precio_unitario
+           FROM proforma_detalle
            WHERE proforma_id = ?`,
           [pedidoData.proforma_id]
         );
@@ -129,11 +129,38 @@ class Pedido {
 
       // Restaurar stock — solo materiales de la misma empresa
       const [detalles] = await connection.execute(
-        'SELECT material_id, cantidad FROM pedido_detalle WHERE pedido_id = ?',
+        'SELECT material_id, color_id, cantidad FROM pedido_detalle WHERE pedido_id = ?',
         [id]
       );
       for (const d of detalles) {
-        if (d.material_id && d.cantidad > 0) {
+        if (!d.material_id || d.cantidad <= 0) continue;
+
+        let stockRestaurado = false;
+
+        if (d.color_id) {
+          const [variante] = await connection.execute(
+            `SELECT mv.id
+             FROM materiales_variantes mv
+             INNER JOIN materiales m ON m.id = mv.material_id
+             INNER JOIN colores c ON c.id = mv.color_id
+             WHERE mv.material_id = ?
+               AND mv.color_id = ?
+               AND m.empresa_id = ?
+               AND c.empresa_id = ?
+             LIMIT 1`,
+            [d.material_id, d.color_id, empresaId, empresaId]
+          );
+
+          if (variante.length > 0) {
+            await connection.execute(
+              'UPDATE materiales_variantes SET stock = stock + ? WHERE material_id = ? AND color_id = ?',
+              [d.cantidad, d.material_id, d.color_id]
+            );
+            stockRestaurado = true;
+          }
+        }
+
+        if (!stockRestaurado) {
           await connection.execute(
             'UPDATE materiales SET stock = stock + ? WHERE id = ? AND empresa_id = ?',
             [d.cantidad, d.material_id, empresaId]

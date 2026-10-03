@@ -193,6 +193,12 @@ describe('comprobanteService', () => {
 
       expect(connection.beginTransaction).toHaveBeenCalledTimes(1);
       expect(connection.query).toHaveBeenCalledTimes(2);
+      expect(connection.query.mock.calls[0][1]).toEqual([
+        'FACTURA',
+        '001',
+        '001',
+        7,
+      ]);
       expect(connection.commit).toHaveBeenCalledTimes(1);
       expect(connection.rollback).not.toHaveBeenCalled();
       expect(connection.release).toHaveBeenCalledTimes(1);
@@ -492,7 +498,8 @@ describe('comprobanteService', () => {
       const result = await crearFacturaDesdePedido(
         30,
         8,
-        datos
+        datos,
+        3
       );
 
       expect(result).toEqual({
@@ -546,7 +553,7 @@ describe('comprobanteService', () => {
         .mockResolvedValueOnce([[{ id: 502 }]])
         .mockResolvedValueOnce([[]]);
 
-      await crearFacturaDesdePedido(30, 9, {});
+      await crearFacturaDesdePedido(30, 9, {}, 3);
 
       const insertCall = connection.query.mock.calls.find(
         ([sql]) => sql.includes('INSERT INTO facturas')
@@ -592,21 +599,21 @@ describe('comprobanteService', () => {
         .mockResolvedValueOnce([[{ id: 503 }]])
         .mockResolvedValueOnce([[]]);
 
-      await crearFacturaDesdePedido(30, 10, {});
+      await crearFacturaDesdePedido(30, 10, {}, 3);
 
       const insertCall = connection.query.mock.calls.find(
         ([sql]) => sql.includes('INSERT INTO facturas')
       );
 
       expect(insertCall[1][8]).toBeNull();
-      expect(insertCall[1][17]).toBeNull();
+      expect(insertCall[1][18]).toBeNull();
     });
 
     it('debe rechazar si el pedido no existe', async () => {
       connection.query.mockResolvedValueOnce([[]]);
 
       await expect(
-        crearFacturaDesdePedido(999, 1)
+        crearFacturaDesdePedido(999, 1, {}, 3)
       ).rejects.toThrow('Pedido no encontrado');
 
       expect(connection.rollback).toHaveBeenCalledTimes(1);
@@ -622,7 +629,7 @@ describe('comprobanteService', () => {
       ]]);
 
       await expect(
-        crearFacturaDesdePedido(30, 1)
+        crearFacturaDesdePedido(30, 1, {}, 3)
       ).rejects.toThrow(
         'El pedido no tiene proforma asociada. Usa factura manual para este caso.'
       );
@@ -639,7 +646,7 @@ describe('comprobanteService', () => {
       ]]);
 
       await expect(
-        crearFacturaDesdePedido(30, 1)
+        crearFacturaDesdePedido(30, 1, {}, 3)
       ).rejects.toThrow(
         'El pedido debe estar en estado ENTREGADO para facturar. Estado actual: PENDIENTE'
       );
@@ -653,7 +660,7 @@ describe('comprobanteService', () => {
         .mockResolvedValueOnce([[]]);
 
       await expect(
-        crearFacturaDesdePedido(30, 1)
+        crearFacturaDesdePedido(30, 1, {}, 3)
       ).rejects.toThrow(
         'La proforma asociada no tiene trabajos registrados'
       );
@@ -674,7 +681,7 @@ describe('comprobanteService', () => {
       db.query.mockResolvedValueOnce([[{ valor: '0.15' }]]);
 
       await expect(
-        crearFacturaDesdePedido(30, 1)
+        crearFacturaDesdePedido(30, 1, {}, 3)
       ).rejects.toThrow('Error INSERT factura');
 
       expect(connection.rollback).toHaveBeenCalledTimes(1);

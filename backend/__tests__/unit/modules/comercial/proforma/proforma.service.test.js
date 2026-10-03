@@ -42,13 +42,6 @@ describe('proforma.service', () => {
       expect(service.round2(null)).toBe(0);
     });
 
-    it('debe identificar items legacy', () => {
-      expect(service.isLegacyItems([{ material_id: 10 }])).toBe(true);
-      expect(service.isLegacyItems([{ material_id: null }])).toBe(false);
-      expect(service.isLegacyItems([])).toBe(false);
-      expect(service.isLegacyItems(null)).toBe(false);
-    });
-
     it('debe identificar items de recetas', () => {
       expect(service.isRecipeItems([{ trabajo_id: 10 }])).toBe(true);
       expect(service.isRecipeItems([{ trabajo_id: null }])).toBe(false);
@@ -85,14 +78,56 @@ describe('proforma.service', () => {
 
       expect(query).toHaveBeenNthCalledWith(
         1,
-        expect.stringContaining('SELECT id, stock FROM materiales_variantes'),
-        [10, 3]
+        expect.stringContaining('SELECT mv.id, mv.stock'),
+        [10, 3, 7, 7]
       );
 
       expect(query).toHaveBeenNthCalledWith(
         2,
         expect.stringContaining('UPDATE materiales_variantes'),
         [5, 10, 3]
+      );
+    });
+
+    it('debe usar el color propio de cada material cuando hay múltiples colores', async () => {
+      const query = vi
+        .fn()
+        .mockResolvedValueOnce([[{ id: 5, stock: 20 }]])
+        .mockResolvedValueOnce([{}])
+        .mockResolvedValueOnce([[{ id: 6, stock: 15 }]])
+        .mockResolvedValueOnce([{}]);
+
+      const connection = createConnection(query);
+
+      await service.validarYRestarStock(
+        connection,
+        [
+          { material_id: 10, color_id: 3, cantidad: 5 },
+          { material_id: 20, color_id: 4, cantidad: 7 },
+        ],
+        [{ color_id: 3 }],
+        7
+      );
+
+      expect(query).toHaveBeenNthCalledWith(
+        1,
+        expect.stringContaining('SELECT mv.id, mv.stock'),
+        [10, 3, 7, 7]
+      );
+      expect(query).toHaveBeenNthCalledWith(
+        2,
+        expect.stringContaining('UPDATE materiales_variantes'),
+        [5, 10, 3]
+      );
+      expect(query).toHaveBeenNthCalledWith(
+        3,
+        expect.stringContaining('SELECT mv.id, mv.stock'),
+        [20, 4, 7, 7]
+      );
+      expect(query).toHaveBeenNthCalledWith(
+        4,
+        expect.stringContaining('UPDATE materiales_variantes'),
+        [7, 20, 4]
       );
     });
 
@@ -227,149 +262,6 @@ describe('proforma.service', () => {
           { material_id: 20, cantidad: 8 },
         ],
         [{}],
-        7
-      );
-
-      expect(query).toHaveBeenCalledTimes(4);
-    });
-  });
-
-  describe('validarYRestarStockLegacy', () => {
-    it('debe descontar stock de una variante con color', async () => {
-      const query = vi
-        .fn()
-        .mockResolvedValueOnce([[{ id: 5, stock: 20 }]])
-        .mockResolvedValueOnce([{}]);
-
-      const connection = createConnection(query);
-
-      await service.validarYRestarStockLegacy(
-        connection,
-        [{ material_id: 10, cantidad: 5, color_id: 3 }],
-        7
-      );
-
-      expect(query).toHaveBeenNthCalledWith(
-        2,
-        expect.stringContaining('UPDATE materiales_variantes'),
-        [5, 10, 3]
-      );
-    });
-
-    it('debe usar material general cuando no existe variante', async () => {
-      const query = vi
-        .fn()
-        .mockResolvedValueOnce([[]])
-        .mockResolvedValueOnce([[{ nombre: 'Perfil', stock: 20 }]])
-        .mockResolvedValueOnce([{}]);
-
-      const connection = createConnection(query);
-
-      await service.validarYRestarStockLegacy(
-        connection,
-        [{ material_id: 10, cantidad: 5, color_id: 3 }],
-        7
-      );
-
-      expect(query).toHaveBeenCalledTimes(3);
-    });
-
-    it('debe usar material general cuando no existe color', async () => {
-      const query = vi
-        .fn()
-        .mockResolvedValueOnce([[{ nombre: 'Vidrio', stock: 20 }]])
-        .mockResolvedValueOnce([{}]);
-
-      const connection = createConnection(query);
-
-      await service.validarYRestarStockLegacy(
-        connection,
-        [{ material_id: 10, cantidad: 5 }],
-        7
-      );
-
-      expect(query).toHaveBeenCalledTimes(2);
-    });
-
-    it('debe rechazar una cantidad inválida', async () => {
-      const connection = createConnection();
-
-      await expect(
-        service.validarYRestarStockLegacy(
-          connection,
-          [{ material_id: 10, cantidad: 0 }],
-          7
-        )
-      ).rejects.toThrow('Cantidad invalida en item #1');
-    });
-
-    it('debe rechazar stock insuficiente en variante', async () => {
-      const query = vi
-        .fn()
-        .mockResolvedValueOnce([[{ id: 5, stock: 2 }]])
-        .mockResolvedValueOnce([[{ nombre: 'Perfil' }]])
-        .mockResolvedValueOnce([[{ nombre: 'Negro' }]]);
-
-      const connection = createConnection(query);
-
-      await expect(
-        service.validarYRestarStockLegacy(
-          connection,
-          [{ material_id: 10, cantidad: 5, color_id: 3 }],
-          7
-        )
-      ).rejects.toThrow(
-        'Stock insuficiente: Perfil (Negro). Disponible: 2, Requerido: 5'
-      );
-    });
-
-    it('debe rechazar material inexistente', async () => {
-      const query = vi.fn().mockResolvedValueOnce([[]]);
-      const connection = createConnection(query);
-
-      await expect(
-        service.validarYRestarStockLegacy(
-          connection,
-          [{ material_id: 10, cantidad: 5 }],
-          7
-        )
-      ).rejects.toThrow('Material no encontrado: ID 10');
-    });
-
-    it('debe rechazar stock insuficiente del material general', async () => {
-      const query = vi.fn().mockResolvedValueOnce([
-        [{ nombre: 'Vidrio', stock: 2 }],
-      ]);
-
-      const connection = createConnection(query);
-
-      await expect(
-        service.validarYRestarStockLegacy(
-          connection,
-          [{ material_id: 10, cantidad: 5 }],
-          7
-        )
-      ).rejects.toThrow(
-        'Stock insuficiente: Vidrio. Disponible: 2, Requerido: 5'
-      );
-    });
-
-    it('debe procesar múltiples items', async () => {
-      const query = vi
-        .fn()
-        .mockResolvedValueOnce([[{ nombre: 'Perfil', stock: 20 }]])
-        .mockResolvedValueOnce([{}])
-        .mockResolvedValueOnce([[{ nombre: 'Vidrio', stock: 30 }]])
-        .mockResolvedValueOnce([{}]);
-
-      const connection = createConnection(query);
-
-      await service.validarYRestarStockLegacy(
-        connection,
-        [
-          { material_id: 10, cantidad: 5 },
-          { material_id: 20, cantidad: 8 },
-        ],
         7
       );
 
