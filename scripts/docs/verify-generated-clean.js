@@ -8,6 +8,15 @@ const GENERATED_DIR = path.join(
   'generated',
 );
 
+const DYNAMIC_GENERATED_FILES = new Set([
+  path.join(
+    'docs',
+    'generated',
+    'repository',
+    'git-info.md',
+  ),
+]);
+
 function getGitChangedFiles(rootDir) {
   try {
     const output = execFileSync(
@@ -29,6 +38,7 @@ function getGitChangedFiles(rootDir) {
       .split('\n')
       .filter((line) => line.trim())
       .map((line) => line.slice(3).trim())
+      .filter((file) => !DYNAMIC_GENERATED_FILES.has(file))
       .sort();
   } catch (error) {
     throw new Error(
@@ -84,6 +94,7 @@ if (require.main === module) {
 
 module.exports = {
   GENERATED_DIR,
+  DYNAMIC_GENERATED_FILES,
   getGitChangedFiles,
   verifyGeneratedDocumentation,
 };

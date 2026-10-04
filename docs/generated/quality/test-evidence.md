@@ -6,10 +6,10 @@ Fuente: `coverage/coverage-final.json`
 
 | Métrica | Porcentaje |
 | --- | --- |
-| Statements | 27.97% |
-| Branches | 86.21% |
-| Functions | 61.34% |
-| Lines | 27.97% |
+| Statements | 99.51% |
+| Branches | 99.63% |
+| Functions | 96.41% |
+| Lines | 99.51% |
 
 ## Evidencia
 

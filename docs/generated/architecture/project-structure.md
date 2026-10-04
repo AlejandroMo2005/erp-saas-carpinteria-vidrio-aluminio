@@ -83,7 +83,20 @@
 - `src/__tests__/unit/components/`
 - `src/__tests__/unit/components/Auth/`
 - `src/__tests__/unit/components/Dashboard/`
+- `src/__tests__/unit/components/Dashboard/Estado/`
 - `src/__tests__/unit/components/Dashboard/Productos/`
+- `src/__tests__/unit/components/Facturacion/`
+- `src/__tests__/unit/components/Facturacion/Componentes/`
+- `src/__tests__/unit/components/Facturacion/Componentes/DetalleFactura/`
+- `src/__tests__/unit/components/Facturacion/Componentes/Estadisticas/`
+- `src/__tests__/unit/components/Facturacion/Componentes/FormularioFactura/`
+- `src/__tests__/unit/components/Facturacion/Componentes/ListaFacturas/`
+- `src/__tests__/unit/components/Facturacion/Componentes/SelectorCliente/`
+- `src/__tests__/unit/components/Facturacion/Proveedores/`
+- `src/__tests__/unit/components/Facturacion/Proveedores/AlertasStock/`
+- `src/__tests__/unit/components/Facturacion/Proveedores/ModalProveedor/`
+- `src/__tests__/unit/components/Facturacion/Proveedores/ModalSolicitud/`
+- `src/__tests__/unit/components/Facturacion/Proveedores/ProveedoresMain/`
 - `src/__tests__/unit/components/Materiales/`
 - `src/__tests__/unit/components/Materiales/MatCard/`
 - `src/__tests__/unit/components/Materiales/Notificaciones/`
@@ -199,6 +212,6 @@
 
 La estructura se obtiene mediante análisis del sistema de archivos del repositorio.
 
-- Directorios detectados: 192
+- Directorios detectados: 205
 
 > Este archivo es generado automáticamente. No editar manualmente.

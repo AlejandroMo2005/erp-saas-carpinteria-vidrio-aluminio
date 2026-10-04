@@ -118,6 +118,20 @@ describe('verifyGeneratedDocumentation', () => {
     });
   });
 
+  it('ignora git-info.md por ser documentación dinámica', () => {
+    writeFile(
+      'docs/generated/repository/git-info.md',
+      '# Información actualizada\\n',
+    );
+
+    expect(
+      verifyGeneratedDocumentation(temporaryRoot),
+    ).toEqual({
+      valid: true,
+      changedFiles: [],
+    });
+  });
+
   it('detecta archivos generados no trackeados', () => {
     writeFile(
       'docs/generated/new.md',
