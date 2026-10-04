@@ -234,6 +234,17 @@ describe('AutocompleteCliente', () => {
     expect(screen.queryByRole('option')).not.toBeInTheDocument();
   });
 
+  it('maneja una respuesta exitosa sin data usando una lista vacía', async () => {
+    await ejecutarBusqueda('Juan', {
+      data: {
+        success: true,
+      },
+    });
+
+    expect(screen.queryByRole('listbox')).not.toBeInTheDocument();
+    expect(screen.queryByRole('option')).not.toBeInTheDocument();
+  });
+
   it('maneja respuestas sin success sin mostrar sugerencias', async () => {
     await ejecutarBusqueda('Juan', {
       data: {

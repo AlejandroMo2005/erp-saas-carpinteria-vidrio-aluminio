@@ -42,7 +42,36 @@ vi.mock('recharts', () => ({
   YAxis: () => <div data-testid="y-axis" />,
   Tooltip: ({ content }) => (
     <div data-testid="tooltip">
-      {content}
+      {content?.type
+        ? (
+            <>
+              <div data-testid="tooltip-inactive">
+                {content.type({
+                  ...content.props,
+                  active: false,
+                  payload: [
+                    { dataKey: 'Blanco', name: 'Blanco', value: 100, color: '#ffffff' },
+                  ],
+                })}
+              </div>
+              <div data-testid="tooltip-empty">
+                {content.type({
+                  ...content.props,
+                  active: true,
+                  payload: [],
+                })}
+              </div>
+              {content.type({
+                ...content.props,
+                active: true,
+                payload: [
+                  { dataKey: 'Blanco', name: 'Blanco', value: 100, color: '#ffffff' },
+                ],
+                label: 'Ene',
+              })}
+            </>
+          )
+        : content}
     </div>
   ),
   ResponsiveContainer: ({ children }) => (
@@ -139,6 +168,11 @@ describe('Productos', () => {
           color_hex: '#000000',
           stock: 50,
         },
+        {
+          color_id: 12,
+          color_nombre: 'Natural',
+          stock: 25,
+        },
       ],
     };
 
@@ -157,6 +191,8 @@ describe('Productos', () => {
     expect(screen.getByTestId('line-chart')).toBeInTheDocument();
     expect(screen.getByTestId('line-Blanco')).toBeInTheDocument();
     expect(screen.getByTestId('line-Negro')).toBeInTheDocument();
+    expect(screen.getByTestId('line-Natural')).toBeInTheDocument();
+    expect(screen.getByText('Blanco:')).toBeInTheDocument();
   });
 
   it('cierra la gráfica al pulsar el botón de cierre', () => {
@@ -215,7 +251,7 @@ describe('Productos', () => {
     expect(screen.queryByTestId('line-chart')).not.toBeInTheDocument();
   });
 
-  it('renderiza correctamente en modo alto contraste', () => {
+  it('renderiza correctamente el tooltip en alto contraste', () => {
     const material = {
       material_id: 1,
       material: 'Vidrio',
@@ -241,5 +277,8 @@ describe('Productos', () => {
 
     expect(screen.getAllByText('Vidrio')).toHaveLength(2);
     expect(screen.getByTestId('line-chart')).toBeInTheDocument();
+    expect(screen.getByTestId('tooltip')).toBeInTheDocument();
+    expect(screen.getByText(/Blanco:/)).toBeInTheDocument();
+    expect(screen.getByText(/100 uds/)).toBeInTheDocument();
   });
 });

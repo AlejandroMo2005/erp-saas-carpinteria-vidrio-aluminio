@@ -1,6 +1,6 @@
-import { FileText, X, Calendar, User, useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import {
-  XCircle, AlertCircle, Clock, Download, Printer,
+  FileText, X, Calendar, User, XCircle, AlertCircle, Clock, Download, Printer,
   RotateCcw, ChevronDown, ChevronUp
 } from 'lucide-react';
 import useDetalleFactura          from './useDetalleFactura';

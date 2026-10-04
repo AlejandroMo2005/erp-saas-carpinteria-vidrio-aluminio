@@ -69,6 +69,19 @@ describe('Usuarios', () => {
     expect(screen.getAllByTestId('cell')).toHaveLength(2);
   });
 
+  it('usa el color de ticks del modo oscuro', () => {
+    mocks.hook.mockReturnValue({
+      data: [
+        { nombre: 'Admin', ingresos_totales: 1000, total_pedidos: 3 },
+      ],
+      loading: false,
+    });
+
+    render(<Usuarios darkMode />);
+
+    expect(screen.getByTestId('x-axis')).toBeInTheDocument();
+  });
+
   it('usa la paleta de alto contraste', () => {
     mocks.hook.mockReturnValue({
       data: [

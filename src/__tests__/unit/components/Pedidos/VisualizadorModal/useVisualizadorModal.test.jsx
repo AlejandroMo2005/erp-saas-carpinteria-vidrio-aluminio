@@ -67,6 +67,25 @@ describe('useVisualizadorModal', () => {
     expect(result.current.PreviewComponent).toBeTruthy();
   });
 
+  it('usa guion cuando el pedido no tiene trabajos', async () => {
+    const { result } = renderHook(() =>
+      useVisualizadorModal({
+        pedido: {
+          id: 43,
+          cliente: 'Cliente Sin Trabajo',
+          trabajos_nombres: '',
+        },
+        onClose: vi.fn(),
+      })
+    );
+
+    expect(result.current.trabajoNombre).toBe('—');
+
+    await waitFor(() => {
+      expect(result.current.cargandoDetalles).toBe(false);
+    });
+  });
+
   it('carga los datos desde localStorage sin consultar la API', async () => {
     localStorage.setItem(
       'pedido_42_datos',

@@ -342,18 +342,49 @@ describe('AuthContext', () => {
     expect(result.current.user).toBeNull();
   });
 
+  it('should handle an exception when parsing the refresh response', async () => {
+    localStorage.setItem(
+      'user',
+      JSON.stringify({ id: 1, rol: 'ADMIN' })
+    );
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockRejectedValue(new Error('Invalid JSON')),
+    });
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    await waitFor(() => {
+      expect(result.current.sessionExpired).toBe(true);
+    });
+
+    expect(result.current.user).toBeNull();
+  });
+
   it('should expire session when refresh throws', async () => {
     localStorage.setItem(
       'user',
       JSON.stringify({ id: 1, rol: 'ADMIN' })
     );
 
-    vi.stubGlobal(
-      'fetch',
-      vi.fn().mockRejectedValue(new Error('Network error'))
+    const fetchMock = vi.fn().mockRejectedValue(
+      new Error('Network error')
     );
 
+    vi.stubGlobal('fetch', fetchMock);
+
     const { result } = renderHook(() => useAuth(), { wrapper });
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
 
     await waitFor(() => {
       expect(result.current.sessionExpired).toBe(true);
@@ -560,6 +591,69 @@ describe('AuthContext', () => {
     expect(result.current.getAccessToken()).toBe('visibility-token');
   });
 
+  it('should reuse the in-flight refresh during concurrent visibility changes', async () => {
+    vi.useFakeTimers();
+
+    let resolveFetch;
+
+    const fetchMock = vi.fn().mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveFetch = resolve;
+        })
+    );
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    localStorage.setItem(
+      'user',
+      JSON.stringify({
+        id: 1,
+        email: 'test@example.com',
+        rol: 'ADMIN',
+      })
+    );
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    Object.defineProperty(document, 'visibilityState', {
+      configurable: true,
+      value: 'visible',
+    });
+
+    act(() => {
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+
+    await act(async () => {
+      await Promise.resolve();
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    await act(async () => {
+      resolveFetch(
+        createRefreshResponse({
+          accessToken: 'concurrent-visibility-token',
+          expiresIn: '15m',
+        })
+      );
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(result.current.getAccessToken()).toBe(
+      'concurrent-visibility-token'
+    );
+  });
+
   it('should register and clean up the Axios response interceptor', () => {
     const { unmount } = renderHook(() => useAuth(), { wrapper });
 
@@ -752,7 +846,7 @@ describe('AuthContext', () => {
   });
 
   it('should throw when useAuth is used outside AuthProvider', () => {
-    const spy = vi.spyOn(console, 'error').mockImplementation(() => {});
+    const spy = vi.spyOn(console, 'error').mockImplementation(() => { });
 
     expect(() => renderHook(() => useAuth())).toThrow(
       'useAuth debe usarse dentro de AuthProvider'
@@ -766,4 +860,415 @@ describe('AuthContext', () => {
 
     expect(result.current.loading).toBe(false);
   });
+  it('should parse expiresIn in hours when scheduling proactive refresh', () => {
+    vi.useFakeTimers();
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    act(() => {
+      result.current.login({
+        user: { id: 1, rol: 'ADMIN' },
+        accessToken: 'hour-token',
+        expiresIn: '2h',
+      });
+    });
+
+    expect(result.current.getAccessToken()).toBe('hour-token');
+    expect(vi.getTimerCount()).toBeGreaterThan(0);
+  });
+
+  it('should parse expiresIn in seconds when scheduling proactive refresh', () => {
+    vi.useFakeTimers();
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    act(() => {
+      result.current.login({
+        user: { id: 1, rol: 'ADMIN' },
+        accessToken: 'second-token',
+        expiresIn: '20s',
+      });
+    });
+
+    expect(result.current.getAccessToken()).toBe('second-token');
+    expect(vi.getTimerCount()).toBeGreaterThan(0);
+  });
+
+  it('should parse expiresIn in minutes when no unit is provided', () => {
+    vi.useFakeTimers();
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    act(() => {
+      result.current.login({
+        user: { id: 1, rol: 'ADMIN' },
+        accessToken: 'minute-token',
+        expiresIn: '20',
+      });
+    });
+
+    expect(result.current.getAccessToken()).toBe('minute-token');
+    expect(vi.getTimerCount()).toBeGreaterThan(0);
+  });
+
+  it('should use the fallback baseURL when it is empty', async () => {
+    mockApi.defaults.baseURL = '';
+
+    localStorage.setItem(
+      'user',
+      JSON.stringify({ id: 1, rol: 'ADMIN' })
+    );
+
+    const fetchMock = vi.fn().mockResolvedValue(
+      createRefreshResponse({
+        accessToken: 'fallback-base-url-token',
+      })
+    );
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    renderHook(() => useAuth(), { wrapper });
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledWith(
+        '/auth/refresh',
+        expect.objectContaining({
+          method: 'POST',
+          credentials: 'include',
+        })
+      );
+    });
+  });
+
+  it('should use default expiresIn when refresh response omits it', async () => {
+    localStorage.setItem(
+      'user',
+      JSON.stringify({ id: 1, rol: 'ADMIN' })
+    );
+
+    const fetchMock = vi.fn().mockResolvedValue({
+      ok: true,
+      json: vi.fn().mockResolvedValue({
+        success: true,
+        accessToken: 'no-expiry-token',
+      }),
+    });
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    await waitFor(() => {
+      expect(result.current.getAccessToken()).toBe('no-expiry-token');
+    });
+  });
+
+  it('should reject an invalid expiresIn format by using the default delay', () => {
+    vi.useFakeTimers();
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    act(() => {
+      result.current.login({
+        user: { id: 1, rol: 'ADMIN' },
+        accessToken: 'invalid-expiry-token',
+        expiresIn: 'invalid-expiry',
+      });
+    });
+
+    expect(result.current.getAccessToken()).toBe('invalid-expiry-token');
+    expect(vi.getTimerCount()).toBeGreaterThan(0);
+  });
+
+  it('should queue a second refresh while the first refresh is in progress', async () => {
+    let resolveFetch;
+
+    const fetchMock = vi.fn().mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveFetch = resolve;
+        })
+    );
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    let errorHandler;
+
+    mockInterceptorUse.mockImplementation((_, onRejected) => {
+      errorHandler = onRejected;
+      return 13;
+    });
+
+    renderHook(() => useAuth(), { wrapper });
+
+    const request1 = {
+      url: '/api/protected-1',
+      headers: {},
+    };
+
+    const request2 = {
+      url: '/api/protected-2',
+      headers: {},
+    };
+
+    const error1 = {
+      response: { status: 401 },
+      config: request1,
+    };
+
+    const error2 = {
+      response: { status: 401 },
+      config: request2,
+    };
+
+    const firstRetry = errorHandler(error1);
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    const secondRetry = errorHandler(error2);
+
+    await act(async () => {
+      resolveFetch(
+        createRefreshResponse({
+          accessToken: 'queued-token',
+          expiresIn: '15m',
+        })
+      );
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    await expect(firstRetry).resolves.toEqual({ data: 'retried' });
+    await expect(secondRetry).resolves.toEqual({ data: 'retried' });
+
+    expect(request1.headers.Authorization).toBe('Bearer queued-token');
+    expect(request2.headers.Authorization).toBe('Bearer queued-token');
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+    expect(mockApi).toHaveBeenCalledWith(request1);
+    expect(mockApi).toHaveBeenCalledWith(request2);
+  });
+
+  it('should expire session when visibility refresh fails', async () => {
+    vi.useFakeTimers();
+
+    const user = {
+      id: 1,
+      email: 'test@example.com',
+      rol: 'ADMIN',
+    };
+
+    localStorage.setItem('user', JSON.stringify(user));
+
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(
+        createRefreshResponse({
+          accessToken: 'initial-refresh-token',
+          expiresIn: '15m',
+        })
+      )
+      .mockResolvedValueOnce({
+        ok: false,
+      });
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    expect(result.current.getAccessToken()).toBe(
+      'initial-refresh-token'
+    );
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    Object.defineProperty(document, 'visibilityState', {
+      configurable: true,
+      value: 'visible',
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30001);
+    });
+
+    act(() => {
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(result.current.sessionExpired).toBe(true);
+    expect(result.current.user).toBeNull();
+  });
+
+  it('should handle an exception during visibility refresh', async () => {
+    vi.useFakeTimers();
+
+    localStorage.setItem(
+      'user',
+      JSON.stringify({ id: 1, rol: 'ADMIN' })
+    );
+
+    const fetchMock = vi.fn()
+      .mockResolvedValueOnce(
+        createRefreshResponse({
+          accessToken: 'initial-refresh-token',
+          expiresIn: '15m',
+        })
+      )
+      .mockRejectedValueOnce(new Error('Network error'));
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    const { result } = renderHook(() => useAuth(), { wrapper });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+
+    Object.defineProperty(document, 'visibilityState', {
+      configurable: true,
+      value: 'visible',
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(30001);
+    });
+
+    act(() => {
+      document.dispatchEvent(new Event('visibilitychange'));
+    });
+
+    await act(async () => {
+      await vi.advanceTimersByTimeAsync(0);
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(2);
+    expect(result.current.sessionExpired).toBe(true);
+    expect(result.current.user).toBeNull();
+  });
+
+  it('should reject queued requests when the refresh fails', async () => {
+    let resolveFetch;
+
+    const fetchMock = vi.fn().mockImplementation(
+      () =>
+        new Promise((resolve) => {
+          resolveFetch = resolve;
+        })
+    );
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    let errorHandler;
+
+    mockInterceptorUse.mockImplementation((_, onRejected) => {
+      errorHandler = onRejected;
+      return 15;
+    });
+
+    renderHook(() => useAuth(), { wrapper });
+
+    const request1 = {
+      url: '/api/protected-1',
+      headers: {},
+    };
+
+    const request2 = {
+      url: '/api/protected-2',
+      headers: {},
+    };
+
+    const error1 = {
+      response: { status: 401 },
+      config: request1,
+    };
+
+    const error2 = {
+      response: { status: 401 },
+      config: request2,
+    };
+
+    const firstRetry = errorHandler(error1);
+
+    const firstSettled = firstRetry.then(
+      (value) => ({ status: 'fulfilled', value }),
+      (reason) => ({ status: 'rejected', reason })
+    );
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    const secondRetry = errorHandler(error2);
+
+    const secondSettled = secondRetry.then(
+      (value) => ({ status: 'fulfilled', value }),
+      (reason) => ({ status: 'rejected', reason })
+    );
+
+    await act(async () => {
+      resolveFetch({ ok: false });
+      await Promise.resolve();
+      await Promise.resolve();
+    });
+
+    const [firstResult, secondResult] = await Promise.all([
+      firstSettled,
+      secondSettled,
+    ]);
+
+    expect(firstResult.status).toBe('rejected');
+    expect(firstResult.reason).toEqual(error1);
+
+    expect(secondResult.status).toBe('rejected');
+    expect(secondResult.reason).toMatchObject({
+      message: 'Sesión expirada',
+    });
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
+  it('should ignore visibility changes while the document is hidden', async () => {
+    localStorage.setItem(
+      'user',
+      JSON.stringify({ id: 1, rol: 'ADMIN' })
+    );
+
+    const fetchMock = vi.fn().mockResolvedValue(
+      createRefreshResponse({
+        accessToken: 'hidden-visibility-token',
+        expiresIn: '15m',
+      })
+    );
+
+    vi.stubGlobal('fetch', fetchMock);
+
+    renderHook(() => useAuth(), { wrapper });
+
+    await waitFor(() => {
+      expect(fetchMock).toHaveBeenCalledTimes(1);
+    });
+
+    Object.defineProperty(document, 'visibilityState', {
+      configurable: true,
+      value: 'hidden',
+    });
+
+    document.dispatchEvent(new Event('visibilitychange'));
+
+    await Promise.resolve();
+
+    expect(fetchMock).toHaveBeenCalledTimes(1);
+  });
+
 });

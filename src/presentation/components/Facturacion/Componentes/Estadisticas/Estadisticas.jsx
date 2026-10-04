@@ -217,7 +217,7 @@ function LoadingEstadisticas() {
   );
 }
 
-function TooltipMoneda({ active, payload, label, highContrast }) {
+export function TooltipMoneda({ active, payload, label, highContrast }) {
   if (!active || !payload?.length) return null;
   const estiloLabel = highContrast ? { color: '#ffff00' } : {};
   return (
@@ -237,7 +237,7 @@ function TooltipMoneda({ active, payload, label, highContrast }) {
   );
 }
 
-function TooltipEstado({ active, payload, highContrast }) {
+export function TooltipEstado({ active, payload, highContrast }) {
   if (!active || !payload?.length) return null;
   const { name, value } = payload[0];
   const estiloTexto = highContrast ? { color: '#ffff00' } : {};

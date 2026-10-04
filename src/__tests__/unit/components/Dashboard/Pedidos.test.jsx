@@ -82,6 +82,46 @@ describe('Pedidos', () => {
     expect(screen.getAllByText('—')).toHaveLength(1);
   });
 
+  it('formatea valores vacíos, millones y miles en los pedidos', async () => {
+    mocks.get.mockResolvedValueOnce({
+      data: {
+        data: [
+          {
+            id: 3,
+            fecha: '2026-09-23',
+            usuario: 'Admin',
+            estado: 'ENTREGADO',
+            total: null,
+          },
+          {
+            id: 4,
+            fecha: '2026-09-22',
+            usuario: 'Admin',
+            estado: 'PENDIENTE',
+            total: 2500000,
+          },
+          {
+            id: 5,
+            fecha: '2026-09-21',
+            usuario: 'Admin',
+            estado: 'ENTREGADO',
+            total: 12500,
+          },
+        ],
+      },
+    });
+
+    render(<Pedidos />);
+
+    await waitFor(() =>
+      expect(screen.getByText('Últimos pedidos')).toBeInTheDocument(),
+    );
+
+    expect(screen.getByText('$2.5M')).toBeInTheDocument();
+    expect(screen.getByText('$12.5k')).toBeInTheDocument();
+    expect(screen.getByText('—')).toBeInTheDocument();
+  });
+
   it('finaliza la carga cuando la API falla', async () => {
     mocks.get.mockRejectedValueOnce(new Error('API error'));
 

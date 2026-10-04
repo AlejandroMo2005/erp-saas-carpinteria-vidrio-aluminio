@@ -468,6 +468,35 @@ describe('Pedidos', () => {
     expect(mocks.actualizarEstado.mutateAsync).not.toHaveBeenCalled();
   });
 
+  it('rechaza una transición cuando el estado actual no tiene transiciones definidas', async () => {
+    const pedidoEstadoDesconocido = {
+      ...pedidoPendiente,
+      estado: 'ESTADO_DESCONOCIDO',
+    };
+
+    configurarPedidos({
+      data: [pedidoEstadoDesconocido],
+    });
+
+    configurarFiltros({
+      pedidosFiltrados: [pedidoEstadoDesconocido],
+    });
+
+    renderPedidos();
+
+    await act(async () => {
+      fireEvent.click(
+        screen.getByRole('button', { name: 'Entregar 1' }),
+      );
+    });
+
+    expect(mocks.toastWarning).toHaveBeenCalledWith(
+      'No se puede cambiar de ESTADO_DESCONOCIDO a ENTREGADO.',
+    );
+
+    expect(mocks.actualizarEstado.mutateAsync).not.toHaveBeenCalled();
+  });
+
   it('rechaza una transición de estado no permitida', async () => {
     configurarPedidos({
       data: [pedidoPendiente],

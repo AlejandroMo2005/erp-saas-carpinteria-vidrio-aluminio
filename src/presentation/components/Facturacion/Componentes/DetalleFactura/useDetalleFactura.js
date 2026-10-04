@@ -53,7 +53,7 @@ export default function useDetalleFactura({ facturaId, onAnulada }) {
       const url  = window.URL.createObjectURL(new Blob([response.data], { type: 'application/pdf' }));
       const link = document.createElement('a');
       link.href  = url;
-      link.download = `RIDE_${(numeroFactura ?? facturaId).replace(/-/g, '_')}.pdf`;
+      link.download = `RIDE_${String(numeroFactura ?? facturaId).replace(/-/g, '_')}.pdf`;
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);

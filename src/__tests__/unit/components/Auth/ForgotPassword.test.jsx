@@ -166,7 +166,7 @@ describe('ForgotPassword Component', () => {
   it('disables submit button while sending email', async () => {
     const user = userEvent.setup();
 
-    mockPost.mockImplementation(() => new Promise(() => {}));
+    mockPost.mockImplementation(() => new Promise(() => { }));
 
     render(<ForgotPassword />);
 
@@ -381,7 +381,7 @@ describe('ForgotPassword Component', () => {
           token: 'recovery-token-123',
         },
       })
-      .mockImplementationOnce(() => new Promise(() => {}));
+      .mockImplementationOnce(() => new Promise(() => { }));
 
     render(<ForgotPassword />);
 
@@ -555,6 +555,65 @@ describe('ForgotPassword Component', () => {
     expect(mockNavigate).not.toHaveBeenCalled();
   }, 10000);
 
+  it('usa el mensaje genérico cuando el error no tiene response', async () => {
+    const user = userEvent.setup();
+
+    mockPost
+      .mockResolvedValueOnce({
+        data: {
+          success: true,
+          token: 'recovery-token-123',
+        },
+      })
+      .mockResolvedValueOnce({
+        data: {
+          success: true,
+        },
+      })
+      .mockRejectedValueOnce({});
+
+    render(<ForgotPassword />);
+
+    await user.type(
+      screen.getByLabelText('Correo electrónico'),
+      'usuario@gmail.com'
+    );
+
+    await user.click(
+      screen.getByRole('button', { name: 'Enviar Código' })
+    );
+
+    await screen.findByText('✅ Código enviado a tu correo');
+    await new Promise(resolve => setTimeout(resolve, 2100));
+
+    await user.type(
+      screen.getByLabelText('Código de 6 dígitos'),
+      '123456'
+    );
+
+    await user.click(
+      screen.getByRole('button', { name: 'Verificar Código' })
+    );
+
+    await screen.findByText('✅ Código verificado');
+    await new Promise(resolve => setTimeout(resolve, 1600));
+
+    await user.type(
+      screen.getByLabelText('Nueva contraseña'),
+      'NuevaPassword123'
+    );
+
+    await user.click(
+      screen.getByRole('button', { name: 'Cambiar Contraseña' })
+    );
+
+    expect(
+      await screen.findByText('Error al restablecer contraseña')
+    ).toBeInTheDocument();
+
+    expect(mockNavigate).not.toHaveBeenCalled();
+  });
+
   it('disables button while updating password', async () => {
     const user = userEvent.setup();
 
@@ -570,7 +629,7 @@ describe('ForgotPassword Component', () => {
           success: true,
         },
       })
-      .mockImplementationOnce(() => new Promise(() => {}));
+      .mockImplementationOnce(() => new Promise(() => { }));
 
     render(<ForgotPassword />);
 

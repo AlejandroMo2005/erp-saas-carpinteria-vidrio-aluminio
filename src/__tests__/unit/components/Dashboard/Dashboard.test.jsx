@@ -96,6 +96,17 @@ describe('Dashboard', () => {
     expect(screen.getByText('Ingresos totales')).toBeInTheDocument();
   });
 
+  it('muestra los KPIs en alto contraste', () => {
+    mocks.accessibility.mockReturnValue({
+      darkMode: false,
+      highContrast: true,
+    });
+
+    render(<Dashboard />);
+
+    expect(screen.getAllByRole('button')).toHaveLength(6);
+  });
+
   it('muestra error de métricas', () => {
     mocks.resumen.mockReturnValue({
       data: undefined,
@@ -121,8 +132,20 @@ describe('Dashboard', () => {
     await waitFor(() => expect(screen.queryByTestId('vista-ingresos')).not.toBeInTheDocument());
   });
 
-  it('abre las vistas secundarias', async () => {
+  it('abre todas las vistas del Dashboard', async () => {
     render(<Dashboard />);
+
+    fireEvent.click(screen.getByRole('button', { name: /Ingresos totales/ }));
+    await waitFor(() => expect(screen.getByTestId('vista-ingresos')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByRole('button', { name: /Pedidos/ }));
+    await waitFor(() => expect(screen.getByTestId('vista-pedidos')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByRole('button', { name: /Usuarios activos/ }));
+    await waitFor(() => expect(screen.getByTestId('vista-usuarios')).toBeInTheDocument());
+
+    fireEvent.click(screen.getByRole('button', { name: /Ticket promedio/ }));
+    await waitFor(() => expect(screen.getByTestId('vista-ticket')).toBeInTheDocument());
 
     fireEvent.click(screen.getByRole('button', { name: /Productos/ }));
     await waitFor(() => expect(screen.getByTestId('vista-productos')).toBeInTheDocument());
