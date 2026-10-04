@@ -8,7 +8,7 @@
     "dev": "nodemon server.js",
     "test": "vitest",
     "test:run": "vitest run",
-    "test:coverage": "vitest run --coverage",
+    "test:coverage": "vitest run __tests__/unit --coverage",
     "test:watch": "vitest --watch",
     "lint": "eslint .",
     "test:unit": "vitest run __tests__/unit",
