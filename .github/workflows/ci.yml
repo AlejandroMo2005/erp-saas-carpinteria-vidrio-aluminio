@@ -108,7 +108,17 @@ jobs:
         run: npm ci
 
       - name: Run integration tests
-        run: npm run test:integration
+        run: |
+          echo "=== ENV INTEGRATION ==="
+          echo "DB_HOST=$DB_HOST"
+          echo "DB_PORT=$DB_PORT"
+          echo "DB_NAME=$DB_NAME"
+          echo "REDIS_HOST=$REDIS_HOST"
+          echo "REDIS_PORT=$REDIS_PORT"
+          echo "=== DOCKER PORTS ==="
+          docker compose -f docker-compose.e2e.yml ps
+          echo "=== TESTS ==="
+          npm run test:integration
 
       - name: Stop E2E infrastructure
         if: always()
