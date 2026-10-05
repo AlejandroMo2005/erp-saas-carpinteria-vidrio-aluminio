@@ -109,6 +109,7 @@ export const AuthProvider = ({ children }) => {
   const refreshQueue   = useRef([]);
   const refreshTimer   = useRef(null);
   const lastRefreshAt  = useRef(0);
+  const refreshGeneration = useRef(0);
 
   // ── Limpiar timer de refresh proactivo ────────────────────────────────────
   const clearRefreshTimer = () => {
@@ -138,6 +139,7 @@ export const AuthProvider = ({ children }) => {
   // ── Logout voluntario ─────────────────────────────────────────────────────
   const logout = useCallback(async (callBackend = true) => {
     clearRefreshTimer();
+    refreshGeneration.current += 1;
     if (callBackend) {
       // Fire-and-forget: no bloquear el logout local si el backend falla.
       api.post('/auth/logout').catch(() => {});
@@ -166,6 +168,8 @@ export const AuthProvider = ({ children }) => {
 
     isRefreshing.current = true;
 
+    const generation = refreshGeneration.current;
+
     refreshPromise.current = (async () => {
       try {
         // Usar fetch nativo (no axios) para evitar que el interceptor 401
@@ -181,7 +185,7 @@ export const AuthProvider = ({ children }) => {
 
         const data = await response.json();
 
-        if (data.success && data.accessToken) {
+        if (data.success && data.accessToken && generation === refreshGeneration.current) {
           setAccessToken(data.accessToken);
           lastRefreshAt.current = Date.now();
           return {
