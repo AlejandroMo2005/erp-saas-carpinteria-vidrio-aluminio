@@ -238,7 +238,11 @@ export const AuthProvider = ({ children }) => {
     const hasUser = !!localStorage.getItem('user');
     if (!hasUser) return;
 
+    const generation = refreshGeneration.current;
+
     const timerId = setTimeout(async () => {
+      if (generation !== refreshGeneration.current) return;
+
       try {
         const result = await tryRefreshSilent();
         if (!result) {
