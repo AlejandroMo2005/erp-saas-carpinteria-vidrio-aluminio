@@ -217,14 +217,11 @@ describe('useListaFacturas', () => {
     window.URL.createObjectURL = createObjectURL;
     window.URL.revokeObjectURL = revokeObjectURL;
 
-    let enlaceCreado;
-
     const originalCreateElement = document.createElement.bind(document);
     vi.spyOn(document, 'createElement').mockImplementation((tagName) => {
       const element = originalCreateElement(tagName);
 
       if (tagName === 'a') {
-        enlaceCreado = element;
         vi.spyOn(element, 'click').mockImplementation(click);
       }
 

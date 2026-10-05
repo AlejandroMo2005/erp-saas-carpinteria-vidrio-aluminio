@@ -6,9 +6,9 @@ Fuente: `reports/lint.json`
 
 | Métrica | Resultado |
 | --- | --- |
-| Archivos analizados | 522 |
+| Archivos analizados | 555 |
 | Errores | 0 |
-| Advertencias | 12 |
+| Advertencias | 0 |
 
 ## Fuente
 

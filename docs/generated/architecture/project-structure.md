@@ -35,11 +35,6 @@
 - `backend/__tests__/unit/shared/utils/`
 - `backend/__tests__/unit/utils/`
 - `backend/__tests__/unit/validators/`
-- `backend/logs/`
-- `backend/public/`
-- `backend/public/referencias/`
-- `backend/public/referencias/1/`
-- `backend/public/referencias/40/`
 - `backend/src/`
 - `backend/src/config/`
 - `backend/src/modules/`
@@ -71,8 +66,6 @@
 - `e2e/`
 - `e2e/database/`
 - `e2e/fixtures/`
-- `logs/`
-- `playwright-report/`
 - `public/`
 - `reports/`
 - `scripts/`
@@ -206,12 +199,11 @@
 - `src/presentation/hooks/`
 - `src/presentation/styles/`
 - `src/shims/`
-- `test-results/`
 
 ## Fuente
 
 La estructura se obtiene mediante análisis del sistema de archivos del repositorio.
 
-- Directorios detectados: 205
+- Directorios detectados: 197
 
 > Este archivo es generado automáticamente. No editar manualmente.
