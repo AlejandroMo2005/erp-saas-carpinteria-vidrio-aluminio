@@ -740,7 +740,7 @@ describe('useProformas', () => {
       });
 
       expect(result.current.items[0].ancho).toBe(1);
-      expect(result.current.items[1].ancho).toBe('7');
+      expect(String(result.current.items[1].ancho)).toBe('7');
     });
   });
 

@@ -20,7 +20,7 @@ exports.obtenerEstadisticas = async (req, res) => {
     const fechaHasta = req.query.fechaHasta || defaultFechaHasta();
     const empresaId  = req.empresaId;
 
-    const [[], [estadosRows], [topClientesRows], [mensualRows]] = await Promise.all([
+    const [, [estadosRows], [topClientesRows], [mensualRows]] = await Promise.all([
       Facturacion.obtenerResumenFacturacion(fechaDesde, fechaHasta, empresaId),
       Facturacion.obtenerFacturasPorEstado(fechaDesde, fechaHasta, empresaId),
       Facturacion.obtenerTopClientes(fechaDesde, fechaHasta, 10, empresaId),
