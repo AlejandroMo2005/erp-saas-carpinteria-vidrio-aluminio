@@ -136,7 +136,7 @@ export default function ListaFacturas() {
                       <td className="lf-tabla__numero">{factura.numero_factura}</td>
                       <td>{formatearFecha(factura.fecha_emision)}</td>
                       <td className="lf-tabla__cliente">{factura.cliente_nombre}</td>
-                      <td className="lf-tabla__monto">${parseFloat(factura.total).toFixed(2)}</td>
+                      <td className="lf-tabla__monto">${Number.parseFloat(factura.total).toFixed(2)}</td>
                       <td><EstadoBadge estado={factura.estado} /></td>
                       <td>
                         <div className="lf-tabla__acciones">
