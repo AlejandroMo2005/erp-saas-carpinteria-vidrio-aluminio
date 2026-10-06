@@ -18,7 +18,9 @@ export default function useIngresos() {
     }
   }, [periodo]);
 
-  useEffect(() => { cargar(); }, [cargar]);
+  useEffect(() => {
+    void cargar();
+  }, [cargar]);
 
   return { periodo, setPeriodo, data, loading };
 }
