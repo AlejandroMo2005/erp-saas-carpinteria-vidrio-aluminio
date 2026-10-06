@@ -40,7 +40,9 @@ export default function useListaFacturas({ onToastError, onToastSuccess }) {
     }
   }, [filtros, paginacion.pagina, paginacion.limite]);
 
-  useEffect(() => { cargarFacturas(); }, [cargarFacturas]);
+  useEffect(() => {
+    void cargarFacturas();
+  }, [cargarFacturas]);
 
   const handleBusquedaChange = (e) => {
     setFiltros(prev => ({ ...prev, busqueda: e.target.value }));
@@ -54,7 +56,7 @@ export default function useListaFacturas({ onToastError, onToastSuccess }) {
 
   const handleFacturaCreada = () => {
     setModalFormulario(false);
-    cargarFacturas();
+    void cargarFacturas();
     onToastSuccess('Factura creada correctamente.');
   };
 
