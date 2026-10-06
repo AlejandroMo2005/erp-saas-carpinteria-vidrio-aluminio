@@ -26,7 +26,9 @@ export default function useTicket() {
     }
   }, [periodo]);
 
-  useEffect(() => { cargar(); }, [cargar]);
+  useEffect(() => {
+    void cargar();
+  }, [cargar]);
 
   return { periodo, setPeriodo, data, loading };
 }
