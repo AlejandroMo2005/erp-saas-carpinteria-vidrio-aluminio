@@ -33,40 +33,58 @@ const MatCardAdmin = memo(function MatCardAdmin({
         <h2 className="mat-title">{activo.nombre_material}</h2>
 
         <div
-          className="selector-colores" role="group"
+          className="selector-colores"
+          role="group"
           aria-label={`Variantes de color para ${activo.nombre_material}`}
         >
           {variantes.map((v) => (
             <button
-              key={v.variante_id} type="button"
+              key={v.variante_id}
+              type="button"
               className={`color-btn-wrapper${activo.variante_id === v.variante_id ? ' active' : ''}`}
               aria-label={`Seleccionar color ${v.color_nombre}`}
               aria-pressed={activo.variante_id === v.variante_id}
               onClick={() => onSeleccionar(cardKey, v)}
             >
-              <span className="color-sample" style={{ backgroundColor: normalizarColor(v.color_valor) }} />
+              <span
+                className="color-sample"
+                style={{ backgroundColor: normalizarColor(v.color_valor) }}
+              />
             </button>
           ))}
         </div>
 
         {activo.color_nombre && (
-          <div className="active-color-label" aria-live="polite">{activo.color_nombre}</div>
+          <div className="active-color-label" aria-live="polite">
+            {activo.color_nombre}
+          </div>
         )}
 
         <div className="edit-fields">
           <div className="field-group">
             <label htmlFor={stockId} className="field-label">STOCK</label>
             <input
-              id={stockId} type="number" className="field-input"
-              value={edit?.stock ?? 0} min="0" max={STOCK_MAX} step="1"
+              id={stockId}
+              type="number"
+              className="field-input"
+              value={edit?.stock ?? 0}
+              min="0"
+              max={STOCK_MAX}
+              step="1"
               onChange={(e) => onCampo(cardKey, 'stock', e.target.value)}
             />
           </div>
+
           <div className="field-group">
             <label htmlFor={precioId} className="field-label">PRECIO</label>
             <input
-              id={precioId} type="number" step="0.01" min="0" max={PRECIO_MAX}
-              className="field-input" value={edit?.precio ?? 0}
+              id={precioId}
+              type="number"
+              step="0.01"
+              min="0"
+              max={PRECIO_MAX}
+              className="field-input"
+              value={edit?.precio ?? 0}
               onChange={(e) => onCampo(cardKey, 'precio', e.target.value)}
             />
           </div>
@@ -76,12 +94,16 @@ const MatCardAdmin = memo(function MatCardAdmin({
       <footer className="mat-card-footer">
         <div className="price-row">
           <span className="u-text">USD</span>
-          <span className="p-text">${parseFloat(activo.precio).toFixed(2)}</span>
+          <span className="p-text">
+            ${Number.parseFloat(activo.precio).toFixed(2)}
+          </span>
         </div>
+
         <button
           className="btn-action"
           onClick={() => onGuardar(cardKey)}
-          disabled={guardando} aria-busy={guardando}
+          disabled={guardando}
+          aria-busy={guardando}
           aria-label={`Actualizar ${activo.nombre_material} variante ${activo.color_nombre}`}
         >
           {guardando ? 'Guardando…' : `Actualizar ${activo.color_nombre}`}
