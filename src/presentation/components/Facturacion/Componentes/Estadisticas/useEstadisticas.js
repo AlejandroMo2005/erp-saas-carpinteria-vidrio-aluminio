@@ -28,7 +28,9 @@ export default function useEstadisticas() {
     }
   }, [periodo]);
 
-  useEffect(() => { cargarDatos(); }, [cargarDatos]);
+  useEffect(() => {
+    void cargarDatos();
+  }, [cargarDatos]);
 
   return {
     periodo, setPeriodo,
