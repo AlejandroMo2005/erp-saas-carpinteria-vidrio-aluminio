@@ -157,8 +157,8 @@ export default function DetalleFactura({ facturaId, onCerrar, onAnulada }) {
                     </thead>
                     <tbody>
                       {(factura.detalle ?? factura.items ?? []).map((item, idx) => {
-                        const sub   = parseFloat(item.precio_total_sin_iva) || 0;
-                        const iva   = parseFloat(item.valor_iva)            || 0;
+                        const sub   = Number.parseFloat(item.precio_total_sin_iva) || 0;
+                        const iva   = Number.parseFloat(item.valor_iva)            || 0;
                         const total = sub + iva;
                         return (
                           <tr key={item.id ?? idx}>
@@ -169,10 +169,10 @@ export default function DetalleFactura({ facturaId, onCerrar, onAnulada }) {
                                 <span className="df-tabla__desc-codigo">Cód: {item.codigo_principal}</span>
                               )}
                             </td>
-                            <td>{parseFloat(item.cantidad).toFixed(2)}</td>
+                            <td>{Number.parseFloat(item.cantidad).toFixed(2)}</td>
                             <td>{formatearMoneda(item.precio_unitario)}</td>
                             <td>{formatearMoneda(item.descuento ?? 0)}</td>
-                            <td>{parseFloat(item.porcentaje_iva).toFixed(0)}%</td>
+                            <td>{Number.parseFloat(item.porcentaje_iva).toFixed(0)}%</td>
                             <td className="df-tabla__total">{formatearMoneda(total)}</td>
                           </tr>
                         );
@@ -185,7 +185,7 @@ export default function DetalleFactura({ facturaId, onCerrar, onAnulada }) {
                   <div className="df-totales__fila"><span>Subtotal sin IVA</span><span>{formatearMoneda(factura.subtotal_sin_iva)}</span></div>
                   <div className="df-totales__fila"><span>Subtotal con IVA</span><span>{formatearMoneda(factura.subtotal_con_iva)}</span></div>
                   <div className="df-totales__fila"><span>IVA</span><span>{formatearMoneda(factura.iva)}</span></div>
-                  {parseFloat(factura.descuento) > 0 && (
+                  {Number.parseFloat(factura.descuento) > 0 && (
                     <div className="df-totales__fila"><span>Descuento</span><span>- {formatearMoneda(factura.descuento)}</span></div>
                   )}
                   <div className="df-totales__fila df-totales__fila--total">
