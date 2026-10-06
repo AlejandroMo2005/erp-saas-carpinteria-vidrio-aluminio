@@ -4,7 +4,7 @@
 //    — Con frameloop="demand" el canvas quedaba en blanco hasta la primera
 //      interacción porque dispatch("resize") no llama a invalidate() internamente.
 //    — "always" garantiza que R3F renderice continuamente, incluyendo el primer
-//      frame y el frame posterior al resize que aplica el CSS del chunk lazy.
+//      frame y el frame posterior al resize que aplica el CSS del chunk lazy..
 
 import { useState, useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
