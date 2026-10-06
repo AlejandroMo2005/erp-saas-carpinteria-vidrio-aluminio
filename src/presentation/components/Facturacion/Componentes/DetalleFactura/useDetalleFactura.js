@@ -25,7 +25,9 @@ export default function useDetalleFactura({ facturaId, onAnulada }) {
     }
   }, [facturaId]);
 
-  useEffect(() => { cargarFactura(); }, [cargarFactura]);
+  useEffect(() => {
+    void cargarFactura();
+  }, [cargarFactura]);
 
   const handleAnular = async () => {
     if (motivo.trim().length < 10) {
