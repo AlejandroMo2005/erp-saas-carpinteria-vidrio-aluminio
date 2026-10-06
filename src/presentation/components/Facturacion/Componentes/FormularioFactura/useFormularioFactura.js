@@ -20,8 +20,8 @@ export default function useFormularioFactura({ pedidoId, onFacturaCreada }) {
     const cargarIVA = async () => {
       const resp = await api.get('/configuracion/IVA').catch(() => null);
       if (resp?.data?.success) {
-        const val = parseFloat(resp.data.data?.valor ?? IVA_DEFAULT);
-        setTasaIva(isNaN(val) ? IVA_DEFAULT : val);
+        const val = Number.parseFloat(resp.data.data?.valor ?? IVA_DEFAULT);
+        setTasaIva(Number.isNaN(val) ? IVA_DEFAULT : val);
       }
     };
 
@@ -33,11 +33,11 @@ export default function useFormularioFactura({ pedidoId, onFacturaCreada }) {
         if (!pedido) return;
         const raw = pedido.items ?? pedido.detalle ?? [];
         if (raw.length === 0) return;
-        const precios = distribuirTotal(raw, parseFloat(pedido.total) || 0);
+        const precios = distribuirTotal(raw, Number.parseFloat(pedido.total) || 0);
         setItems(raw.map((d, i) => ({
           _id:             Date.now() + Math.random(),
           descripcion:     buildDescripcion(d),
-          cantidad:        parseFloat(d.cantidad) || 1,
+          cantidad:        Number.parseFloat(d.cantidad) || 1,
           precio_unitario: precios[i],
           descuento:       0,
           aplica_iva:      true,
@@ -45,8 +45,8 @@ export default function useFormularioFactura({ pedidoId, onFacturaCreada }) {
       } catch { /* error silencioso — el usuario puede completar manualmente */ }
     };
 
-    cargarIVA();
-    cargarDesdePedido();
+    void cargarIVA();
+    void cargarDesdePedido();
   }, [pedidoId]);
 
   // Items
@@ -74,9 +74,9 @@ export default function useFormularioFactura({ pedidoId, onFacturaCreada }) {
     items.forEach(item => {
       if (!item.descripcion.trim())
         errs[`item_${item._id}_descripcion`]     = 'Descripción requerida';
-      if (!item.cantidad || parseFloat(item.cantidad) <= 0)
+      if (!item.cantidad || Number.parseFloat(item.cantidad) <= 0)
         errs[`item_${item._id}_cantidad`]         = 'Cantidad inválida';
-      if (parseFloat(item.precio_unitario) < 0)
+      if (Number.parseFloat(item.precio_unitario) < 0)
         errs[`item_${item._id}_precio_unitario`]  = 'Precio inválido';
     });
     setErrores(errs);
@@ -107,9 +107,9 @@ export default function useFormularioFactura({ pedidoId, onFacturaCreada }) {
         observaciones:               observaciones.trim() || null,
         items: items.map(item => ({
           descripcion:     item.descripcion.trim(),
-          cantidad:        parseFloat(item.cantidad),
-          precio_unitario: parseFloat(item.precio_unitario),
-          descuento:       parseFloat(item.descuento) || 0,
+          cantidad:        Number.parseFloat(item.cantidad),
+          precio_unitario: Number.parseFloat(item.precio_unitario),
+          descuento:       Number.parseFloat(item.descuento) || 0,
           porcentaje_iva:  item.aplica_iva ? tasaIva * 100 : 0,
         })),
       };
