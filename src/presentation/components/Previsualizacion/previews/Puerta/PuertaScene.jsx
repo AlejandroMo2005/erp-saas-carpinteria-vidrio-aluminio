@@ -23,8 +23,8 @@ export default function PuertaScene({
   colorMarco   = "#888888",
   colorVidrio  = "#e0f2ff",
 }) {
-  const altoN      = Math.max(0.2, parseFloat(alto)     || 2.1);
-  const anchoHojaN = Math.max(0.1, parseFloat(anchoHoja) || 0.75);
+  const altoN      = Math.max(0.2, Number.parseFloat(alto)     || 2.1);
+  const anchoHojaN = Math.max(0.1, Number.parseFloat(anchoHoja) || 0.75);
 
   const mMarco = useMemo(() => ({
     color: colorMarco, roughness: 0.3, metalness: 0.8, side: DoubleSide,
