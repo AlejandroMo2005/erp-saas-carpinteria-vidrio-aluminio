@@ -37,7 +37,10 @@ export function useMaterialesActions({
 
   const handleSeleccionar = useCallback((key, variante) => {
     setSeleccion((prev) => ({ ...prev, [key]: variante }));
-    setEditando((prev)  => ({ ...prev, [key]: { stock: variante.stock, precio: variante.precio } }));
+    setEditando((prev) => ({
+      ...prev,
+      [key]: { stock: variante.stock, precio: variante.precio },
+    }));
   }, []);
 
   const handleCampo = useCallback((key, campo, valor) => {
@@ -55,10 +58,10 @@ export function useMaterialesActions({
     const varActual = seleccionEfectiva[key];
     const vals      = editandoEfectivo[key];
 
-    const stockVal  = validarNumero(vals.stock,  0, STOCK_MAX);
+    const stockVal  = validarNumero(vals.stock, 0, STOCK_MAX);
     const precioVal = validarNumero(vals.precio, 0, PRECIO_MAX);
 
-    if (isNaN(stockVal) || isNaN(precioVal)) {
+    if (Number.isNaN(stockVal) || Number.isNaN(precioVal)) {
       pushToast('Valores inválidos. Verifica stock y precio.', 'error');
       return;
     }
@@ -74,6 +77,7 @@ export function useMaterialesActions({
         : v
       )
     );
+
     setSeleccion((prev) => ({
       ...prev,
       [key]: { ...varActual, stock: stockVal, precio: precioVal },
@@ -83,8 +87,9 @@ export function useMaterialesActions({
       await actualizarVariante.mutateAsync({
         varianteId: varActual.variante_id,
         stock:      stockVal,
-        precio:     parseFloat(precioVal.toFixed(2)),
+        precio:     Number.parseFloat(precioVal.toFixed(2)),
       });
+
       pushToast(
         `${sanitizarTexto(varActual.nombre_material)} (${sanitizarTexto(varActual.color_nombre)}) actualizado`,
         'success'
@@ -97,10 +102,12 @@ export function useMaterialesActions({
           : v
         )
       );
+
       setSeleccion((prev) => ({
         ...prev,
         [key]: { ...varActual, stock: stockAnt, precio: precioAnt },
       }));
+
       setEditando((prev) => ({
         ...prev,
         [key]: { stock: stockAnt, precio: precioAnt },
@@ -111,12 +118,20 @@ export function useMaterialesActions({
         : err.response?.status === 404
           ? 'Material no encontrado.'
           : 'Error al guardar. Inténtalo de nuevo.';
+
       pushToast(msg, 'error');
     } finally {
       setGuardando((prev) => ({ ...prev, [key]: false }));
     }
-  }, [guardando, seleccionEfectiva, editandoEfectivo, esAdmin,
-      actualizarVariante, queryClient, pushToast]);
+  }, [
+    guardando,
+    seleccionEfectiva,
+    editandoEfectivo,
+    esAdmin,
+    actualizarVariante,
+    queryClient,
+    pushToast,
+  ]);
 
   return {
     seleccionEfectiva,
