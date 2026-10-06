@@ -11,16 +11,44 @@
 
 'use strict';
 
-const Usuario    = require('./usuario.repository');
-const logger     = require('../../shared/utils/logger');
-const db         = require('../../config/database.js');
+const Usuario = require('./usuario.repository');
+const logger  = require('../../shared/utils/logger');
+const db      = require('../../config/database.js');
 
 function validarCedulaRuc(valor) {
   if (!valor) return true;
+
   const limpio = valor.trim();
-  if (!/^\d{10}$/.test(limpio) && !/^\d{13}$/.test(limpio)) return false;
-  if (limpio.length === 13 && !limpio.endsWith('001')) return false;
+
+  if (!/^\d{10}$/.test(limpio) && !/^\d{13}$/.test(limpio)) {
+    return false;
+  }
+
+  if (limpio.length === 13 && !limpio.endsWith('001')) {
+    return false;
+  }
+
   return true;
+}
+
+function validarEmail(email) {
+  if (typeof email !== 'string' || !email) return false;
+
+  const partes = email.split('@');
+
+  if (partes.length !== 2) return false;
+
+  const [usuario, dominio] = partes;
+
+  if (!usuario || !dominio) return false;
+
+  if (usuario.includes(' ') || dominio.includes(' ')) return false;
+
+  if (!dominio.includes('.')) return false;
+
+  const segmentosDominio = dominio.split('.');
+
+  return segmentosDominio.every(Boolean);
 }
 
 const ROLES_VALIDOS = ['ADMIN', 'VENDEDOR', 'ALMACEN', 'CLIENTE'];
@@ -31,14 +59,29 @@ const ROLES_VALIDOS = ['ADMIN', 'VENDEDOR', 'ALMACEN', 'CLIENTE'];
 exports.getMe = async (req, res) => {
   try {
     const usuario = await Usuario.getById(req.user.id);
-    if (!usuario)
-      return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
-    return res.status(200).json({ success: true, data: usuario });
+
+    if (!usuario) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuario no encontrado',
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      data: usuario,
+    });
   } catch (error) {
     logger.error('USUARIO_GET_ME', {
-      event: 'usuario.getMe_error', userId: req.user?.id, message: error.message,
+      event: 'usuario.getMe_error',
+      userId: req.user?.id,
+      message: error.message,
     });
-    return res.status(500).json({ success: false, message: 'Error al obtener el perfil' });
+
+    return res.status(500).json({
+      success: false,
+      message: 'Error al obtener el perfil',
+    });
   }
 };
 
@@ -47,50 +90,121 @@ exports.getMe = async (req, res) => {
 // ─────────────────────────────────────────────────────
 exports.updateMe = async (req, res) => {
   try {
-    const { password, passwordActual, cedula_ruc, email, ...resto } = req.body;
+    const {
+      password,
+      passwordActual,
+      cedula_ruc,
+      email,
+      ...resto
+    } = req.body;
 
-    if (cedula_ruc !== undefined && !validarCedulaRuc(cedula_ruc))
-      return res.status(400).json({ success: false, message: 'cedula_ruc debe ser cédula (10) o RUC (13) ecuatoriano' });
+    if (
+      cedula_ruc !== undefined &&
+      !validarCedulaRuc(cedula_ruc)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'cedula_ruc debe ser cédula (10) o RUC (13) ecuatoriano',
+      });
+    }
 
-    if (email !== undefined && email !== '' && !/^[^@\s]+@[^@\s.]+(?:\.[^@\s.]+)+$/.test(email))
-      return res.status(400).json({ success: false, message: 'El formato del email no es válido' });
+    if (
+      email !== undefined &&
+      email !== '' &&
+      !validarEmail(email)
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: 'El formato del email no es válido',
+      });
+    }
 
     let newPasswordPlain = null;
+
     if (password) {
-      if (!passwordActual)
-        return res.status(400).json({ success: false, message: 'Debes proporcionar tu contraseña actual para cambiarla' });
+      if (!passwordActual) {
+        return res.status(400).json({
+          success: false,
+          message:
+            'Debes proporcionar tu contraseña actual para cambiarla',
+        });
+      }
 
       const usuarioConHash = await Usuario.getByEmail(req.user.email);
-      const esValida = await Usuario.validatePassword(passwordActual, usuarioConHash.password);
-      if (!esValida)
-        return res.status(400).json({ success: false, message: 'La contraseña actual no es correcta' });
-      if (password.length < 6)
-        return res.status(400).json({ success: false, message: 'La nueva contraseña debe tener al menos 6 caracteres' });
+      const esValida = await Usuario.validatePassword(
+        passwordActual,
+        usuarioConHash.password
+      );
+
+      if (!esValida) {
+        return res.status(400).json({
+          success: false,
+          message: 'La contraseña actual no es correcta',
+        });
+      }
+
+      if (password.length < 6) {
+        return res.status(400).json({
+          success: false,
+          message:
+            'La nueva contraseña debe tener al menos 6 caracteres',
+        });
+      }
 
       newPasswordPlain = password;
     }
 
     const datosActualizar = { ...resto };
-    if (cedula_ruc !== undefined) datosActualizar.cedula_ruc = cedula_ruc;
-    if (email      !== undefined) datosActualizar.email      = email;
 
-    const usuarioActualizado = await Usuario.updatePerfil(req.user.id, datosActualizar, newPasswordPlain);
+    if (cedula_ruc !== undefined) {
+      datosActualizar.cedula_ruc = cedula_ruc;
+    }
 
-    if (newPasswordPlain)
-      logger.info('USUARIO_PASSWORD_CHANGED', { event: 'usuario.password_changed', userId: req.user.id });
+    if (email !== undefined) {
+      datosActualizar.email = email;
+    }
+
+    const usuarioActualizado = await Usuario.updatePerfil(
+      req.user.id,
+      datosActualizar,
+      newPasswordPlain
+    );
+
+    if (newPasswordPlain) {
+      logger.info('USUARIO_PASSWORD_CHANGED', {
+        event: 'usuario.password_changed',
+        userId: req.user.id,
+      });
+    }
 
     return res.status(200).json({
-      success: true, message: 'Perfil actualizado correctamente', data: usuarioActualizado,
+      success: true,
+      message: 'Perfil actualizado correctamente',
+      data: usuarioActualizado,
     });
   } catch (error) {
     if (error.code === 'ER_DUP_ENTRY') {
-      const campo = error.message.includes('email') ? 'email' : 'cédula/RUC';
-      return res.status(409).json({ success: false, message: `El ${campo} ya está registrado en otra cuenta` });
+      const campo = error.message.includes('email')
+        ? 'email'
+        : 'cédula/RUC';
+
+      return res.status(409).json({
+        success: false,
+        message: `El ${campo} ya está registrado en otra cuenta`,
+      });
     }
+
     logger.error('USUARIO_UPDATE_ME', {
-      event: 'usuario.updateMe_error', userId: req.user?.id, message: error.message,
+      event: 'usuario.updateMe_error',
+      userId: req.user?.id,
+      message: error.message,
     });
-    return res.status(500).json({ success: false, message: 'Error al actualizar el perfil' });
+
+    return res.status(500).json({
+      success: false,
+      message: 'Error al actualizar el perfil',
+    });
   }
 };
 
@@ -100,18 +214,40 @@ exports.updateMe = async (req, res) => {
 exports.buscarClientes = async (req, res) => {
   try {
     const q = (req.query.q || '').trim();
-    if (q.length < 2)
-      return res.status(400).json({ success: false, message: 'El parámetro "q" debe tener al menos 2 caracteres' });
 
-    const limite   = Math.min(Number.parseInt(req.query.limite) || 10, 20);
-    const clientes = await Usuario.findByNombre(q, { limite, empresaId: req.empresaId });
+    if (q.length < 2) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'El parámetro "q" debe tener al menos 2 caracteres',
+      });
+    }
 
-    return res.status(200).json({ success: true, data: clientes });
+    const limite = Math.min(
+      Number.parseInt(req.query.limite, 10) || 10,
+      20
+    );
+
+    const clientes = await Usuario.findByNombre(q, {
+      limite,
+      empresaId: req.empresaId,
+    });
+
+    return res.status(200).json({
+      success: true,
+      data: clientes,
+    });
   } catch (error) {
     logger.error('USUARIO_BUSCAR', {
-      event: 'usuario.buscarClientes_error', userId: req.user?.id, message: error.message,
+      event: 'usuario.buscarClientes_error',
+      userId: req.user?.id,
+      message: error.message,
     });
-    return res.status(500).json({ success: false, message: 'Error en la búsqueda de clientes' });
+
+    return res.status(500).json({
+      success: false,
+      message: 'Error en la búsqueda de clientes',
+    });
   }
 };
 
@@ -128,10 +264,21 @@ exports.getAllUsuarios = async (req, res) => {
        ORDER BY created_at DESC`,
       [req.empresaId]
     );
-    return res.json({ success: true, data: rows });
+
+    return res.json({
+      success: true,
+      data: rows,
+    });
   } catch (error) {
-    logger.error('USUARIO_GET_ALL', { event: 'usuario.getAll_error', message: error.message });
-    return res.status(500).json({ success: false, message: 'Error al obtener usuarios' });
+    logger.error('USUARIO_GET_ALL', {
+      event: 'usuario.getAll_error',
+      message: error.message,
+    });
+
+    return res.status(500).json({
+      success: false,
+      message: 'Error al obtener usuarios',
+    });
   }
 };
 
@@ -141,37 +288,88 @@ exports.getAllUsuarios = async (req, res) => {
 // ─────────────────────────────────────────────────────
 exports.createUsuario = async (req, res) => {
   try {
-    const { nombre, email, password, rol } = req.body;
+    const {
+      nombre,
+      email,
+      password,
+      rol,
+    } = req.body;
 
-    if (!nombre || !email || !password || !rol)
-      return res.status(400).json({ success: false, message: 'nombre, email, password y rol son obligatorios' });
+    if (!nombre || !email || !password || !rol) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'nombre, email, password y rol son obligatorios',
+      });
+    }
 
-    if (!ROLES_VALIDOS.includes(rol))
-      return res.status(400).json({ success: false, message: `Rol inválido. Valores permitidos: ${ROLES_VALIDOS.join(', ')}` });
+    if (!ROLES_VALIDOS.includes(rol)) {
+      return res.status(400).json({
+        success: false,
+        message:
+          `Rol inválido. Valores permitidos: ${ROLES_VALIDOS.join(', ')}`,
+      });
+    }
 
-    if (password.length < 6)
-      return res.status(400).json({ success: false, message: 'La contraseña debe tener al menos 6 caracteres' });
+    if (password.length < 6) {
+      return res.status(400).json({
+        success: false,
+        message:
+          'La contraseña debe tener al menos 6 caracteres',
+      });
+    }
 
     const existe = await Usuario.getByEmail(email);
-    if (existe)
-      return res.status(409).json({ success: false, message: 'El email ya está registrado' });
 
-    const id      = await Usuario.create({ nombre, email, password, rol, activo: 1, empresa_id: req.empresaId });
+    if (existe) {
+      return res.status(409).json({
+        success: false,
+        message: 'El email ya está registrado',
+      });
+    }
+
+    const id = await Usuario.create({
+      nombre,
+      email,
+      password,
+      rol,
+      activo: 1,
+      empresa_id: req.empresaId,
+    });
+
     const usuario = await Usuario.getById(id);
 
     logger.info('USUARIO_CREATED', {
-      event: 'usuario.created', nuevoId: id, rol,
-      empresaId: req.empresaId, creadoPor: req.user?.id,
+      event: 'usuario.created',
+      nuevoId: id,
+      rol,
+      empresaId: req.empresaId,
+      creadoPor: req.user?.id,
     });
 
-    return res.status(201).json({ success: true, message: 'Usuario creado correctamente', data: usuario });
-  } catch (error) {
-    if (error.code === 'ER_DUP_ENTRY')
-      return res.status(409).json({ success: false, message: 'El email ya está registrado' });
-    logger.error('USUARIO_CREATE', {
-      event: 'usuario.create_error', message: error.message, userId: req.user?.id,
+    return res.status(201).json({
+      success: true,
+      message: 'Usuario creado correctamente',
+      data: usuario,
     });
-    return res.status(500).json({ success: false, message: 'Error al crear usuario' });
+  } catch (error) {
+    if (error.code === 'ER_DUP_ENTRY') {
+      return res.status(409).json({
+        success: false,
+        message: 'El email ya está registrado',
+      });
+    }
+
+    logger.error('USUARIO_CREATE', {
+      event: 'usuario.create_error',
+      message: error.message,
+      userId: req.user?.id,
+    });
+
+    return res.status(500).json({
+      success: false,
+      message: 'Error al crear usuario',
+    });
   }
 };
 
@@ -181,42 +379,79 @@ exports.createUsuario = async (req, res) => {
 // ─────────────────────────────────────────────────────
 exports.updateRol = async (req, res) => {
   try {
-    const { id }  = req.params;
+    const { id } = req.params;
     const { rol } = req.body;
 
-    if (!ROLES_VALIDOS.includes(rol))
-      return res.status(400).json({ success: false, message: `Rol inválido. Valores permitidos: ${ROLES_VALIDOS.join(', ')}` });
+    if (!ROLES_VALIDOS.includes(rol)) {
+      return res.status(400).json({
+        success: false,
+        message:
+          `Rol inválido. Valores permitidos: ${ROLES_VALIDOS.join(', ')}`,
+      });
+    }
 
-    if (Number.parseInt(id) === req.user.id && rol !== 'ADMIN')
-      return res.status(400).json({ success: false, message: 'No puedes cambiar tu propio rol de ADMIN' });
+    if (
+      Number.parseInt(id, 10) === req.user.id &&
+      rol !== 'ADMIN'
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: 'No puedes cambiar tu propio rol de ADMIN',
+      });
+    }
 
     // Sprint 19: solo usuarios de la misma empresa
     const [check] = await db.query(
       'SELECT id FROM usuarios WHERE id = ? AND empresa_id = ? AND deleted_at IS NULL LIMIT 1',
       [id, req.empresaId]
     );
-    if (!check.length)
-      return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
 
-    await db.query('UPDATE usuarios SET rol = ? WHERE id = ? AND empresa_id = ?', [rol, id, req.empresaId]);
-    await db.query('DELETE FROM usuarios_sesiones WHERE usuario_id = ?', [id]);
-    await db.query('UPDATE usuarios SET token_id = NULL WHERE id = ?', [id]);
+    if (!check.length) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuario no encontrado',
+      });
+    }
+
+    await db.query(
+      'UPDATE usuarios SET rol = ? WHERE id = ? AND empresa_id = ?',
+      [rol, id, req.empresaId]
+    );
+
+    await db.query(
+      'DELETE FROM usuarios_sesiones WHERE usuario_id = ?',
+      [id]
+    );
+
+    await db.query(
+      'UPDATE usuarios SET token_id = NULL WHERE id = ?',
+      [id]
+    );
 
     logger.info('USUARIO_ROL_UPDATED', {
-      event: 'usuario.rol_updated', targetId: id,
-      nuevoRol: rol, cambiadoPor: req.user?.id,
+      event: 'usuario.rol_updated',
+      targetId: id,
+      nuevoRol: rol,
+      cambiadoPor: req.user?.id,
     });
 
     return res.json({
       success: true,
-      message: `Rol actualizado a ${rol}. El usuario deberá iniciar sesión nuevamente.`,
+      message:
+        `Rol actualizado a ${rol}. El usuario deberá iniciar sesión nuevamente.`,
     });
   } catch (error) {
     logger.error('USUARIO_UPDATE_ROL', {
-      event: 'usuario.updateRol_error', targetId: req.params.id,
-      message: error.message, userId: req.user?.id,
+      event: 'usuario.updateRol_error',
+      targetId: req.params.id,
+      message: error.message,
+      userId: req.user?.id,
     });
-    return res.status(500).json({ success: false, message: 'Error al actualizar rol' });
+
+    return res.status(500).json({
+      success: false,
+      message: 'Error al actualizar rol',
+    });
   }
 };
 
@@ -226,46 +461,79 @@ exports.updateRol = async (req, res) => {
 // ─────────────────────────────────────────────────────
 exports.toggleActivo = async (req, res) => {
   try {
-    const { id }     = req.params;
+    const { id } = req.params;
     const { activo } = req.body;
 
-    if (activo === undefined)
-      return res.status(400).json({ success: false, message: 'Campo activo requerido (true/false)' });
+    if (activo === undefined) {
+      return res.status(400).json({
+        success: false,
+        message: 'Campo activo requerido (true/false)',
+      });
+    }
 
-    if (Number.parseInt(id) === req.user.id)
-      return res.status(400).json({ success: false, message: 'No puedes desactivar tu propia cuenta' });
+    if (Number.parseInt(id, 10) === req.user.id) {
+      return res.status(400).json({
+        success: false,
+        message: 'No puedes desactivar tu propia cuenta',
+      });
+    }
 
     // Sprint 19: solo usuarios de la misma empresa
     const [check] = await db.query(
       'SELECT id FROM usuarios WHERE id = ? AND empresa_id = ? AND deleted_at IS NULL LIMIT 1',
       [id, req.empresaId]
     );
-    if (!check.length)
-      return res.status(404).json({ success: false, message: 'Usuario no encontrado' });
+
+    if (!check.length) {
+      return res.status(404).json({
+        success: false,
+        message: 'Usuario no encontrado',
+      });
+    }
 
     const valor = activo ? 1 : 0;
-    await db.query('UPDATE usuarios SET activo = ? WHERE id = ? AND empresa_id = ?', [valor, id, req.empresaId]);
+
+    await db.query(
+      'UPDATE usuarios SET activo = ? WHERE id = ? AND empresa_id = ?',
+      [valor, id, req.empresaId]
+    );
 
     if (!activo) {
-      await db.query('DELETE FROM usuarios_sesiones WHERE usuario_id = ?', [id]);
-      await db.query('UPDATE usuarios SET token_id = NULL WHERE id = ?', [id]);
+      await db.query(
+        'DELETE FROM usuarios_sesiones WHERE usuario_id = ?',
+        [id]
+      );
+
+      await db.query(
+        'UPDATE usuarios SET token_id = NULL WHERE id = ?',
+        [id]
+      );
     }
 
     logger.info('USUARIO_TOGGLE_ACTIVO', {
-      event: 'usuario.activo_changed', targetId: id,
-      activo: valor, cambiadoPor: req.user?.id,
+      event: 'usuario.activo_changed',
+      targetId: id,
+      activo: valor,
+      cambiadoPor: req.user?.id,
     });
 
     return res.json({
       success: true,
-      message: `Usuario ${activo ? 'activado' : 'desactivado'} correctamente`,
+      message:
+        `Usuario ${activo ? 'activado' : 'desactivado'} correctamente`,
     });
   } catch (error) {
     logger.error('USUARIO_TOGGLE_ACTIVO', {
-      event: 'usuario.toggleActivo_error', targetId: req.params.id,
-      message: error.message, userId: req.user?.id,
+      event: 'usuario.toggleActivo_error',
+      targetId: req.params.id,
+      message: error.message,
+      userId: req.user?.id,
     });
-    return res.status(500).json({ success: false, message: 'Error al actualizar estado' });
+
+    return res.status(500).json({
+      success: false,
+      message: 'Error al actualizar estado',
+    });
   }
 };
 ```
