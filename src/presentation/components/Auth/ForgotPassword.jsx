@@ -96,7 +96,6 @@ export default function ForgotPassword() {
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="ejemplo@gmail.com"
                 required
-                autoFocus
               />
             </div>
 
@@ -124,7 +123,6 @@ export default function ForgotPassword() {
                 placeholder="123456"
                 maxLength="6"
                 required
-                autoFocus
                 className="forgot-group__input--code"
               />
             </div>
@@ -151,7 +149,6 @@ export default function ForgotPassword() {
                 placeholder="Mínimo 6 caracteres"
                 minLength="6"
                 required
-                autoFocus
               />
             </div>
 
