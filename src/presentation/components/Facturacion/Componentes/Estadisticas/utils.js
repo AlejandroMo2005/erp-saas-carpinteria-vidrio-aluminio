@@ -10,7 +10,7 @@ export function calcularFechas(periodo) {
 }
 
 export function formatearMoneda(valor) {
-  return `$${parseFloat(valor ?? 0).toLocaleString('es-EC', {
+  return `$${Number.parseFloat(valor ?? 0).toLocaleString('es-EC', {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
   })}`;
@@ -19,7 +19,7 @@ export function formatearMoneda(valor) {
 export function formatearMes(mesStr) {
   if (!mesStr) return '';
   const [anio, mes] = mesStr.split('-');
-  const fecha = new Date(parseInt(anio), parseInt(mes) - 1, 1);
+  const fecha = new Date(Number.parseInt(anio), Number.parseInt(mes) - 1, 1);
   return fecha.toLocaleDateString('es-EC', { month: 'short', year: '2-digit' });
 }
 
@@ -28,7 +28,7 @@ export function luminosidad(hex) {
   let c = hex.replace('#', '');
   if (c.length === 3) c = c.split('').map(x => x + x).join('');
   const gamma = (n) => {
-    const v = parseInt(n, 16) / 255;
+    const v = Number.parseInt(n, 16) / 255;
     return v <= 0.03928 ? v / 12.92 : Math.pow((v + 0.055) / 1.055, 2.4);
   };
   return (
