@@ -47,8 +47,8 @@ const TRANSICIONES = {
 // ═══════════════════════════════════════════════════════
 exports.getAllPedidos = async (req, res) => {
   try {
-    const limit  = Math.min(Math.max(parseInt(req.query.limit)  || 50, 1), 100);
-    const offset = Math.max(parseInt(req.query.offset) || 0, 0);
+    const limit  = Math.min(Math.max(Number.parseInt(req.query.limit)  || 50, 1), 100);
+    const offset = Math.max(Number.parseInt(req.query.offset) || 0, 0);
     const { soloPropio, usuarioId } = req.filtroUsuario || {};
 
     let whereClause, params;
