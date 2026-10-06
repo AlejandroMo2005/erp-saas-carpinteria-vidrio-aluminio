@@ -43,7 +43,7 @@ export default function Login({ sessionExpired = false, onDismissExpired = () =>
         const { user, accessToken, refreshToken, expiresIn } = res.data.data;
         localStorage.setItem('user', JSON.stringify(user));
         api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
-        login({ user, accessToken, refreshToken, expiresIn });
+        await login({ user, accessToken, refreshToken, expiresIn });
         navigate('/');
       }
     } catch (err) {
