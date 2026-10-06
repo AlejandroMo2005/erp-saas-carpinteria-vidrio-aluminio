@@ -1,3 +1,4 @@
+```js
 // src/shared/services/activityTracker.js → src/shared/middleware/activityTracker.js
 // 📦 Sprint 20 — Movido de middleware/activityTracker.js
 'use strict';
@@ -5,7 +6,7 @@
 const db     = require('../../config/database.js');
 const logger = require('../utils/logger');
 
-const INACTIVIDAD_MINUTOS    = parseInt(process.env.SESSION_INACTIVITY_MINUTES || '15');
+const INACTIVIDAD_MINUTOS    = Number.parseInt(process.env.SESSION_INACTIVITY_MINUTES || '15');
 const MAX_INACTIVIDAD_MS     = INACTIVIDAD_MINUTOS * 60 * 1000;
 const MIN_UPDATE_INTERVAL_MS = 60 * 1000;
 const activityCache          = new Map();
@@ -13,7 +14,7 @@ const activityCache          = new Map();
 const blacklistJti = async (jti) => {
   if (!jti) return;
   try {
-    const expireMinutes = parseInt(process.env.JWT_EXPIRE_MINUTES || '15');
+    const expireMinutes = Number.parseInt(process.env.JWT_EXPIRE_MINUTES || '15');
     const expiresAt     = new Date(Date.now() + expireMinutes * 60 * 1000);
     await db.query('INSERT IGNORE INTO token_blacklist (jti, expires_at) VALUES (?, ?)', [jti, expiresAt]);
   } catch (err) {
@@ -63,3 +64,4 @@ const inactivityGuard = async (req, res, next) => {
 const clearActivityCache = (userId) => activityCache.delete(userId);
 
 module.exports = { trackActivity, inactivityGuard, clearActivityCache };
+```
