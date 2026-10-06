@@ -19,20 +19,20 @@ export function distribuirTotal(items, total) {
     if (sumaAreas > 0) {
       return items.map(i => {
         const area = Number(i.ancho) * Number(i.alto) * (Number(i.cantidad) || 1);
-        return parseFloat(((total * area / sumaAreas) / (Number(i.cantidad) || 1)).toFixed(2));
+        return Number.parseFloat(((total * area / sumaAreas) / (Number(i.cantidad) || 1)).toFixed(2));
       });
     }
   }
   const sumaCant = items.reduce((s, i) => s + (Number(i.cantidad) || 1), 0);
   return items.map(_i =>
-    parseFloat((total / sumaCant).toFixed(2))
+    Number.parseFloat((total / sumaCant).toFixed(2))
   );
 }
 
 export function calcularItem(item, tasaIva) {
-  const cant     = parseFloat(item.cantidad)        || 0;
-  const precio   = parseFloat(item.precio_unitario) || 0;
-  const desc     = parseFloat(item.descuento)       || 0;
+  const cant     = Number.parseFloat(item.cantidad)        || 0;
+  const precio   = Number.parseFloat(item.precio_unitario) || 0;
+  const desc     = Number.parseFloat(item.descuento)       || 0;
   const subtotal = cant * precio - desc;
   const iva      = item.aplica_iva ? subtotal * tasaIva : 0;
   return {
