@@ -4,7 +4,7 @@ function validarCedula(cedula) {
   if (!cedula || typeof cedula !== 'string') return { valida: false, mensaje: 'Cédula requerida' };
   const c = cedula.trim();
   if (!/^\d{10}$/.test(c)) return { valida: false, mensaje: 'La cédula debe tener exactamente 10 dígitos' };
-  const provincia = parseInt(c.substring(0, 2));
+  const provincia = Number.parseInt(c.substring(0, 2));
   if (provincia < 1 || provincia > 24) return { valida: false, mensaje: 'Código de provincia inválido (primeros 2 dígitos)' };
   const digitos = c.split('').map(Number);
   const coeficientes = [2,1,2,1,2,1,2,1,2];
@@ -20,7 +20,7 @@ function validarRUC(ruc) {
   const r = ruc.trim();
   if (!/^\d{13}$/.test(r)) return { valida: false, mensaje: 'El RUC debe tener exactamente 13 dígitos', tipo: null };
   if (r.substring(10) === '000') return { valida: false, mensaje: 'El establecimiento no puede ser 000', tipo: null };
-  const tercer = parseInt(r[2]), digitos = r.split('').map(Number);
+  const tercer = Number.parseInt(r[2]), digitos = r.split('').map(Number);
   if (tercer >= 0 && tercer <= 5) {
     const res = validarCedula(r.substring(0, 10));
     if (!res.valida) return { valida: false, mensaje: `RUC persona natural inválido: ${res.mensaje}`, tipo: null };
