@@ -22,18 +22,36 @@ export function normalizarColor(valor) {
 
   if (/^#[0-9A-Fa-f]{3,6}$/.test(v)) return v;
 
-  const rgbaMatch = v.match(
-    /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*([\d.]+))?\s*\)$/i
-  );
+  const minusculas = v.toLowerCase();
+  const esRgb = minusculas.startsWith('rgb(') && minusculas.endsWith(')');
+  const esRgba = minusculas.startsWith('rgba(') && minusculas.endsWith(')');
 
-  if (rgbaMatch) {
-    const [, r, g, b, a] = rgbaMatch;
-    const rc = Math.min(255, Math.max(0, Number(r)));
-    const gc = Math.min(255, Math.max(0, Number(g)));
-    const bc = Math.min(255, Math.max(0, Number(b)));
+  if (esRgb || esRgba) {
+    const inicio = esRgba ? 5 : 4;
+    const contenido = v.slice(inicio, -1);
+    const componentes = contenido.split(',').map(componente => componente.trim());
+    const cantidadEsperada = esRgba ? 4 : 3;
 
-    if (a !== undefined) {
-      return `rgba(${rc}, ${gc}, ${bc}, ${Math.min(1, Math.max(0, Number(a)))})`;
+    if (componentes.length !== cantidadEsperada) return COLOR_FALLBACK;
+
+    const [r, g, b, a] = componentes;
+    const valoresRGB = [r, g, b].map(Number);
+
+    if (
+      valoresRGB.some(numero => !Number.isFinite(numero)) ||
+      valoresRGB.some(numero => numero < 0 || numero > 255)
+    ) {
+      return COLOR_FALLBACK;
+    }
+
+    const [rc, gc, bc] = valoresRGB;
+
+    if (esRgba) {
+      const alfa = Number(a);
+
+      if (!Number.isFinite(alfa)) return COLOR_FALLBACK;
+
+      return `rgba(${rc}, ${gc}, ${bc}, ${Math.min(1, Math.max(0, alfa))})`;
     }
 
     return `rgb(${rc}, ${gc}, ${bc})`;
