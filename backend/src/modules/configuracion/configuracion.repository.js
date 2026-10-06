@@ -52,8 +52,8 @@ const obtenerTasaIva = async (empresaId) => {
     });
     return IVA_DEFAULT;
   }
-  const tasa = parseFloat(raw);
-  return isNaN(tasa) ? IVA_DEFAULT : tasa;
+  const tasa = Number.parseFloat(raw);
+  return Number.isNaN(tasa) ? IVA_DEFAULT : tasa;
 };
 
 module.exports = { obtenerTodos, obtenerValor, guardarValor, obtenerTasaIva };
