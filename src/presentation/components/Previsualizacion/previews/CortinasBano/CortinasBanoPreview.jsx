@@ -20,8 +20,8 @@ export default function CortinasBanoPreview({
   const [tipo,    setTipo]    = useState("Esmerilado");
   const [sistema, setSistema] = useState("Corrediza");
 
-  const anchoN = parseFloat(ancho) || 1.2;
-  const altoN  = parseFloat(alto)  || 1.8;
+  const anchoN = Number.parseFloat(ancho) || 1.2;
+  const altoN  = Number.parseFloat(alto)  || 1.8;
 
   const areaTotal = useMemo(() => +(anchoN * altoN).toFixed(2), [anchoN, altoN]);
 
