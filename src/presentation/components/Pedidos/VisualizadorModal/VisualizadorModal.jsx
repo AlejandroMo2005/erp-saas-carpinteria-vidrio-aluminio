@@ -17,7 +17,11 @@ export default function VisualizadorModal({ pedido, onClose }) {
   } = useVisualizadorModal({ pedido, onClose });
 
   return (
-    <div className="visualizador-modal-overlay" onClick={onClose}>
+    <div
+      className="visualizador-modal-overlay"
+      onClick={onClose}
+      role="presentation"
+    >
       <div
         className="visualizador-modal-content"
         onClick={e => e.stopPropagation()}
@@ -36,18 +40,24 @@ export default function VisualizadorModal({ pedido, onClose }) {
                 <span className="badge-label">Pedido:</span>
                 <span className="badge-value">#{pedido.id}</span>
               </div>
+
               <div className="header-center">
                 <span className="badge-label">Cliente:</span>
                 <span className="badge-value">{clienteInfo}</span>
               </div>
+
               <div className="header-right">
                 <span className="badge-label">Trabajo:</span>
                 <span className="badge-value">{trabajoNombre}</span>
               </div>
+
               <div className="header-sub-left">
                 <span className="badge-label">Medidas:</span>
-                <span className="badge-value">{ancho}m × {alto}m</span>
+                <span className="badge-value">
+                  {ancho}m × {alto}m
+                </span>
               </div>
+
               {detallesTrabajo && (
                 <div className="header-sub-center">
                   <span className="badge-label">Detalle:</span>
@@ -75,11 +85,11 @@ export default function VisualizadorModal({ pedido, onClose }) {
             </div>
 
           ) : PreviewComponent ? (
-            /*  Fix Context Lost — key compuesto por pedido + tipo:
-                Garantiza que React desmonte el Canvas anterior (liberando
-                el contexto WebGL) antes de montar el nuevo cuando cambia
-                el pedido seleccionado. Sin key, React reutiliza el nodo
-                del DOM y el contexto queda en estado inconsistente.    */
+            /* Fix Context Lost — key compuesto por pedido + tipo:
+               Garantiza que React desmonte el Canvas anterior (liberando
+               el contexto WebGL) antes de montar el nuevo cuando cambia
+               el pedido seleccionado. Sin key, React reutiliza el nodo
+               del DOM y el contexto queda en estado inconsistente. */
             <div className="canvas-wrapper">
               <Suspense
                 fallback={
