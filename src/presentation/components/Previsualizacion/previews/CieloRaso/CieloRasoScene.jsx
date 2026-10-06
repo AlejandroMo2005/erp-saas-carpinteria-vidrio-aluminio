@@ -28,8 +28,8 @@ export default function CieloRasoScene({
   const moduloPVC      = 0.25;
 
   // Sanitizado: clamp mínimo para evitar geometrías con dimensiones ≤ 0
-  const anchoS = Math.max(0.1, parseFloat(ancho) || 1);
-  const altoS  = Math.max(0.1, parseFloat(alto)  || 1);
+  const anchoS = Math.max(0.1, Number.parseFloat(ancho) || 1);
+  const altoS  = Math.max(0.1, Number.parseFloat(alto)  || 1);
 
   /* ── Paredes del cuarto ──────────────────────────────────────────────── */
   const paredes = useMemo(() => (
