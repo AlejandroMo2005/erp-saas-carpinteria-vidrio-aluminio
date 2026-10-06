@@ -31,7 +31,8 @@ export default function useProductos() {
         setLoading(false);
       }
     };
-    cargar();
+
+    void cargar();
   }, []);
 
   const toggleSeleccionado = (id) =>
