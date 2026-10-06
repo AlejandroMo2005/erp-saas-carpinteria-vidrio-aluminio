@@ -1,3 +1,4 @@
+```js
 /**
  * @fileoverview Servicio de Comprobantes Electrónicos
  * @module shared/services/comprobanteService
@@ -28,7 +29,7 @@ const generarClaveAcceso = (datos) => {
 const calcularModulo11 = (cadena) => {
   let suma = 0, factor = 2;
   for (let i = cadena.length - 1; i >= 0; i--) {
-    suma += parseInt(cadena[i]) * factor;
+    suma += Number.parseInt(cadena[i]) * factor;
     factor = factor === 7 ? 2 : factor + 1;
   }
   const modulo = 11 - (suma % 11);
@@ -46,7 +47,7 @@ const obtenerPorcentajeIVA = async (empresaId) => {
       "SELECT valor FROM configuracion WHERE clave = 'IVA' AND empresa_id = ? LIMIT 1",
       [empresaId]
     );
-    return rows.length > 0 ? parseFloat(rows[0].valor) : 0.15;
+    return rows.length > 0 ? Number.parseFloat(rows[0].valor) : 0.15;
   } catch (error) {
     logger.warn('IVA_CONFIG_FALLBACK', { event: 'facturacion.iva_fallback', message: error.message });
     return 0.15;
@@ -150,14 +151,14 @@ const crearFacturaDesdePedido = async (pedidoId, usuarioId, datosAdicionales = {
     let subtotalConIVA = 0, totalIVA = 0;
 
     const detalleCalculado = items.map(item => {
-      const subtotalItem = parseFloat(item.subtotal) > 0
-        ? parseFloat(item.subtotal)
-        : parseFloat(pedido.pedido_total) / items.length;
-      const ivaItem = parseFloat((subtotalItem * porcentajeIVA).toFixed(2));
+      const subtotalItem = Number.parseFloat(item.subtotal) > 0
+        ? Number.parseFloat(item.subtotal)
+        : Number.parseFloat(pedido.pedido_total) / items.length;
+      const ivaItem = Number.parseFloat((subtotalItem * porcentajeIVA).toFixed(2));
       subtotalConIVA += subtotalItem;
       totalIVA       += ivaItem;
 
-      const medidas    = `${parseFloat(item.ancho).toFixed(2)}×${parseFloat(item.alto).toFixed(2)}m`;
+      const medidas    = `${Number.parseFloat(item.ancho).toFixed(2)}×${Number.parseFloat(item.alto).toFixed(2)}m`;
       let descripcion  = `${item.trabajo_nombre}`;
       if (item.color_nombre)  descripcion += ` — ${item.color_nombre}`;
       descripcion += ` (${medidas}) ×${item.cantidad}`;
@@ -165,15 +166,15 @@ const crearFacturaDesdePedido = async (pedidoId, usuarioId, datosAdicionales = {
 
       return {
         descripcion: descripcion.slice(0, 300),
-        cantidad: parseFloat(item.cantidad),
-        precio_unitario: parseFloat(item.precio_unitario) || 0,
+        cantidad: Number.parseFloat(item.cantidad),
+        precio_unitario: Number.parseFloat(item.precio_unitario) || 0,
         subtotal: subtotalItem,
         porcentaje_iva: porcentajeIVA * 100,
         valor_iva: ivaItem,
       };
     });
 
-    const total          = parseFloat((subtotalConIVA + totalIVA).toFixed(2));
+    const total          = Number.parseFloat((subtotalConIVA + totalIVA).toFixed(2));
     const clienteNombre  = datosAdicionales.clienteNombre || pedido.cliente_nombre || 'CONSUMIDOR FINAL';
 
     const [resultFactura] = await connection.query(
