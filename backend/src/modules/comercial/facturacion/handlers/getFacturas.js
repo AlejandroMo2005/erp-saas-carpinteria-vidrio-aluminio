@@ -31,8 +31,8 @@ exports.listarFacturas = async (req, res) => {
       empresaId: req.empresaId,               // Sprint 19
     };
     const paginacion = {
-      limite: parseInt(limite),
-      offset: (parseInt(pagina) - 1) * parseInt(limite),
+      limite: Number.parseInt(limite),
+      offset: (Number.parseInt(pagina) - 1) * Number.parseInt(limite),
     };
 
     const [facturas]    = await Facturacion.obtenerFacturas(filtros, paginacion);
@@ -42,10 +42,10 @@ exports.listarFacturas = async (req, res) => {
     return successResponse(res, {
       facturas,
       paginacion: {
-        pagina:       parseInt(pagina),
-        limite:       parseInt(limite),
+        pagina:       Number.parseInt(pagina),
+        limite:       Number.parseInt(limite),
         total,
-        totalPaginas: Math.ceil(total / parseInt(limite)),
+        totalPaginas: Math.ceil(total / Number.parseInt(limite)),
       },
     });
   } catch (error) {
@@ -113,7 +113,7 @@ exports.validarPedidoFacturable = async (req, res) => {
 // ═══════════════════════════════════════════════════════
 exports.getPedidosParaFacturar = async (req, res) => {
   try {
-    const id = parseInt(req.params.clienteId, 10);
+    const id = Number.parseInt(req.params.clienteId, 10);
     if (!Number.isInteger(id) || id <= 0)
       return errorResponse(res, 'ID de cliente inválido', 400);
 
