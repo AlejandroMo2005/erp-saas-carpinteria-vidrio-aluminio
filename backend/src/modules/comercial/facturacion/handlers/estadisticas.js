@@ -56,17 +56,17 @@ exports.obtenerResumenPeriodo = async (req, res) => {
     const mesAnterior = mesAntRows[0]  ?? {};
 
     const calcVariacion = (a, b) => {
-      const va = parseFloat(a ?? 0);
-      const vb = parseFloat(b ?? 0);
+      const va = Number.parseFloat(a ?? 0);
+      const vb = Number.parseFloat(b ?? 0);
       if (!vb) return null;
       return Math.round(((va - vb) / vb) * 100);
     };
 
     return successResponse(res, {
-      totalFacturado:         parseFloat(actual.total_facturado ?? 0),
-      totalFacturas:          parseInt(actual.total_facturas    ?? 0),
-      ticketPromedio:         parseFloat(actual.ticket_promedio ?? 0),
-      clientesUnicos:         parseInt(actual.clientes_unicos   ?? 0),
+      totalFacturado:         Number.parseFloat(actual.total_facturado ?? 0),
+      totalFacturas:          Number.parseInt(actual.total_facturas    ?? 0),
+      ticketPromedio:         Number.parseFloat(actual.ticket_promedio ?? 0),
+      clientesUnicos:         Number.parseInt(actual.clientes_unicos   ?? 0),
       variacionVsMesAnterior: calcVariacion(actual.total_facturado, mesAnterior.total_facturado),
       variacionFacturas:      calcVariacion(actual.total_facturas,  mesAnterior.total_facturas),
       periodo: { desde: fechaDesde, hasta: fechaHasta },
