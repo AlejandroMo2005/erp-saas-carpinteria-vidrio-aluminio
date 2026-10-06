@@ -16,7 +16,7 @@ export default function useEstado() {
         setLoading(false);
       }
     };
-    cargar();
+    void cargar();
   }, []);
 
   const total = data.reduce((s, e) => s + Number(e.cantidad), 0);
