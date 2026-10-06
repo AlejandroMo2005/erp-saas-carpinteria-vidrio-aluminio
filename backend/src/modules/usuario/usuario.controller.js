@@ -1,4 +1,3 @@
-```js
 // src/modules/usuario/usuario.controller.js
 // Sprint 7  — Perfil de usuario + autocompletado en Proformas
 // Sprint 11 — Logger Winston + soft delete
@@ -12,8 +11,8 @@
 'use strict';
 
 const Usuario = require('./usuario.repository');
-const logger  = require('../../shared/utils/logger');
-const db      = require('../../config/database.js');
+const logger = require('../../shared/utils/logger');
+const db = require('../../config/database.js');
 
 function validarCedulaRuc(valor) {
   if (!valor) return true;
@@ -536,4 +535,3 @@ exports.toggleActivo = async (req, res) => {
     });
   }
 };
-```
