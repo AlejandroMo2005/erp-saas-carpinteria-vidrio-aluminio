@@ -101,11 +101,11 @@ async function inpaint(req, res) {
   try {
     const resultado = await generarInpainting({ imagenBase64: imagen, mascaraBase64: mascara, prompt: promptLimpio, promptNegativo: promptNeg });
     modelo = resultado.modelo; duracion = resultado.duracionMs;
-    logearSolicitud({ usuario_id, trabajo_tipo: trabajo ?? null, prompt: promptLimpio, imagen_input_hash: imgHash, modelo, duracion_ms: duracion, status: 'OK' });
+    void logearSolicitud({ usuario_id, trabajo_tipo: trabajo ?? null, prompt: promptLimpio, imagen_input_hash: imgHash, modelo, duracion_ms: duracion, status: 'OK' });
     return res.status(200).json({ success: true, imagen: resultado.imagenBase64, modelo: resultado.modelo, duracion_ms: resultado.duracionMs });
   } catch (err) {
     duracion = Date.now() - inicio; statusLog = err.message?.includes('timeout') ? 'TIMEOUT' : 'ERROR';
-    logearSolicitud({ usuario_id, trabajo_tipo: trabajo ?? null, prompt: promptLimpio, imagen_input_hash: imgHash, modelo: modelo ?? null, duracion_ms: duracion, status: statusLog });
+    void logearSolicitud({ usuario_id, trabajo_tipo: trabajo ?? null, prompt: promptLimpio, imagen_input_hash: imgHash, modelo: modelo ?? null, duracion_ms: duracion, status: statusLog });
     const msg = err.message ?? 'Error al procesar con IA.';
     if (msg.includes('HF_API_TOKEN'))                       return res.status(500).json({ success: false, message: 'Clave de IA no configurada.' });
     if (msg.includes('timeout') || statusLog === 'TIMEOUT') return res.status(504).json({ success: false, message: 'La IA tardó demasiado.' });
@@ -186,10 +186,10 @@ async function visualizarEspacio(req, res) {
     const promptFinal = construirPromptLibre({ promptLibre: promptTraducido, color: colorParaPrompt });
     try {
       const imagenResultado = await generarVisualizacion({ imagenBuffer: imagenFile.buffer, mascaraBuffer: mascaraFile.buffer, imagenMimeType: imagenFile.mimetype, prompt: promptFinal, referencias: [] });
-      logearSolicitud({ usuario_id, trabajo_tipo: 'libre', prompt: promptFinal, imagen_input_hash: null, modelo: 'stability-v2beta-inpaint', duracion_ms: null, status: 'OK' });
+      void logearSolicitud({ usuario_id, trabajo_tipo: 'libre', prompt: promptFinal, imagen_input_hash: null, modelo: 'stability-v2beta-inpaint', duracion_ms: null, status: 'OK' });
       return res.json({ ok: true, prompt: promptFinal, imagen_base64: imagenResultado.toString('base64'), mime_type: 'image/png' });
     } catch (err) {
-      logearSolicitud({ usuario_id, trabajo_tipo: 'libre', prompt: promptFinal, imagen_input_hash: null, modelo: 'stability-v2beta-inpaint', duracion_ms: null, status: 'ERROR' });
+      void logearSolicitud({ usuario_id, trabajo_tipo: 'libre', prompt: promptFinal, imagen_input_hash: null, modelo: 'stability-v2beta-inpaint', duracion_ms: null, status: 'ERROR' });
       if (err.code === 'STABILITY_API_ERROR') return res.status(502).json({ error: 'Error al procesar con Stability AI', detalle: err.message });
       return res.status(500).json({ error: 'Error interno al generar la visualización' });
     }
@@ -239,10 +239,10 @@ async function visualizarEspacio(req, res) {
     const referencias  = await obtenerReferencias(trabajo_id, req.empresaId);
 
     const imagenResultado = await generarVisualizacion({ imagenBuffer: imagenFile.buffer, mascaraBuffer: mascaraFile.buffer, imagenMimeType: imagenFile.mimetype, prompt, referencias });
-    logearSolicitud({ usuario_id, trabajo_tipo: trabajos[0].nombre, prompt, imagen_input_hash: null, modelo: 'stability-v2beta-inpaint', duracion_ms: null, status: 'OK' });
+    void logearSolicitud({ usuario_id, trabajo_tipo: trabajos[0].nombre, prompt, imagen_input_hash: null, modelo: 'stability-v2beta-inpaint', duracion_ms: null, status: 'OK' });
     return res.json({ ok: true, prompt, imagen_base64: imagenResultado.toString('base64'), mime_type: 'image/png' });
   } catch (err) {
-    logearSolicitud({ usuario_id, trabajo_tipo: String(trabajo_id), prompt: `trabajo:${trabajo_id} color:${color_id}`, imagen_input_hash: null, modelo: 'stability-v2beta-inpaint', duracion_ms: null, status: 'ERROR' });
+    void logearSolicitud({ usuario_id, trabajo_tipo: String(trabajo_id), prompt: `trabajo:${trabajo_id} color:${color_id}`, imagen_input_hash: null, modelo: 'stability-v2beta-inpaint', duracion_ms: null, status: 'ERROR' });
     if (err.code === 'STABILITY_API_ERROR') return res.status(502).json({ error: 'Error al procesar con Stability AI', detalle: err.message });
     return res.status(500).json({ error: 'Error interno al generar la visualización' });
   }
