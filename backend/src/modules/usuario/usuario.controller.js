@@ -1,3 +1,4 @@
+```js
 // src/modules/usuario/usuario.controller.js
 // Sprint 7  — Perfil de usuario + autocompletado en Proformas
 // Sprint 11 — Logger Winston + soft delete
@@ -51,7 +52,7 @@ exports.updateMe = async (req, res) => {
     if (cedula_ruc !== undefined && !validarCedulaRuc(cedula_ruc))
       return res.status(400).json({ success: false, message: 'cedula_ruc debe ser cédula (10) o RUC (13) ecuatoriano' });
 
-    if (email !== undefined && email !== '' && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email))
+    if (email !== undefined && email !== '' && !/^[^@\s]+@[^@\s.]+(?:\.[^@\s.]+)+$/.test(email))
       return res.status(400).json({ success: false, message: 'El formato del email no es válido' });
 
     let newPasswordPlain = null;
@@ -102,7 +103,7 @@ exports.buscarClientes = async (req, res) => {
     if (q.length < 2)
       return res.status(400).json({ success: false, message: 'El parámetro "q" debe tener al menos 2 caracteres' });
 
-    const limite   = Math.min(parseInt(req.query.limite) || 10, 20);
+    const limite   = Math.min(Number.parseInt(req.query.limite) || 10, 20);
     const clientes = await Usuario.findByNombre(q, { limite, empresaId: req.empresaId });
 
     return res.status(200).json({ success: true, data: clientes });
@@ -186,7 +187,7 @@ exports.updateRol = async (req, res) => {
     if (!ROLES_VALIDOS.includes(rol))
       return res.status(400).json({ success: false, message: `Rol inválido. Valores permitidos: ${ROLES_VALIDOS.join(', ')}` });
 
-    if (parseInt(id) === req.user.id && rol !== 'ADMIN')
+    if (Number.parseInt(id) === req.user.id && rol !== 'ADMIN')
       return res.status(400).json({ success: false, message: 'No puedes cambiar tu propio rol de ADMIN' });
 
     // Sprint 19: solo usuarios de la misma empresa
@@ -231,7 +232,7 @@ exports.toggleActivo = async (req, res) => {
     if (activo === undefined)
       return res.status(400).json({ success: false, message: 'Campo activo requerido (true/false)' });
 
-    if (parseInt(id) === req.user.id)
+    if (Number.parseInt(id) === req.user.id)
       return res.status(400).json({ success: false, message: 'No puedes desactivar tu propia cuenta' });
 
     // Sprint 19: solo usuarios de la misma empresa
@@ -267,3 +268,4 @@ exports.toggleActivo = async (req, res) => {
     return res.status(500).json({ success: false, message: 'Error al actualizar estado' });
   }
 };
+```
