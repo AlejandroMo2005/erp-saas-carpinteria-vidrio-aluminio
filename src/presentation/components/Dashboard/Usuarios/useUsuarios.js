@@ -16,7 +16,8 @@ export default function useUsuarios() {
         setLoading(false);
       }
     };
-    cargar();
+
+    void cargar();
   }, []);
 
   return { data, loading };
