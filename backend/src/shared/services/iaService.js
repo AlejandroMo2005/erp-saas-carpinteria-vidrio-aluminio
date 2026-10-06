@@ -1,4 +1,3 @@
-```js
 // src/shared/services/iaService.js
 // Sprint 8  — Inpainting Hugging Face
 // Sprint 17 — Stability AI SDXL, construirPrompt, traducirAIngles
@@ -6,72 +5,108 @@
 // 📦 Sprint 20 — Movido de services/iaService.js (sin cambios de paths internos)
 'use strict';
 
-const https    = require('https');
+const https = require('https');
 const FormData = require('form-data');
-const sharp    = require('sharp');
+const sharp = require('sharp');
 
 // ── Hugging Face ──────────────────────────────────────────────────────────────
-const HF_TOKEN        = process.env.HF_API_TOKEN;
-const MODELO_PRIMARIO = process.env.HF_MODELO_INPAINT ?? 'runwayml/stable-diffusion-inpainting';
+const HF_TOKEN = process.env.HF_API_TOKEN;
+const MODELO_PRIMARIO =
+  process.env.HF_MODELO_INPAINT ??
+  'runwayml/stable-diffusion-inpainting';
 const MODELO_FALLBACK = 'stabilityai/stable-diffusion-2-inpainting';
-const TIMEOUT_MS      = Number(process.env.HF_TIMEOUT_MS ?? 90_000);
-const MAX_REINTENTOS  = 3;
-const ESPERA_503_MS   = 8_000;
-const PARAMS_GENERACION = { num_inference_steps: 25, guidance_scale: 7.5, strength: 0.95 };
+const TIMEOUT_MS = Number(process.env.HF_TIMEOUT_MS ?? 90_000);
+const MAX_REINTENTOS = 3;
+const ESPERA_503_MS = 8_000;
+const PARAMS_GENERACION = {
+  num_inference_steps: 25,
+  guidance_scale: 7.5,
+  strength: 0.95,
+};
 
 function limpiarBase64(dataUrl) {
   if (!dataUrl || typeof dataUrl !== 'string') return dataUrl;
+
   const idx = dataUrl.indexOf(',');
+
   return idx !== -1 ? dataUrl.slice(idx + 1) : dataUrl;
 }
 
 function sha256Sync(texto) {
   const { createHash } = require('crypto');
+
   return createHash('sha256').update(texto).digest('hex');
 }
 
 function llamarHuggingFace(modelo, payload, timeoutMs) {
   return new Promise((resolve, reject) => {
-    const url    = `https://api-inference.huggingface.co/models/${modelo}`;
+    const url = `https://api-inference.huggingface.co/models/${modelo}`;
     const cuerpo = JSON.stringify(payload);
-    const req    = https.request(url, {
-      method:  'POST',
-      headers: {
-        'Authorization': `Bearer ${HF_TOKEN}`,
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(cuerpo),
-        'x-use-cache': 'false',
+
+    const req = https.request(
+      url,
+      {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${HF_TOKEN}`,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(cuerpo),
+          'x-use-cache': 'false',
+        },
       },
-    }, (res) => {
-      const chunks = [];
-      res.on('data', c => chunks.push(c));
-      res.on('end', () => resolve({
-        status: res.statusCode,
-        contentType: res.headers['content-type'] ?? '',
-        buffer: Buffer.concat(chunks),
-      }));
-    });
-    req.setTimeout(timeoutMs, () => req.destroy(new Error('HF API timeout')));
+      (res) => {
+        const chunks = [];
+
+        res.on('data', (c) => chunks.push(c));
+
+        res.on('end', () =>
+          resolve({
+            status: res.statusCode,
+            contentType: res.headers['content-type'] ?? '',
+            buffer: Buffer.concat(chunks),
+          })
+        );
+      }
+    );
+
+    req.setTimeout(timeoutMs, () =>
+      req.destroy(new Error('HF API timeout'))
+    );
+
     req.on('error', reject);
     req.write(cuerpo);
     req.end();
   });
 }
 
-const esperar = (ms) => new Promise(r => setTimeout(r, ms));
+const esperar = (ms) => new Promise((r) => setTimeout(r, ms));
 
-async function generarInpainting({ imagenBase64, mascaraBase64, prompt, promptNegativo }) {
+async function generarInpainting({
+  imagenBase64,
+  mascaraBase64,
+  prompt,
+  promptNegativo,
+}) {
   if (!HF_TOKEN) {
     console.warn('[IA/HF] ⚠️  Sin HF_API_TOKEN — mock activo');
-    return { imagenBase64, modelo: 'mock-hf', duracionMs: 100 };
+
+    return {
+      imagenBase64,
+      modelo: 'mock-hf',
+      duracionMs: 100,
+    };
   }
 
-  const inicio    = Date.now();
-  const imgBytes  = limpiarBase64(imagenBase64);
+  const inicio = Date.now();
+  const imgBytes = limpiarBase64(imagenBase64);
   const maskBytes = limpiarBase64(mascaraBase64);
-  const payload   = {
+
+  const payload = {
     inputs: prompt,
-    parameters: { ...PARAMS_GENERACION, negative_prompt: promptNegativo },
+    parameters: {
+      ...PARAMS_GENERACION,
+      negative_prompt: promptNegativo,
+    },
     image: imgBytes,
     mask_image: maskBytes,
   };
@@ -88,6 +123,7 @@ async function generarInpainting({ imagenBase64, mascaraBase64, prompt, promptNe
 
         if (status === 503) {
           let info = '';
+
           try {
             info = JSON.parse(buffer.toString());
           } catch (_) {}
@@ -100,6 +136,7 @@ async function generarInpainting({ imagenBase64, mascaraBase64, prompt, promptNe
               20_000
             )
           );
+
           continue;
         }
 
@@ -110,6 +147,7 @@ async function generarInpainting({ imagenBase64, mascaraBase64, prompt, promptNe
 
         if (status !== 200) {
           let msg = `HTTP ${status}`;
+
           try {
             msg = JSON.parse(buffer.toString())?.error ?? msg;
           } catch (_) {}
@@ -126,7 +164,9 @@ async function generarInpainting({ imagenBase64, mascaraBase64, prompt, promptNe
             m = parsed?.error;
           } catch (_) {}
 
-          throw new Error(m || `Content-Type inesperado: ${contentType}`);
+          throw new Error(
+            m || `Content-Type inesperado: ${contentType}`
+          );
         }
 
         const ext = contentType.includes('png') ? 'png' : 'jpeg';
@@ -136,13 +176,18 @@ async function generarInpainting({ imagenBase64, mascaraBase64, prompt, promptNe
         );
 
         return {
-          imagenBase64: `data:image/${ext};base64,${buffer.toString('base64')}`,
+          imagenBase64: `data:image/${ext};base64,${buffer.toString(
+            'base64'
+          )}`,
           modelo,
           duracionMs: Date.now() - inicio,
         };
       } catch (err) {
         if (intentos >= MAX_REINTENTOS) {
-          console.error(`[IA/HF] Fatal en ${modelo}:`, err.message);
+          console.error(
+            `[IA/HF] Fatal en ${modelo}:`,
+            err.message
+          );
           break;
         }
 
@@ -166,11 +211,27 @@ function hashImagen(dataUrl) {
 }
 
 // ── Stability AI v2beta ───────────────────────────────────────────────────────
-const STABILITY_API_KEY  = process.env.STABILITY_API_KEY;
-const STABILITY_ENDPOINT = 'https://api.stability.ai/v2beta/stable-image/edit/inpaint';
-const SDXL_DIMS          = [[1024,1024],[1152,896],[1216,832],[1344,768],[1536,640],[640,1536],[768,1344],[832,1216],[896,1152]];
-const SUFIJO_FOTO        = 'professional finish, installed in place, realistic architectural photography, 8k, high definition, sharp focus';
-const NEGATIVE_PROMPT    = 'cartoon, 3d render, deformed, blurry, bad proportions, floating, disconnected, unrealistic, low quality, watermark, text, logo';
+const STABILITY_API_KEY = process.env.STABILITY_API_KEY;
+const STABILITY_ENDPOINT =
+  'https://api.stability.ai/v2beta/stable-image/edit/inpaint';
+
+const SDXL_DIMS = [
+  [1024, 1024],
+  [1152, 896],
+  [1216, 832],
+  [1344, 768],
+  [1536, 640],
+  [640, 1536],
+  [768, 1344],
+  [832, 1216],
+  [896, 1152],
+];
+
+const SUFIJO_FOTO =
+  'professional finish, installed in place, realistic architectural photography, 8k, high definition, sharp focus';
+
+const NEGATIVE_PROMPT =
+  'cartoon, 3d render, deformed, blurry, bad proportions, floating, disconnected, unrealistic, low quality, watermark, text, logo';
 
 async function traducirAIngles(texto) {
   if (!texto?.trim()) return texto;
@@ -178,17 +239,23 @@ async function traducirAIngles(texto) {
   const textoCortado = texto.trim().slice(0, 500);
 
   return new Promise((resolve) => {
-    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(textoCortado)}&langpair=auto|en`;
+    const url = `https://api.mymemory.translated.net/get?q=${encodeURIComponent(
+      textoCortado
+    )}&langpair=auto|en`;
 
     const req = https.get(url, { timeout: 8_000 }, (res) => {
       const chunks = [];
 
-      res.on('data', c => chunks.push(c));
+      res.on('data', (c) => chunks.push(c));
 
       res.on('end', () => {
         try {
-          const data      = JSON.parse(Buffer.concat(chunks).toString());
-          const traducido = data?.responseData?.translatedText;
+          const data = JSON.parse(
+            Buffer.concat(chunks).toString()
+          );
+
+          const traducido =
+            data?.responseData?.translatedText;
 
           if (
             traducido &&
@@ -206,6 +273,7 @@ async function traducirAIngles(texto) {
     });
 
     req.on('error', () => resolve(texto));
+
     req.on('timeout', () => {
       req.destroy();
       resolve(texto);
@@ -214,37 +282,40 @@ async function traducirAIngles(texto) {
 }
 
 const TERMINOS_ES_EN = {
-  'puerta':'door',
-  'ventana':'window',
-  'ventanal':'large window',
-  'corrediza':'sliding',
-  'corredizo':'sliding',
-  'batiente':'hinged',
-  'abatible':'casement',
-  'fija':'fixed',
-  'fijo':'fixed',
-  'vidrio':'glass',
-  'aluminio':'aluminum',
-  'perfil':'profile',
-  'templado':'tempered',
-  'laminado':'laminated',
-  'doble':'double',
-  'color':'color',
-  'marco':'frame',
-  'hoja':'panel',
-  'celosía':'louver',
-  'mosquitero':'mosquito screen',
-  'persiana':'blind',
-  'mampara':'partition',
-  'division':'partition',
-  'cancel':'glass partition',
-  'pared':'wall',
-  'techo':'ceiling',
-  'fachada':'facade',
+  puerta: 'door',
+  ventana: 'window',
+  ventanal: 'large window',
+  corrediza: 'sliding',
+  corredizo: 'sliding',
+  batiente: 'hinged',
+  abatible: 'casement',
+  fija: 'fixed',
+  fijo: 'fixed',
+  vidrio: 'glass',
+  aluminio: 'aluminum',
+  perfil: 'profile',
+  templado: 'tempered',
+  laminado: 'laminated',
+  doble: 'double',
+  color: 'color',
+  marco: 'frame',
+  hoja: 'panel',
+  celosía: 'louver',
+  mosquitero: 'mosquito screen',
+  persiana: 'blind',
+  mampara: 'partition',
+  division: 'partition',
+  cancel: 'glass partition',
+  pared: 'wall',
+  techo: 'ceiling',
+  fachada: 'facade',
 };
 
 function esCaracterDePalabra(caracter) {
-  return caracter !== undefined && /[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9_]/.test(caracter);
+  return (
+    caracter !== undefined &&
+    /[A-Za-zÁÉÍÓÚÜÑáéíóúüñ0-9_]/.test(caracter)
+  );
 }
 
 function reemplazarTermino(texto, termino, reemplazo) {
@@ -255,7 +326,10 @@ function reemplazarTermino(texto, termino, reemplazo) {
   let posicion = 0;
 
   while (posicion < texto.length) {
-    const indice = textoNormalizado.indexOf(terminoNormalizado, posicion);
+    const indice = textoNormalizado.indexOf(
+      terminoNormalizado,
+      posicion
+    );
 
     if (indice === -1) {
       resultado += texto.slice(posicion);
@@ -265,12 +339,18 @@ function reemplazarTermino(texto, termino, reemplazo) {
     const antes = texto[indice - 1];
     const despues = texto[indice + termino.length];
 
-    if (!esCaracterDePalabra(antes) && !esCaracterDePalabra(despues)) {
+    if (
+      !esCaracterDePalabra(antes) &&
+      !esCaracterDePalabra(despues)
+    ) {
       resultado += texto.slice(posicion, indice);
       resultado += reemplazo;
       posicion = indice + termino.length;
     } else {
-      resultado += texto.slice(posicion, indice + termino.length);
+      resultado += texto.slice(
+        posicion,
+        indice + termino.length
+      );
       posicion = indice + termino.length;
     }
   }
@@ -291,9 +371,11 @@ function traducirTerminos(texto) {
 }
 
 async function redimensionarParaSDXL(buffer) {
-  const meta  = await sharp(buffer).metadata();
+  const meta = await sharp(buffer).metadata();
   const ratio = meta.width / meta.height;
-  let mejor = SDXL_DIMS[0], menorDif = Infinity;
+
+  let mejor = SDXL_DIMS[0];
+  let menorDif = Infinity;
 
   for (const [w, h] of SDXL_DIMS) {
     const dif = Math.abs(w / h - ratio);
@@ -310,7 +392,9 @@ async function redimensionarParaSDXL(buffer) {
     `[IA/Stability] Redimensionando ${meta.width}x${meta.height} → ${w}x${h}`
   );
 
-  return sharp(buffer).resize(w, h, { fit: 'fill' }).toBuffer();
+  return sharp(buffer)
+    .resize(w, h, { fit: 'fill' })
+    .toBuffer();
 }
 
 function construirPrompt({ trabajo, color, material }) {
@@ -341,7 +425,7 @@ function construirPromptLibre({ promptLibre, color }) {
       ''
     )
     .trim()
-    .replace(/,\s\*$/, '');
+    .replace(/,\s*$/, '');
 
   const partes = [base];
 
@@ -366,7 +450,10 @@ async function generarVisualizacion({
   referencias = [],
 }) {
   if (!STABILITY_API_KEY) {
-    console.warn('[IA/Stability] ⚠️  Sin STABILITY_API_KEY — mock activo');
+    console.warn(
+      '[IA/Stability] ⚠️  Sin STABILITY_API_KEY — mock activo'
+    );
+
     return imagenBuffer;
   }
 
@@ -393,7 +480,7 @@ async function generarVisualizacion({
   form.append('strength', '0.95');
 
   const refConImagen = referencias.find(
-    r => r.imagenBuffer instanceof Buffer
+    (r) => r.imagenBuffer instanceof Buffer
   );
 
   if (refConImagen) {
@@ -408,38 +495,47 @@ async function generarVisualizacion({
   }
 
   const refsTexto = referencias.filter(
-    r => !(r.imagenBuffer instanceof Buffer) && r.descriptores?.trim()
+    (r) =>
+      !(r.imagenBuffer instanceof Buffer) &&
+      r.descriptores?.trim()
   );
 
   if (refsTexto.length > 0) {
     form.set(
       'prompt',
-      `${prompt}, style influenced by: ${refsTexto.map(r => r.descriptores.trim()).join(', ')}`
+      `${prompt}, style influenced by: ${refsTexto
+        .map((r) => r.descriptores.trim())
+        .join(', ')}`
     );
   }
 
   const respuesta = await new Promise((resolve, reject) => {
     const urlObj = new URL(STABILITY_ENDPOINT);
 
-    const req = https.request({
-      hostname: urlObj.hostname,
-      path: urlObj.pathname,
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${STABILITY_API_KEY}`,
-        Accept: 'application/json',
-        ...form.getHeaders(),
+    const req = https.request(
+      {
+        hostname: urlObj.hostname,
+        path: urlObj.pathname,
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${STABILITY_API_KEY}`,
+          Accept: 'application/json',
+          ...form.getHeaders(),
+        },
       },
-    }, (res) => {
-      const chunks = [];
+      (res) => {
+        const chunks = [];
 
-      res.on('data', c => chunks.push(c));
+        res.on('data', (c) => chunks.push(c));
 
-      res.on('end', () => resolve({
-        status: res.statusCode,
-        buffer: Buffer.concat(chunks),
-      }));
-    });
+        res.on('end', () =>
+          resolve({
+            status: res.statusCode,
+            buffer: Buffer.concat(chunks),
+          })
+        );
+      }
+    );
 
     req.setTimeout(
       90_000,
@@ -454,7 +550,10 @@ async function generarVisualizacion({
     let detalle = `HTTP ${respuesta.status}`;
 
     try {
-      const p = JSON.parse(respuesta.buffer.toString());
+      const p = JSON.parse(
+        respuesta.buffer.toString()
+      );
+
       detalle = p.errors?.join(', ') ?? p.message ?? detalle;
     } catch (_) {}
 
@@ -463,10 +562,13 @@ async function generarVisualizacion({
     );
 
     err.code = 'STABILITY_API_ERROR';
+
     throw err;
   }
 
-  const data = JSON.parse(respuesta.buffer.toString());
+  const data = JSON.parse(
+    respuesta.buffer.toString()
+  );
 
   if (!data.image) {
     const err = new Error(
@@ -474,43 +576,51 @@ async function generarVisualizacion({
     );
 
     err.code = 'STABILITY_API_ERROR';
+
     throw err;
-  } else {
-    return Buffer.from(data.image, 'base64');
   }
+
+  return Buffer.from(data.image, 'base64');
 }
 
 // ── SAM via Replicate ─────────────────────────────────────────────────────────
 const REPLICATE_API_TOKEN = process.env.REPLICATE_API_TOKEN;
-const SAM_VERSION = process.env.SAM_VERSION ??
+
+const SAM_VERSION =
+  process.env.SAM_VERSION ??
   'fb8af171cfa1616ddcf1242c0939f46bcada5ad4cf6f2fbe8b81b330ec5c003';
 
 function replicatePost(pathStr, body) {
   return new Promise((resolve, reject) => {
     const bodyStr = JSON.stringify(body);
 
-    const req = https.request({
-      hostname: 'api.replicate.com',
-      path: pathStr,
-      method: 'POST',
-      headers: {
-        Authorization: `Bearer ${REPLICATE_API_TOKEN}`,
-        'Content-Type': 'application/json',
-        'Content-Length': Buffer.byteLength(bodyStr),
+    const req = https.request(
+      {
+        hostname: 'api.replicate.com',
+        path: pathStr,
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${REPLICATE_API_TOKEN}`,
+          'Content-Type': 'application/json',
+          'Content-Length': Buffer.byteLength(bodyStr),
+        },
       },
-    }, (res) => {
-      const chunks = [];
+      (res) => {
+        const chunks = [];
 
-      res.on('data', c => chunks.push(c));
+        res.on('data', (c) => chunks.push(c));
 
-      res.on('end', () => {
-        try {
-          resolve(JSON.parse(Buffer.concat(chunks).toString()));
-        } catch (e) {
-          reject(e);
-        }
-      });
-    });
+        res.on('end', () => {
+          try {
+            resolve(
+              JSON.parse(Buffer.concat(chunks).toString())
+            );
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+    );
 
     req.setTimeout(
       15_000,
@@ -525,26 +635,31 @@ function replicatePost(pathStr, body) {
 
 function replicateGet(predId) {
   return new Promise((resolve, reject) => {
-    const req = https.request({
-      hostname: 'api.replicate.com',
-      path: `/v1/predictions/${predId}`,
-      method: 'GET',
-      headers: {
-        Authorization: `Bearer ${REPLICATE_API_TOKEN}`,
+    const req = https.request(
+      {
+        hostname: 'api.replicate.com',
+        path: `/v1/predictions/${predId}`,
+        method: 'GET',
+        headers: {
+          Authorization: `Bearer ${REPLICATE_API_TOKEN}`,
+        },
       },
-    }, (res) => {
-      const chunks = [];
+      (res) => {
+        const chunks = [];
 
-      res.on('data', c => chunks.push(c));
+        res.on('data', (c) => chunks.push(c));
 
-      res.on('end', () => {
-        try {
-          resolve(JSON.parse(Buffer.concat(chunks).toString()));
-        } catch (e) {
-          reject(e);
-        }
-      });
-    });
+        res.on('end', () => {
+          try {
+            resolve(
+              JSON.parse(Buffer.concat(chunks).toString())
+            );
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+    );
 
     req.setTimeout(
       10_000,
@@ -556,7 +671,10 @@ function replicateGet(predId) {
   });
 }
 
-async function esperarResultadoReplicate(predId, maxMs = 60_000) {
+async function esperarResultadoReplicate(
+  predId,
+  maxMs = 60_000
+) {
   const inicio = Date.now();
 
   while (Date.now() - inicio < maxMs) {
@@ -564,7 +682,10 @@ async function esperarResultadoReplicate(predId, maxMs = 60_000) {
 
     if (pred.status === 'succeeded') return pred;
 
-    if (pred.status === 'failed' || pred.status === 'canceled') {
+    if (
+      pred.status === 'failed' ||
+      pred.status === 'canceled'
+    ) {
       throw new Error(
         `SAM prediction ${pred.status}: ${pred.error ?? ''}`
       );
@@ -580,26 +701,35 @@ function descargarBuffer(url) {
   return new Promise((resolve, reject) => {
     const urlObj = new URL(url);
 
-    const req = https.request({
-      hostname: urlObj.hostname,
-      path: urlObj.pathname + urlObj.search,
-      method: 'GET',
-      headers: {
-        'User-Agent': 'inventario-proformas/1.0',
+    const req = https.request(
+      {
+        hostname: urlObj.hostname,
+        path: urlObj.pathname + urlObj.search,
+        method: 'GET',
+        headers: {
+          'User-Agent': 'inventario-proformas/1.0',
+        },
       },
-    }, (res) => {
-      if (res.statusCode === 301 || res.statusCode === 302) {
-        descargarBuffer(res.headers.location)
-          .then(resolve)
-          .catch(reject);
-        return;
+      (res) => {
+        if (
+          res.statusCode === 301 ||
+          res.statusCode === 302
+        ) {
+          descargarBuffer(res.headers.location)
+            .then(resolve)
+            .catch(reject);
+
+          return;
+        }
+
+        const chunks = [];
+
+        res.on('data', (c) => chunks.push(c));
+        res.on('end', () =>
+          resolve(Buffer.concat(chunks))
+        );
       }
-
-      const chunks = [];
-
-      res.on('data', c => chunks.push(c));
-      res.on('end', () => resolve(Buffer.concat(chunks)));
-    });
+    );
 
     req.setTimeout(
       30_000,
@@ -617,9 +747,9 @@ async function mascaraMockCentro(imagenBuffer) {
   const h = meta.height;
 
   const x = Math.round(w * 0.15);
-  const y = Math.round(h * 0.20);
-  const bw = Math.round(w * 0.70);
-  const bh = Math.round(h * 0.60);
+  const y = Math.round(h * 0.2);
+  const bw = Math.round(w * 0.7);
+  const bh = Math.round(h * 0.6);
 
   const raw = Buffer.alloc(w * h, 0);
 
@@ -635,7 +765,9 @@ async function mascaraMockCentro(imagenBuffer) {
       height: h,
       channels: 1,
     },
-  }).png().toBuffer();
+  })
+    .png()
+    .toBuffer();
 }
 
 async function generarMascaraSAM(
@@ -644,18 +776,29 @@ async function generarMascaraSAM(
   puntoYPct = 50
 ) {
   if (!REPLICATE_API_TOKEN) {
-    console.warn('[IA/SAM] ⚠️  Sin REPLICATE_API_TOKEN — mock activo');
+    console.warn(
+      '[IA/SAM] ⚠️  Sin REPLICATE_API_TOKEN — mock activo'
+    );
+
     return mascaraMockCentro(imagenBuffer);
   }
 
   const meta = await sharp(imagenBuffer).metadata();
-  const px = Math.round((puntoXPct / 100) * meta.width);
-  const py = Math.round((puntoYPct / 100) * meta.height);
+
+  const px = Math.round(
+    (puntoXPct / 100) * meta.width
+  );
+
+  const py = Math.round(
+    (puntoYPct / 100) * meta.height
+  );
 
   const pred = await replicatePost('/v1/predictions', {
     version: SAM_VERSION,
     input: {
-      image: `data:image/jpeg;base64,${imagenBuffer.toString('base64')}`,
+      image: `data:image/jpeg;base64,${imagenBuffer.toString(
+        'base64'
+      )}`,
       point_coords: `[[${px},${py}]]`,
       point_labels: '[1]',
       pred_iou_thresh: 0.86,
@@ -666,25 +809,28 @@ async function generarMascaraSAM(
 
   if (pred.error) {
     throw new Error(`SAM error: ${pred.error}`);
-  } else {
-    const resultado = await esperarResultadoReplicate(pred.id);
-    const outputUrls = Array.isArray(resultado.output)
-      ? resultado.output
-      : [resultado.output].filter(Boolean);
-
-    if (!outputUrls.length) {
-      throw new Error('SAM no devolvió máscaras');
-    }
-
-    const maskBuffer = await descargarBuffer(outputUrls[0]);
-
-    return sharp(maskBuffer)
-      .resize(meta.width, meta.height, { fit: 'fill' })
-      .grayscale()
-      .threshold(128)
-      .png()
-      .toBuffer();
   }
+
+  const resultado = await esperarResultadoReplicate(
+    pred.id
+  );
+
+  const outputUrls = Array.isArray(resultado.output)
+    ? resultado.output
+    : [resultado.output].filter(Boolean);
+
+  if (!outputUrls.length) {
+    throw new Error('SAM no devolvió máscaras');
+  }
+
+  const maskBuffer = await descargarBuffer(outputUrls[0]);
+
+  return sharp(maskBuffer)
+    .resize(meta.width, meta.height, { fit: 'fill' })
+    .grayscale()
+    .threshold(128)
+    .png()
+    .toBuffer();
 }
 
 module.exports = {
@@ -696,4 +842,3 @@ module.exports = {
   construirPromptLibre,
   traducirAIngles,
 };
-```
