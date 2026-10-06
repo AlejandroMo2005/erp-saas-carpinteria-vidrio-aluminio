@@ -48,7 +48,7 @@ export default function FormularioFactura({ onCerrar, onFacturaCreada, pedidoId 
             <div className="ff-exito__icono" aria-hidden="true"><CheckCircle size={48} /></div>
             <h2 id={idTitulo} className="ff-exito__titulo">¡Factura creada!</h2>
             <p className="ff-exito__numero">{facturaCreada.numero_factura}</p>
-            <p className="ff-exito__total">Total: <strong>${parseFloat(facturaCreada.total).toFixed(2)}</strong></p>
+            <p className="ff-exito__total">Total: <strong>${Number.parseFloat(facturaCreada.total).toFixed(2)}</strong></p>
             <button onClick={onCerrar} className="ff-exito__btn">Cerrar</button>
           </div>
         </div>
@@ -294,8 +294,8 @@ export default function FormularioFactura({ onCerrar, onFacturaCreada, pedidoId 
                           <tr key={item._id}>
                             <td>{item.descripcion}</td>
                             <td>{item.cantidad}</td>
-                            <td>${parseFloat(item.precio_unitario).toFixed(2)}</td>
-                            <td>${parseFloat(item.descuento || 0).toFixed(2)}</td>
+                            <td>${Number.parseFloat(item.precio_unitario).toFixed(2)}</td>
+                            <td>${Number.parseFloat(item.descuento || 0).toFixed(2)}</td>
                             <td>{item.aplica_iva ? `${(tasaIva * 100).toFixed(0)}%` : '0%'}</td>
                             <td>${total.toFixed(2)}</td>
                           </tr>
