@@ -20,11 +20,10 @@ const Perfil             = lazy(() => import('./presentation/components/Perfil/P
 const Register           = lazy(() => import('./presentation/components/Auth/Register'))
 const ForgotPassword     = lazy(() => import('./presentation/components/Auth/ForgotPassword'))
 const ResetPassword      = lazy(() => import('./presentation/components/Auth/ResetPassword'))
-const AccessibilityPanel = lazy(() =>
-  import('./presentation/components/common/AccessibilityPanel').then((m) => ({
-    default: m.AccessibilityPanel,
-  }))
-)
+const AccessibilityPanel = lazy(async () => {
+  const m = await import('./presentation/components/common/AccessibilityPanel')
+  return { default: m.AccessibilityPanel }
+})
 const Previsualizacion = lazy(() => import('./presentation/components/Previsualizacion'))
 const Proformas        = lazy(() => import('./presentation/components/Proformas'))
 const Pedidos          = lazy(() => import('./presentation/components/Pedidos'))
