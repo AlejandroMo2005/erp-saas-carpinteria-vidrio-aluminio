@@ -26,24 +26,31 @@ const MatCardVendedor = memo(function MatCardVendedor({ cardKey, variantes, acti
         <h2 className="mat-title">{activo.nombre_material}</h2>
 
         <div
-          className="selector-colores" role="group"
+          className="selector-colores"
+          role="group"
           aria-label={`Variantes de color para ${activo.nombre_material}`}
         >
           {variantes.map((v) => (
             <button
-              key={v.variante_id} type="button"
+              key={v.variante_id}
+              type="button"
               className={`color-btn-wrapper${activo.variante_id === v.variante_id ? ' active' : ''}`}
               aria-label={`Ver color ${v.color_nombre}`}
               aria-pressed={activo.variante_id === v.variante_id}
               onClick={() => onSeleccionar(cardKey, v)}
             >
-              <span className="color-sample" style={{ backgroundColor: normalizarColor(v.color_valor) }} />
+              <span
+                className="color-sample"
+                style={{ backgroundColor: normalizarColor(v.color_valor) }}
+              />
             </button>
           ))}
         </div>
 
         {activo.color_nombre && (
-          <div className="active-color-label" aria-live="polite">{activo.color_nombre}</div>
+          <div className="active-color-label" aria-live="polite">
+            {activo.color_nombre}
+          </div>
         )}
 
         <div className="info-fields">
@@ -53,7 +60,9 @@ const MatCardVendedor = memo(function MatCardVendedor({ cardKey, variantes, acti
           </div>
           <div className="info-row">
             <span className="info-label">PRECIO</span>
-            <span className="info-value">${parseFloat(activo.precio).toFixed(2)}</span>
+            <span className="info-value">
+              ${Number.parseFloat(activo.precio).toFixed(2)}
+            </span>
           </div>
         </div>
       </div>
@@ -61,9 +70,13 @@ const MatCardVendedor = memo(function MatCardVendedor({ cardKey, variantes, acti
       <footer className="mat-card-footer mat-card-footer--readonly">
         <div className="price-row">
           <span className="u-text">USD</span>
-          <span className="p-text">${parseFloat(activo.precio).toFixed(2)}</span>
+          <span className="p-text">
+            ${Number.parseFloat(activo.precio).toFixed(2)}
+          </span>
         </div>
-        <div className="readonly-badge" aria-label="Vista de solo lectura">Solo lectura</div>
+        <div className="readonly-badge" aria-label="Vista de solo lectura">
+          Solo lectura
+        </div>
       </footer>
     </article>
   );
