@@ -28,8 +28,8 @@ export default function PuertaBanoPreview({
   const [tipo,     setTipo]     = useState("Corrediza");
   const [material, setMaterial] = useState("Vidrio");
 
-  const anchoN = parseFloat(ancho) || 0.9;
-  const altoN  = parseFloat(alto)  || 2.0;
+  const anchoN = Number.parseFloat(ancho) || 0.9;
+  const altoN  = Number.parseFloat(alto)  || 2.0;
 
   const anchoHoja = useMemo(() => anchoN / hojas,            [anchoN, hojas]);
   const areaTotal = useMemo(() => +(anchoN * altoN).toFixed(2), [anchoN, altoN]);
