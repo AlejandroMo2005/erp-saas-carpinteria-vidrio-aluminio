@@ -2,7 +2,7 @@
 import { useRef, useMemo } from "react";
 import { useFrame }        from "@react-three/fiber";
 
-// three.js: DoubleSide = 2. Valor estable — no cambia entre versiones.
+// three.js: DoubleSide = 2. Valor estable — no cambia entre versiones...
 const DoubleSide = 2;
 
 // Inline lerp — evita importar MathUtils de three solo por esta función.
