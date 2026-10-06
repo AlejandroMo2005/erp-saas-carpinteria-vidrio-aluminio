@@ -46,8 +46,8 @@ exports.actualizarValor = async (req, res) => {
       return res.status(400).json({ success: false, message: 'Clave y valor son requeridos' });
 
     if (clave.toUpperCase() === 'IVA') {
-      const tasa = parseFloat(valor);
-      if (isNaN(tasa) || tasa < 0 || tasa > 1)
+      const tasa = Number.parseFloat(valor);
+      if (Number.isNaN(tasa) || tasa < 0 || tasa > 1)
         return res.status(400).json({ success: false, message: 'El IVA debe ser un número entre 0 y 1 (ej: 0.15 para 15%)' });
     }
 
