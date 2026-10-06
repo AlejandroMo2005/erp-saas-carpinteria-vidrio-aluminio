@@ -61,7 +61,7 @@ async function describirConClaudeVision(imageBuffer, mimeType) {
 // ═══════════════════════════════════════════════════════
 async function subirReferencia(req, res) {
   const trabajoId = Number(req.params.trabajo_id);
-  if (!trabajoId || isNaN(trabajoId)) return res.status(400).json({ error: 'trabajo_id inválido' });
+  if (!trabajoId || Number.isNaN(trabajoId)) return res.status(400).json({ error: 'trabajo_id inválido' });
 
   const archivo = req.file;
   if (!archivo) return res.status(422).json({ error: 'Se requiere el archivo imagen' });
@@ -111,7 +111,7 @@ async function subirReferencia(req, res) {
 // ═══════════════════════════════════════════════════════
 async function listarReferencias(req, res) {
   const trabajoId = Number(req.params.trabajo_id);
-  if (!trabajoId || isNaN(trabajoId)) return res.status(400).json({ error: 'trabajo_id inválido' });
+  if (!trabajoId || Number.isNaN(trabajoId)) return res.status(400).json({ error: 'trabajo_id inválido' });
 
   try {
     const [refs] = await db.query(
@@ -137,7 +137,7 @@ async function listarReferencias(req, res) {
 // ═══════════════════════════════════════════════════════
 async function actualizarReferencia(req, res) {
   const id = Number(req.params.id);
-  if (!id || isNaN(id)) return res.status(400).json({ error: 'id inválido' });
+  if (!id || Number.isNaN(id)) return res.status(400).json({ error: 'id inválido' });
 
   const { descriptores, peso, activo } = req.body ?? {};
   const campos = [], valores = [];
@@ -182,7 +182,7 @@ async function actualizarReferencia(req, res) {
 // ═══════════════════════════════════════════════════════
 async function eliminarReferencia(req, res) {
   const id = Number(req.params.id);
-  if (!id || isNaN(id)) return res.status(400).json({ error: 'id inválido' });
+  if (!id || Number.isNaN(id)) return res.status(400).json({ error: 'id inválido' });
 
   try {
     const [refs] = await db.query(
