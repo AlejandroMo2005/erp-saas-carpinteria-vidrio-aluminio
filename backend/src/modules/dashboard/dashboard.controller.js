@@ -50,7 +50,7 @@ const getIngresos = async (req, res) => {
 // ═══════════════════════════════════════════════════════
 const getPedidosRecientes = async (req, res) => {
   try {
-    const limite = Math.min(Math.max(parseInt(req.query.limite) || 10, 1), 50);
+    const limite = Math.min(Math.max(Number.parseInt(req.query.limite) || 10, 1), 50);
     const [rows] = await m.getPedidosRecientes(limite, req.empresaId);
     res.json({ success: true, data: rows });
   } catch (e) {
@@ -82,7 +82,7 @@ const getUsuariosIngresos = async (req, res) => {
 const getTopProductos = async (req, res) => {
   try {
     const { limite = 12, desde = null, hasta = null } = req.query;
-    const limiteNum = Math.min(Math.max(parseInt(limite) || 12, 1), 50);
+    const limiteNum = Math.min(Math.max(Number.parseInt(limite) || 12, 1), 50);
     const [rows] = await m.getTopProductos(limiteNum, desde, hasta, req.empresaId);
     res.json({ success: true, data: rows });
   } catch (e) {
