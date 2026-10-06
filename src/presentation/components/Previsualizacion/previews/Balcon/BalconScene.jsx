@@ -40,8 +40,8 @@ export default function BalconScene({
   colorVidrio    = "#88aaff",
   opacidadVidrio = 0.3,
 }) {
-  const anchoS = Math.max(0.2, parseFloat(ancho) || 1.5);
-  const altoS  = Math.max(0.2, parseFloat(alto)  || 1.0);
+  const anchoS = Math.max(0.2, Number.parseFloat(ancho) || 1.5);
+  const altoS  = Math.max(0.2, Number.parseFloat(alto)  || 1.0);
 
   const mMarco = useMemo(() => ({
     color: colorMarco, roughness: 0.3, metalness: 0.8, side: DoubleSide,
