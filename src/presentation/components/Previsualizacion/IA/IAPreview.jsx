@@ -282,7 +282,6 @@ export default function IAPreview({
         accept="image/jpeg,image/png,image/webp"
         style={{ display: 'none' }}
         onChange={handleArchivoElegido}
-        aria-hidden="true"
       />
 
       <div
