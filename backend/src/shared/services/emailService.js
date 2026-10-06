@@ -17,13 +17,13 @@ const transporter = nodemailer.createTransport({
 });
 
 transporter.verify()
-  .then(()    => console.log('✅ Servidor de email listo para enviar mensajes'))
+  .then(() => console.log('✅ Servidor de email listo para enviar mensajes'))
   .catch((err) => console.error('❌ Error configurando email:', err.message));
 
 exports.sendResetCode = async (email, code, nombre) => {
   const mailOptions = {
-    from:    process.env.EMAIL_FROM || `"Sistema de Gestión" <${process.env.EMAIL_USER}>`,
-    to:      email,
+    from: process.env.EMAIL_FROM || `"Sistema de Gestión" <${process.env.EMAIL_USER}>`,
+    to: email,
     subject: '🔐 Código de Recuperación - Vidrios y Aluminios "Alejandro"',
     html: `
       <h2>Recuperación de contraseña</h2>
@@ -33,6 +33,7 @@ exports.sendResetCode = async (email, code, nombre) => {
       <p>Este código expira en ${process.env.RESET_CODE_EXPIRATION || 5} minutos.</p>
     `,
   };
+
   try {
     const info = await transporter.sendMail(mailOptions);
     console.log('✅ Email enviado · Para:', email, '· ID:', info.messageId);
