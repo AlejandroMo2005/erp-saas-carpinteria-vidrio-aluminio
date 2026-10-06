@@ -14,5 +14,5 @@ export function formatearFechaHora(fecha) {
 }
 
 export function formatearMoneda(valor) {
-  return `$${parseFloat(valor ?? 0).toFixed(2)}`;
+  return `$${Number.parseFloat(valor ?? 0).toFixed(2)}`;
 }
