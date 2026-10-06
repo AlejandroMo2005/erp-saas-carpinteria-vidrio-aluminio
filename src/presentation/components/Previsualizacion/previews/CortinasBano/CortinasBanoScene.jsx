@@ -24,8 +24,8 @@ export default function CortinasBanoScene({
   colorMarco,
   colorVidrio,
 }) {
-  const anchoN        = Math.max(0.1, parseFloat(ancho) || 1.0);
-  const altoN         = Math.max(0.1, parseFloat(alto)  || 2.0);
+  const anchoN        = Math.max(0.1, Number.parseFloat(ancho) || 1.0);
+  const altoN         = Math.max(0.1, Number.parseFloat(alto)  || 2.0);
   const espesorMarco  = 0.03;
   const profundidad   = 0.006;
   const numPaneles    = 2;
