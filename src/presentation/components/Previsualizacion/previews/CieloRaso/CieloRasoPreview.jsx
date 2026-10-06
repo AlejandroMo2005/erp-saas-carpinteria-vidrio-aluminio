@@ -3,7 +3,7 @@
 // Sprint 15 — Canvas y OrbitControls con lazy() — mismo patrón que AnaquelPreview
 // Sprint 18 DT-IA-01 — imports estáticos para Canvas y OrbitControls.
 // 🐛 Fix Sprint 18: frameloop="always" + onCreated invalidate
-//    — Con "demand" el canvas queda en blanco hasta la primera interacción.
+//    — Con "demand" el canvas queda en blanco hasta la primera interacción..
 
 import { useState, useMemo } from "react";
 import { Canvas } from "@react-three/fiber";
