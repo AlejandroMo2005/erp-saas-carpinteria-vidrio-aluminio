@@ -66,7 +66,7 @@ export function useVisualizadorModal({ pedido, onClose }) {
       }
     };
 
-    cargar();
+    void cargar();
   }, [pedido.id]);
 
   /* ── Fix Context Lost: forzar resize cuando el Canvas ya montó ──────────
