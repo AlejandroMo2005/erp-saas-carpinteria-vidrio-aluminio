@@ -25,7 +25,7 @@ function sanitizeHTML(text) {
 exports.listar = async (req, res) => {
   try {
     const { busqueda = '', limite = 8 } = req.query;
-    const lim = Math.min(parseInt(limite) || 8, 50);
+    const lim = Math.min(Number.parseInt(limite) || 8, 50);
 
     if (!busqueda.trim() || busqueda.trim().length < 2)
       return res.status(200).json({ success: true, data: [] });
