@@ -44,14 +44,14 @@ export default function usePedidosCliente({ clienteId }) {
     try {
       const resp          = await api.get(`/pedidos/${pedido.id}`);
       const pedidoDetalle = resp.data?.data ?? resp.data?.pedido ?? resp.data ?? {};
-      const totalPedido   = parseFloat(pedido.total) || 0;
+      const totalPedido   = Number.parseFloat(pedido.total) || 0;
       const raw = pedidoDetalle.items ?? pedidoDetalle.detalle ?? [];
       if (raw.length > 0) {
         const precios = distribuirTotal(raw, totalPedido);
         setItems(raw.map((item, i) => ({
           _id:             Date.now() + Math.random(),
           descripcion:     buildDescripcion(item),
-          cantidad:        parseFloat(item.cantidad) || 1,
+          cantidad:        Number.parseFloat(item.cantidad) || 1,
           precio_unitario: precios[i],
           descuento:       0,
           aplica_iva:      true,
