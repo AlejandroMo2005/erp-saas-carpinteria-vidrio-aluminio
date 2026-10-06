@@ -35,7 +35,7 @@ exports.forgotPassword = async (req, res) => {
         const code = Math.floor(100000 + Math.random() * 900000).toString();
         const token = crypto.randomBytes(32).toString('hex');
         const expiresAt = new Date(
-          Date.now() + (parseInt(process.env.RESET_CODE_EXPIRATION) || 5) * 60000
+          Date.now() + (Number.parseInt(process.env.RESET_CODE_EXPIRATION) || 5) * 60000
         );
 
         await db.query(
