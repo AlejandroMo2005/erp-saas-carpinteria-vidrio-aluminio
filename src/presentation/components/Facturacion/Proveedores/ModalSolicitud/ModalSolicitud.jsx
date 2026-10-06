@@ -23,8 +23,12 @@ export default function ModalSolicitud({
   } = useModalSolicitud({ plantilla, solicitudId, telefono_whatsapp, onEnviada });
 
   return (
-    <div className="msol-overlay" role="dialog" aria-modal="true"
-      aria-labelledby="msol-titulo">
+    <div
+      className="msol-overlay"
+      role="dialog"
+      aria-modal="true"
+      aria-labelledby="msol-titulo"
+    >
       <div className="msol-modal">
 
         {/* Header */}
@@ -38,8 +42,12 @@ export default function ModalSolicitud({
               <p className="msol-subtitle">Para: {nombreProveedor}</p>
             </div>
           </div>
-          <button type="button" className="msol-close"
-            onClick={onClose} aria-label="Cerrar modal">
+          <button
+            type="button"
+            className="msol-close"
+            onClick={onClose}
+            aria-label="Cerrar modal"
+          >
             <X size={18} aria-hidden="true" />
           </button>
         </div>
@@ -49,25 +57,35 @@ export default function ModalSolicitud({
           <h3 id="msol-preview-label" className="msol-preview-heading">
             Vista previa del mensaje
           </h3>
-          <pre className="msol-plantilla" aria-labelledby="msol-preview-label"
-            tabIndex={0}>
+          <pre
+            className="msol-plantilla"
+            aria-labelledby="msol-preview-label"
+          >
             {plantilla}
           </pre>
         </div>
 
         {/* Instrucciones post-copia */}
         {paso === 'instrucciones' && (
-          <div className="msol-instruccion" role="status" aria-live="polite">
-            <p className="msol-instruccion__titulo">✅ Mensaje copiado — 3 pasos:</p>
+          <div
+            className="msol-instruccion"
+            role="status"
+            aria-live="polite"
+          >
+            <p className="msol-instruccion__titulo">
+              ✅ Mensaje copiado — 3 pasos:
+            </p>
             <ol className="msol-instruccion__lista">
               <li>Ve a tu pestaña de <strong>WhatsApp Web</strong></li>
               <li>
                 Abre el chat de
                 {telMostrar
-                  ? <span className="msol-instruccion__tel">
+                  ? (
+                    <span className="msol-instruccion__tel">
                       <Phone size={13} aria-hidden="true" />
                       {telMostrar}
                     </span>
+                  )
                   : <strong> {nombreProveedor}</strong>
                 }
               </li>
@@ -77,7 +95,10 @@ export default function ModalSolicitud({
         )}
 
         {paso === 'confirmado' && (
-          <div className="msol-instruccion msol-instruccion--ok" role="status">
+          <div
+            className="msol-instruccion msol-instruccion--ok"
+            role="status"
+          >
             ✅ Solicitud marcada como enviada.
           </div>
         )}
@@ -85,38 +106,55 @@ export default function ModalSolicitud({
         {/* Footer */}
         <div className="msol-footer">
 
-          <button type="button" className="msol-btn msol-btn--secondary"
-            onClick={onClose}>
+          <button
+            type="button"
+            className="msol-btn msol-btn--secondary"
+            onClick={onClose}
+          >
             Cerrar
           </button>
 
-          <button type="button" className="msol-btn msol-btn--ghost"
-            onClick={handleCopiarManual}>
+          <button
+            type="button"
+            className="msol-btn msol-btn--ghost"
+            onClick={handleCopiarManual}
+          >
             {copiado
               ? <Check size={16} aria-hidden="true" />
-              : <Copy  size={16} aria-hidden="true" />
+              : <Copy size={16} aria-hidden="true" />
             }
             {copiado ? 'Copiado' : 'Copiar'}
           </button>
 
           {tieneTel && paso === null && (
-            <button type="button" className="msol-btn msol-btn--wt"
-              onClick={handleCopiarYEnviar}>
+            <button
+              type="button"
+              className="msol-btn msol-btn--wt"
+              onClick={handleCopiarYEnviar}
+            >
               <Copy size={16} aria-hidden="true" />
               Copiar y enviar
             </button>
           )}
 
           {paso === 'instrucciones' && (
-            <button type="button" className="msol-btn msol-btn--confirmar"
-              onClick={handleConfirmar} disabled={marcando}>
+            <button
+              type="button"
+              className="msol-btn msol-btn--confirmar"
+              onClick={handleConfirmar}
+              disabled={marcando}
+            >
               <Check size={16} aria-hidden="true" />
               {marcando ? 'Guardando…' : 'Ya lo envié ✓'}
             </button>
           )}
 
           {paso === 'confirmado' && (
-            <button type="button" className="msol-btn msol-btn--enviada" disabled>
+            <button
+              type="button"
+              className="msol-btn msol-btn--enviada"
+              disabled
+            >
               <Check size={16} aria-hidden="true" />
               Enviado ✓
             </button>
