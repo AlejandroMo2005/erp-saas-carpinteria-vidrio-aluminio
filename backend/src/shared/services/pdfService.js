@@ -17,16 +17,16 @@ const ANCHO_PAGINA = 595.28, ALTO_PAGINA = 841.89;
 const ANCHO_UTIL   = ANCHO_PAGINA - MARGENES.left - MARGENES.right;
 
 const fmt = {
-  moneda: (v) => `$${parseFloat(v??0).toLocaleString('es-EC',{minimumFractionDigits:2,maximumFractionDigits:2})}`,
+  moneda: (v) => `$${Number.parseFloat(v??0).toLocaleString('es-EC',{minimumFractionDigits:2,maximumFractionDigits:2})}`,
   fecha:  (f) => !f ? '—' : new Date(f).toLocaleDateString('es-EC',{year:'numeric',month:'2-digit',day:'2-digit'}),
-  numero: (v, dec=2) => parseFloat(v??0).toFixed(dec),
+  numero: (v, dec=2) => Number.parseFloat(v??0).toFixed(dec),
 };
 
 const formatearClaveAcceso = (clave) =>
   !clave ? 'PENDIENTE' : (clave.match(/.{1,10}/g)?.join(' ') ?? clave);
 
 function obtenerPorcentajeStr(factura) {
-  const item = (factura.detalle??factura.items??[]).find(i => parseFloat(i.porcentaje_iva??0) > 0);
+  const item = (factura.detalle??factura.items??[]).find(i => Number.parseFloat(i.porcentaje_iva??0) > 0);
   return item ? fmt.numero(item.porcentaje_iva, 0) : '15';
 }
 
@@ -116,8 +116,8 @@ function dibujarTablaItems(doc, factura, y) {
     const altoFila_  = Math.max(altoFila, lineasDesc * 13 + 8);
     if (y + altoFila_ > ALTO_PAGINA - MARGENES.bottom - 120) { doc.addPage(); y = MARGENES.top; }
     doc.rect(MARGENES.left, y, ANCHO_UTIL, altoFila_).fillAndStroke(fondoFila, COLORES.bordeTabla);
-    const sub   = parseFloat(item.precio_total_sin_iva ?? 0);
-    const iva   = parseFloat(item.valor_iva            ?? 0);
+    const sub   = Number.parseFloat(item.precio_total_sin_iva ?? 0);
+    const iva   = Number.parseFloat(item.valor_iva            ?? 0);
     const total = sub + iva;
     const valores = [
       item.codigo_principal ?? '—', item.descripcion ?? '',
@@ -140,8 +140,8 @@ function dibujarTotales(doc, factura, y) {
     {label:'Subtotal sin IVA 0%',                                       valor:fmt.moneda(factura.subtotal_sin_iva), bold:false},
     {label:`Subtotal IVA ${obtenerPorcentajeStr(factura)}%`,            valor:fmt.moneda(factura.subtotal_con_iva), bold:false},
     {label:`IVA ${obtenerPorcentajeStr(factura)}%`,                     valor:fmt.moneda(factura.iva),             bold:false},
-    ...(parseFloat(factura.descuento??0)>0 ? [{label:'Descuento',       valor:`- ${fmt.moneda(factura.descuento)}`, bold:false}] : []),
-    ...(parseFloat(factura.propina??0)>0   ? [{label:'Propina',         valor:fmt.moneda(factura.propina),          bold:false}] : []),
+    ...(Number.parseFloat(factura.descuento??0)>0 ? [{label:'Descuento',       valor:`- ${fmt.moneda(factura.descuento)}`, bold:false}] : []),
+    ...(Number.parseFloat(factura.propina??0)>0   ? [{label:'Propina',         valor:fmt.moneda(factura.propina),          bold:false}] : []),
     {label:'TOTAL', valor:fmt.moneda(factura.total), bold:true, destacado:true},
   ];
   const altoFila = 18, altoBloque = filas.length * altoFila + 8;
@@ -186,7 +186,7 @@ function dibujarPiePagina(doc) {
   const yPie = ALTO_PAGINA - MARGENES.bottom - 30;
   doc.moveTo(MARGENES.left, yPie).lineTo(MARGENES.left+ANCHO_UTIL, yPie).strokeColor(COLORES.borde).lineWidth(0.5).stroke();
   doc.font(FUENTES.oblique).fontSize(7.5).fillColor(COLORES.textoGris)
-    .text('Este documento es la representación impresa de un Comprobante Electrónico. Verifique el estado de autorización en: https://srienlinea.sri.gob.ec', MARGENES.left, yPie+6, {width:ANCHO_UTIL*0.7, align:'left'});
+    .text('Este documento es la representación impresa de un Comprobante Electrónico. Verifique el estado de autorización en: [https://srienlinea.sri.gob.ec](https://srienlinea.sri.gob.ec)', MARGENES.left, yPie+6, {width:ANCHO_UTIL*0.7, align:'left'});
   doc.font(FUENTES.regular).fontSize(7.5).fillColor(COLORES.textoClaro)
     .text(`Generado: ${new Date().toLocaleDateString('es-EC')}`, MARGENES.left+ANCHO_UTIL*0.75, yPie+6, {width:ANCHO_UTIL*0.25, align:'right'});
 }
