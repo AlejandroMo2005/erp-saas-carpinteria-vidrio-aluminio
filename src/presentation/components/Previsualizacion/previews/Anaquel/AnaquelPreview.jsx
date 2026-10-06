@@ -1,4 +1,4 @@
-// previews/Anaquel/AnaquelPreview.jsx
+// src/presentation/components/Previsualizacion/previews/Anaquel/AnaquelPreview.jsx
 // Sprint 18 DT-IA-01 — imports estáticos para Canvas, OrbitControls y AnaquelScene.
 // 🐛 Fix Sprint 18: frameloop="always" + invalidate en onCreated
 //    — Con frameloop="demand" el canvas quedaba en blanco hasta la primera
@@ -32,24 +32,43 @@ export default function AnaquelPreview({
   const [tipoPuerta,   setTipoPuerta]   = useState("Sin puerta");
   const [estadoPuerta, setEstadoPuerta] = useState("Cerrada");
 
-  const anchoN = parseFloat(ancho) || 1.2;
-  const altoN  = parseFloat(alto)  || 1.8;
+  const anchoN = Number.parseFloat(ancho) || 1.2;
+  const altoN  = Number.parseFloat(alto)  || 1.8;
 
-  const areaTotal    = useMemo(() => +(anchoN * altoN).toFixed(2),                    [anchoN, altoN]);
-  const altoPorNivel = useMemo(() => niveles > 1 ? +(altoN / niveles).toFixed(2) : 0, [altoN, niveles]);
-  const camZ         = useMemo(() => Math.max(anchoN, altoN) * 1.7 + 1,               [anchoN, altoN]);
+  const areaTotal = useMemo(
+    () => +(anchoN * altoN).toFixed(2),
+    [anchoN, altoN]
+  );
+
+  const altoPorNivel = useMemo(
+    () => niveles > 1 ? +(altoN / niveles).toFixed(2) : 0,
+    [altoN, niveles]
+  );
+
+  const camZ = useMemo(
+    () => Math.max(anchoN, altoN) * 1.7 + 1,
+    [anchoN, altoN]
+  );
 
   const tienePuerta = tipoPuerta !== "Sin puerta";
 
-  const handleNiveles    = (v) => NIVELES_OPTS.includes(v)     && setNiveles(v);
-  const handleMaterial   = (v) => MATERIAL_OPTS.includes(v)    && setMaterial(v);
-  const handleProfund    = (v) => PROFUNDIDAD_OPTS.includes(v) && setProfundidad(v);
+  const handleNiveles = (v) =>
+    NIVELES_OPTS.includes(v) && setNiveles(v);
+
+  const handleMaterial = (v) =>
+    MATERIAL_OPTS.includes(v) && setMaterial(v);
+
+  const handleProfund = (v) =>
+    PROFUNDIDAD_OPTS.includes(v) && setProfundidad(v);
+
   const handleTipoPuerta = (v) => {
     if (!PUERTA_OPTS.includes(v)) return;
     if (v === "Sin puerta") setEstadoPuerta("Cerrada");
     setTipoPuerta(v);
   };
-  const handleEstado = (v) => ESTADO_OPTS.includes(v) && setEstadoPuerta(v);
+
+  const handleEstado = (v) =>
+    ESTADO_OPTS.includes(v) && setEstadoPuerta(v);
 
   return (
     <div className="anaquel-preview">
@@ -59,40 +78,64 @@ export default function AnaquelPreview({
         <div className="control-group">
           <span className="control-label">Niveles</span>
           {NIVELES_OPTS.map(n => (
-            <button key={n} className={niveles === n ? "active" : ""} onClick={() => handleNiveles(n)}>
+            <button
+              key={n}
+              className={niveles === n ? "active" : ""}
+              onClick={() => handleNiveles(n)}
+            >
               {n}
             </button>
           ))}
         </div>
+
         <div className="control-group">
           <span className="control-label">Material</span>
           {MATERIAL_OPTS.map(m => (
-            <button key={m} className={material === m ? "active" : ""} onClick={() => handleMaterial(m)}>
+            <button
+              key={m}
+              className={material === m ? "active" : ""}
+              onClick={() => handleMaterial(m)}
+            >
               {m}
             </button>
           ))}
         </div>
+
         <div className="control-group">
           <span className="control-label">Prof.</span>
           {PROFUNDIDAD_OPTS.map(p => (
-            <button key={p} className={profundidad === p ? "active" : ""} onClick={() => handleProfund(p)}>
+            <button
+              key={p}
+              className={profundidad === p ? "active" : ""}
+              onClick={() => handleProfund(p)}
+            >
               {(p * 100).toFixed(0)}cm
             </button>
           ))}
         </div>
+
         <div className="control-group">
           <span className="control-label">Puerta</span>
           {PUERTA_OPTS.map(t => (
-            <button key={t} className={tipoPuerta === t ? "active" : ""} onClick={() => handleTipoPuerta(t)}>
+            <button
+              key={t}
+              className={tipoPuerta === t ? "active" : ""}
+              onClick={() => handleTipoPuerta(t)}
+            >
               {t}
             </button>
           ))}
         </div>
+
         {tienePuerta && (
           <div className="control-group">
             <span className="control-label">Estado</span>
             {ESTADO_OPTS.map(e => (
-              <button key={e} className={estadoPuerta === e ? "active" : ""} onClick={() => handleEstado(e)}>
+              <button
+                key={e}
+                className={estadoPuerta === e ? "active" : ""}
+                onClick={() => handleEstado(e)}
+              >
                 {e}
               </button>
             ))}
@@ -108,17 +151,34 @@ export default function AnaquelPreview({
             /* Forzar resize + primer frame explícito.
                Con frameloop="always" esto es redundante pero
                garantiza el frame correcto si el CSS lazy aún
-               no había terminado de aplicarse al montar.      */
+               no había terminado de aplicarse al montar. */
             window.dispatchEvent(new Event("resize"));
             state.invalidate();
           }}
-          gl={{ powerPreference: "high-performance", antialias: true, depth: true, stencil: false }}
+          gl={{
+            powerPreference: "high-performance",
+            antialias: true,
+            depth: true,
+            stencil: false
+          }}
           dpr={[1, 1.5]}
-          camera={{ position: [0, 0, camZ], fov: 40, near: 0.05, far: 300 }}
+          camera={{
+            position: [0, 0, camZ],
+            fov: 40,
+            near: 0.05,
+            far: 300
+          }}
         >
           <ambientLight intensity={0.7} />
-          <directionalLight position={[3, 6, 5]}   intensity={0.9} />
-          <directionalLight position={[-3, 2, -3]} intensity={0.25} />
+          <directionalLight
+            position={[3, 6, 5]}
+            intensity={0.9}
+          />
+          <directionalLight
+            position={[-3, 2, -3]}
+            intensity={0.25}
+          />
+
           <OrbitControls
             enablePan={false}
             minDistance={0.3}
@@ -127,6 +187,7 @@ export default function AnaquelPreview({
             maxPolarAngle={Math.PI * 0.82}
             target={[0, 0, 0]}
           />
+
           <AnaquelScene
             ancho={anchoN}
             alto={altoN}
@@ -149,7 +210,9 @@ export default function AnaquelPreview({
         <span><b>Alto/nivel</b> {altoPorNivel} m</span>
         <span><b>Prof.</b> {profundidad.toFixed(2)} m</span>
         <span><b>Área</b> {areaTotal} m²</span>
-        {tienePuerta && <span><b>Puerta</b> {tipoPuerta}</span>}
+        {tienePuerta && (
+          <span><b>Puerta</b> {tipoPuerta}</span>
+        )}
       </div>
 
     </div>
