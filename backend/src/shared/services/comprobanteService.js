@@ -1,45 +1,65 @@
-```js
 /**
  * @fileoverview Servicio de Comprobantes Electrónicos
  * @module shared/services/comprobanteService
  * 📦 Sprint 20 — Movido de services/comprobanteService.js
  *                config/database → ../../../config/database
- *                utils/logger    → ../../../utils/logger
+ *                utils/logger    → ../utils/logger
  */
 
-const db     = require('../../config/database.js');
+const db = require('../../config/database.js');
 const logger = require('../utils/logger');
 
 const generarClaveAcceso = (datos) => {
   const {
-    fecha, tipoComprobante = '01',
-    ruc = '9999999999001', ambiente = '1',
-    serie = '001001', numeroComprobante,
-    codigoNumerico = '00000001', tipoEmision = '1'
+    fecha,
+    tipoComprobante = '01',
+    ruc = '9999999999001',
+    ambiente = '1',
+    serie = '001001',
+    numeroComprobante,
+    codigoNumerico = '00000001',
+    tipoEmision = '1',
   } = datos;
 
   const fechaFormato = fecha.replace(/[^0-9]/g, '').slice(0, 8);
   const claveSinVerificador =
-    fechaFormato + tipoComprobante + ruc + ambiente +
-    serie + numeroComprobante.padStart(9, '0') + codigoNumerico + tipoEmision;
+    fechaFormato +
+    tipoComprobante +
+    ruc +
+    ambiente +
+    serie +
+    numeroComprobante.padStart(9, '0') +
+    codigoNumerico +
+    tipoEmision;
 
   return claveSinVerificador + calcularModulo11(claveSinVerificador);
 };
 
 const calcularModulo11 = (cadena) => {
-  let suma = 0, factor = 2;
+  let suma = 0;
+  let factor = 2;
+
   for (let i = cadena.length - 1; i >= 0; i--) {
-    suma += Number.parseInt(cadena[i]) * factor;
+    suma += Number.parseInt(cadena[i], 10) * factor;
     factor = factor === 7 ? 2 : factor + 1;
   }
+
   const modulo = 11 - (suma % 11);
+
   if (modulo === 11) return '0';
   if (modulo === 10) return '1';
+
   return modulo.toString();
 };
 
-const formatearNumeroFactura = (establecimiento, puntoEmision, secuencia) =>
-  `${establecimiento.padStart(3, '0')}-${puntoEmision.padStart(3, '0')}-${secuencia.toString().padStart(9, '0')}`;
+const formatearNumeroFactura = (
+  establecimiento,
+  puntoEmision,
+  secuencia
+) =>
+  `${establecimiento.padStart(3, '0')}-${puntoEmision.padStart(3, '0')}-${secuencia
+    .toString()
+    .padStart(9, '0')}`;
 
 const obtenerPorcentajeIVA = async (empresaId) => {
   try {
@@ -47,9 +67,14 @@ const obtenerPorcentajeIVA = async (empresaId) => {
       "SELECT valor FROM configuracion WHERE clave = 'IVA' AND empresa_id = ? LIMIT 1",
       [empresaId]
     );
+
     return rows.length > 0 ? Number.parseFloat(rows[0].valor) : 0.15;
   } catch (error) {
-    logger.warn('IVA_CONFIG_FALLBACK', { event: 'facturacion.iva_fallback', message: error.message });
+    logger.warn('IVA_CONFIG_FALLBACK', {
+      event: 'facturacion.iva_fallback',
+      message: error.message,
+    });
+
     return 0.15;
   }
 };
@@ -57,10 +82,11 @@ const obtenerPorcentajeIVA = async (empresaId) => {
 const obtenerSiguienteSecuencia = async (
   tipoComprobante = 'FACTURA',
   establecimiento = '001',
-  puntoEmision    = '001',
-  empresaId       = null
+  puntoEmision = '001',
+  empresaId = null
 ) => {
   const connection = await db.getConnection();
+
   try {
     await connection.beginTransaction();
 
@@ -73,27 +99,36 @@ const obtenerSiguienteSecuencia = async (
       `SELECT id, secuencia_actual
        FROM secuencias_comprobantes
        WHERE tipo_comprobante = ?
-         AND establecimiento  = ?
-         AND punto_emision    = ?
+         AND establecimiento = ?
+         AND punto_emision = ?
          AND activo = 1
          ${empresaClause}
        FOR UPDATE`,
       params
     );
 
-    if (rows.length === 0)
-      throw new Error(`No existe secuencia activa para ${tipoComprobante} ${establecimiento}-${puntoEmision}`);
+    if (rows.length === 0) {
+      throw new Error(
+        `No existe secuencia activa para ${tipoComprobante} ${establecimiento}-${puntoEmision}`
+      );
+    }
 
     const secuenciaActual = rows[0].secuencia_actual + 1;
+
     await connection.query(
       'UPDATE secuencias_comprobantes SET secuencia_actual = ? WHERE id = ?',
       [secuenciaActual, rows[0].id]
     );
+
     await connection.commit();
 
     return {
-      secuencia:        secuenciaActual,
-      numeroFormateado: formatearNumeroFactura(establecimiento, puntoEmision, secuenciaActual)
+      secuencia: secuenciaActual,
+      numeroFormateado: formatearNumeroFactura(
+        establecimiento,
+        puntoEmision,
+        secuenciaActual
+      ),
     };
   } catch (error) {
     await connection.rollback();
@@ -103,12 +138,18 @@ const obtenerSiguienteSecuencia = async (
   }
 };
 
-const crearFacturaDesdePedido = async (pedidoId, usuarioId, datosAdicionales = {}, empresaId) => {
+const crearFacturaDesdePedido = async (
+  pedidoId,
+  usuarioId,
+  datosAdicionales = {},
+  empresaId
+) => {
   if (!empresaId) {
     throw new Error('empresaId es requerido para crear una factura');
   }
 
   const connection = await db.getConnection();
+
   try {
     await connection.beginTransaction();
 
@@ -121,10 +162,23 @@ const crearFacturaDesdePedido = async (pedidoId, usuarioId, datosAdicionales = {
       [pedidoId, empresaId]
     );
 
-    if (pedidos.length === 0)         throw new Error('Pedido no encontrado');
+    if (pedidos.length === 0) {
+      throw new Error('Pedido no encontrado');
+    }
+
     const pedido = pedidos[0];
-    if (!pedido.proforma_id)          throw new Error('El pedido no tiene proforma asociada. Usa factura manual para este caso.');
-    if (pedido.estado !== 'ENTREGADO') throw new Error(`El pedido debe estar en estado ENTREGADO para facturar. Estado actual: ${pedido.estado}`);
+
+    if (!pedido.proforma_id) {
+      throw new Error(
+        'El pedido no tiene proforma asociada. Usa factura manual para este caso.'
+      );
+    }
+
+    if (pedido.estado !== 'ENTREGADO') {
+      throw new Error(
+        `El pedido debe estar en estado ENTREGADO para facturar. Estado actual: ${pedido.estado}`
+      );
+    }
 
     const [items] = await connection.query(
       `SELECT pi.id, pi.trabajo_id, pi.color_id, pi.ancho, pi.alto, pi.cantidad,
@@ -132,37 +186,68 @@ const crearFacturaDesdePedido = async (pedidoId, usuarioId, datosAdicionales = {
               t.nombre AS trabajo_nombre, c.nombre AS color_nombre
        FROM proforma_items pi
        INNER JOIN trabajos t ON t.id = pi.trabajo_id
-       LEFT  JOIN colores  c ON c.id = pi.color_id
+       LEFT JOIN colores c ON c.id = pi.color_id
        WHERE pi.proforma_id = ? ORDER BY pi.id`,
       [pedido.proforma_id]
     );
 
-    if (items.length === 0) throw new Error('La proforma asociada no tiene trabajos registrados');
+    if (items.length === 0) {
+      throw new Error(
+        'La proforma asociada no tiene trabajos registrados'
+      );
+    }
 
-    const { secuencia, numeroFormateado } = await obtenerSiguienteSecuencia('FACTURA', '001', '001', empresaId);
+    const { secuencia, numeroFormateado } =
+      await obtenerSiguienteSecuencia(
+        'FACTURA',
+        '001',
+        '001',
+        empresaId
+      );
+
     const fechaEmision = new Date().toISOString().split('T')[0];
-    const claveAcceso  = generarClaveAcceso({
-      fecha: fechaEmision.replace(/-/g, ''), tipoComprobante: '01',
-      serie: '001001', numeroComprobante: secuencia.toString(),
-      ambiente: process.env.SRI_AMBIENTE || '1'
+
+    const claveAcceso = generarClaveAcceso({
+      fecha: fechaEmision.replace(/-/g, ''),
+      tipoComprobante: '01',
+      serie: '001001',
+      numeroComprobante: secuencia.toString(),
+      ambiente: process.env.SRI_AMBIENTE || '1',
     });
 
     const porcentajeIVA = await obtenerPorcentajeIVA(empresaId);
-    let subtotalConIVA = 0, totalIVA = 0;
 
-    const detalleCalculado = items.map(item => {
-      const subtotalItem = Number.parseFloat(item.subtotal) > 0
-        ? Number.parseFloat(item.subtotal)
-        : Number.parseFloat(pedido.pedido_total) / items.length;
-      const ivaItem = Number.parseFloat((subtotalItem * porcentajeIVA).toFixed(2));
+    let subtotalConIVA = 0;
+    let totalIVA = 0;
+
+    const detalleCalculado = items.map((item) => {
+      const subtotalItem =
+        Number.parseFloat(item.subtotal) > 0
+          ? Number.parseFloat(item.subtotal)
+          : Number.parseFloat(pedido.pedido_total) / items.length;
+
+      const ivaItem = Number.parseFloat(
+        (subtotalItem * porcentajeIVA).toFixed(2)
+      );
+
       subtotalConIVA += subtotalItem;
-      totalIVA       += ivaItem;
+      totalIVA += ivaItem;
 
-      const medidas    = `${Number.parseFloat(item.ancho).toFixed(2)}×${Number.parseFloat(item.alto).toFixed(2)}m`;
-      let descripcion  = `${item.trabajo_nombre}`;
-      if (item.color_nombre)  descripcion += ` — ${item.color_nombre}`;
+      const medidas = `${Number.parseFloat(item.ancho).toFixed(
+        2
+      )}×${Number.parseFloat(item.alto).toFixed(2)}m`;
+
+      let descripcion = `${item.trabajo_nombre}`;
+
+      if (item.color_nombre) {
+        descripcion += ` — ${item.color_nombre}`;
+      }
+
       descripcion += ` (${medidas}) ×${item.cantidad}`;
-      if (item.detalle?.trim()) descripcion += ` · ${item.detalle.trim()}`;
+
+      if (item.detalle?.trim()) {
+        descripcion += ` · ${item.detalle.trim()}`;
+      }
 
       return {
         descripcion: descripcion.slice(0, 300),
@@ -174,8 +259,14 @@ const crearFacturaDesdePedido = async (pedidoId, usuarioId, datosAdicionales = {
       };
     });
 
-    const total          = Number.parseFloat((subtotalConIVA + totalIVA).toFixed(2));
-    const clienteNombre  = datosAdicionales.clienteNombre || pedido.cliente_nombre || 'CONSUMIDOR FINAL';
+    const total = Number.parseFloat(
+      (subtotalConIVA + totalIVA).toFixed(2)
+    );
+
+    const clienteNombre =
+      datosAdicionales.clienteNombre ||
+      pedido.cliente_nombre ||
+      'CONSUMIDOR FINAL';
 
     const [resultFactura] = await connection.query(
       `INSERT INTO facturas (
@@ -186,16 +277,29 @@ const crearFacturaDesdePedido = async (pedidoId, usuarioId, datosAdicionales = {
         iva, descuento, propina, total, estado, estado_sri, observaciones
       ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'EMITIDA', 'SIN_ENVIAR', ?)`,
       [
-        empresaId, numeroFormateado, claveAcceso, pedidoId, usuarioId,
-        datosAdicionales.tipoIdentificacion   || 'CONSUMIDOR_FINAL',
+        empresaId,
+        numeroFormateado,
+        claveAcceso,
+        pedidoId,
+        usuarioId,
+        datosAdicionales.tipoIdentificacion || 'CONSUMIDOR_FINAL',
         clienteNombre,
         datosAdicionales.clienteIdentificacion || null,
-        datosAdicionales.clienteDireccion      || null,
-        datosAdicionales.clienteTelefono       || pedido.cliente_telefono || null,
-        datosAdicionales.clienteEmail          || null,
-        fechaEmision, '0.00', subtotalConIVA.toFixed(2),
-        totalIVA.toFixed(2), '0.00', '0.00', total,
-        datosAdicionales.observaciones || pedido.observaciones || null
+        datosAdicionales.clienteDireccion || null,
+        datosAdicionales.clienteTelefono ||
+          pedido.cliente_telefono ||
+          null,
+        datosAdicionales.clienteEmail || null,
+        fechaEmision,
+        '0.00',
+        subtotalConIVA.toFixed(2),
+        totalIVA.toFixed(2),
+        '0.00',
+        '0.00',
+        total,
+        datosAdicionales.observaciones ||
+          pedido.observaciones ||
+          null,
       ]
     );
 
@@ -208,9 +312,13 @@ const crearFacturaDesdePedido = async (pedidoId, usuarioId, datosAdicionales = {
           precio_unitario, descuento, precio_total_sin_iva, porcentaje_iva, valor_iva
         ) VALUES (?, NULL, ?, ?, ?, 0.00, ?, ?, ?)`,
         [
-          facturaId, item.descripcion, item.cantidad,
-          item.precio_unitario.toFixed(4), item.subtotal.toFixed(2),
-          item.porcentaje_iva.toFixed(2), item.valor_iva.toFixed(2)
+          facturaId,
+          item.descripcion,
+          item.cantidad,
+          item.precio_unitario.toFixed(4),
+          item.subtotal.toFixed(2),
+          item.porcentaje_iva.toFixed(2),
+          item.valor_iva.toFixed(2),
         ]
       );
     }
@@ -219,9 +327,13 @@ const crearFacturaDesdePedido = async (pedidoId, usuarioId, datosAdicionales = {
 
     logger.info('FACTURA_CREADA_DESDE_PEDIDO', {
       event: 'facturacion.creada_desde_pedido',
-      facturaId, numeroFactura: numeroFormateado,
-      pedidoId, proformaId: pedido.proforma_id,
-      cliente: clienteNombre, total, userId: usuarioId
+      facturaId,
+      numeroFactura: numeroFormateado,
+      pedidoId,
+      proformaId: pedido.proforma_id,
+      cliente: clienteNombre,
+      total,
+      userId: usuarioId,
     });
 
     return await obtenerFacturaPorId(facturaId);
@@ -235,38 +347,67 @@ const crearFacturaDesdePedido = async (pedidoId, usuarioId, datosAdicionales = {
 
 const obtenerFacturaPorId = async (facturaId, empresaId = null) => {
   const whereExtra = empresaId ? 'AND f.empresa_id = ?' : '';
-  const params     = empresaId ? [facturaId, empresaId] : [facturaId];
+  const params = empresaId
+    ? [facturaId, empresaId]
+    : [facturaId];
 
   const [facturas] = await db.query(
     `SELECT f.*, u.nombre AS vendedor_nombre
-     FROM facturas f LEFT JOIN usuarios u ON u.id = f.usuario_id
+     FROM facturas f
+     LEFT JOIN usuarios u ON u.id = f.usuario_id
      WHERE f.id = ? ${whereExtra}`,
     params
   );
-  if (facturas.length === 0) throw new Error('Factura no encontrada');
+
+  if (facturas.length === 0) {
+    throw new Error('Factura no encontrada');
+  }
 
   const [detalle] = await db.query(
     'SELECT * FROM factura_detalle WHERE factura_id = ? ORDER BY id',
     [facturaId]
   );
-  return { ...facturas[0], detalle };
+
+  return {
+    ...facturas[0],
+    detalle,
+  };
 };
 
 const anularFactura = async (facturaId, usuarioId, motivo) => {
   const connection = await db.getConnection();
+
   try {
     await connection.beginTransaction();
-    const [facturas] = await connection.query('SELECT estado FROM facturas WHERE id = ?', [facturaId]);
-    if (facturas.length === 0)             throw new Error('Factura no encontrada');
-    if (facturas[0].estado === 'ANULADA')  throw new Error('La factura ya está anulada');
+
+    const [facturas] = await connection.query(
+      'SELECT estado FROM facturas WHERE id = ?',
+      [facturaId]
+    );
+
+    if (facturas.length === 0) {
+      throw new Error('Factura no encontrada');
+    }
+
+    if (facturas[0].estado === 'ANULADA') {
+      throw new Error('La factura ya está anulada');
+    }
 
     await connection.query(
       `UPDATE facturas SET estado = 'ANULADA', estado_sri = 'SIN_ENVIAR',
        anulada_at = NOW(), anulada_por = ?, motivo_anulacion = ? WHERE id = ?`,
       [usuarioId, motivo, facturaId]
     );
+
     await connection.commit();
-    logger.info('FACTURA_ANULADA', { event: 'facturacion.anulada', facturaId, motivo, userId: usuarioId });
+
+    logger.info('FACTURA_ANULADA', {
+      event: 'facturacion.anulada',
+      facturaId,
+      motivo,
+      userId: usuarioId,
+    });
+
     return true;
   } catch (error) {
     await connection.rollback();
@@ -277,7 +418,11 @@ const anularFactura = async (facturaId, usuarioId, motivo) => {
 };
 
 module.exports = {
-  generarClaveAcceso, formatearNumeroFactura, obtenerPorcentajeIVA,
-  obtenerSiguienteSecuencia, crearFacturaDesdePedido,
-  obtenerFacturaPorId, anularFactura,
+  generarClaveAcceso,
+  formatearNumeroFactura,
+  obtenerPorcentajeIVA,
+  obtenerSiguienteSecuencia,
+  crearFacturaDesdePedido,
+  obtenerFacturaPorId,
+  anularFactura,
 };
