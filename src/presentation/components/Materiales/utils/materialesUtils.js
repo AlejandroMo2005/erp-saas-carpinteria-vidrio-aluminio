@@ -29,7 +29,9 @@ export function normalizarColor(valor) {
   if (esRgb || esRgba) {
     const inicio = esRgba ? 5 : 4;
     const contenido = v.slice(inicio, -1);
-    const componentes = contenido.split(',').map(componente => componente.trim());
+    const componentes = contenido
+      .split(',')
+      .map(componente => componente.trim());
     const cantidadEsperada = esRgba ? 4 : 3;
 
     if (componentes.length !== cantidadEsperada) return COLOR_FALLBACK;
@@ -37,14 +39,13 @@ export function normalizarColor(valor) {
     const [r, g, b, a] = componentes;
     const valoresRGB = [r, g, b].map(Number);
 
-    if (
-      valoresRGB.some(numero => !Number.isFinite(numero)) ||
-      valoresRGB.some(numero => numero < 0 || numero > 255)
-    ) {
+    if (valoresRGB.some(numero => !Number.isFinite(numero))) {
       return COLOR_FALLBACK;
     }
 
-    const [rc, gc, bc] = valoresRGB;
+    const [rc, gc, bc] = valoresRGB.map(numero =>
+      Math.min(255, Math.max(0, numero))
+    );
 
     if (esRgba) {
       const alfa = Number(a);
