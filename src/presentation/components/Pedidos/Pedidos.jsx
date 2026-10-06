@@ -109,7 +109,7 @@ export default function Pedidos() {
         </h1>
         <button
           className="btn-reload-icon"
-          onClick={() => cargarPedidos()}
+          onClick={() => void cargarPedidos()}
           disabled={cargando}
           aria-label="Recargar lista de pedidos"
           aria-busy={cargando}
