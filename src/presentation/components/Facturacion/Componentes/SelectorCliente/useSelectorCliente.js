@@ -120,8 +120,21 @@ export default function useSelectorCliente({ onSeleccionar, onLimpiar }) {
     if (tipo === 'RUC' && nuevoCliente.identificacion.trim() &&
         !validarRUC(nuevoCliente.identificacion.trim()))
       err.identificacion = 'RUC inválido';
-    if (nuevoCliente.email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(nuevoCliente.email))
-      err.email = 'Correo electrónico inválido';
+
+    if (nuevoCliente.email) {
+      const email = nuevoCliente.email.trim();
+      const partesEmail = email.split('@');
+      const emailValido =
+        partesEmail.length === 2 &&
+        partesEmail[0].length > 0 &&
+        partesEmail[1].length > 0 &&
+        partesEmail[1].includes('.') &&
+        !email.includes(' ');
+
+      if (!emailValido)
+        err.email = 'Correo electrónico inválido';
+    }
+
     setErroresForm(err);
     return Object.keys(err).length === 0;
   };
