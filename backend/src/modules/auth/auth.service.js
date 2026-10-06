@@ -71,7 +71,7 @@ const crearSesion = async (usuarioId, tokenHash, req, expireDays = 7) => {
 const addToBlacklist = async (jti) => {
   return jti && (async () => {
     try {
-      const ttlSeconds = parseInt(process.env.JWT_EXPIRE_MINUTES || '15') * 60;
+      const ttlSeconds = Number.parseInt(process.env.JWT_EXPIRE_MINUTES || '15') * 60;
       await redis.set('bl:' + jti, '1', 'EX', ttlSeconds);
       await db.query(
         'INSERT IGNORE INTO token_blacklist (jti, expires_at) VALUES (?, ?)',
