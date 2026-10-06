@@ -1,6 +1,6 @@
 // previews/Anaquel/AnaquelScene.jsx
 // Sprint 18 DT-IA-01 — AnaquelSistema como import estático para evitar
-// contexto R3F roto por lazy dentro del Canvas
+// contexto R3F roto por lazy dentro del Canvas...
 
 import { useMemo } from "react";
 import AnaquelSistema from "./AnaquelSistema";
