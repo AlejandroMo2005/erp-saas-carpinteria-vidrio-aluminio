@@ -1,108 +1,158 @@
-// PuertaBanoPreview.jsx — Sprint 8
-// 🔧 Sprint 15 — Canvas y OrbitControls con lazy() — mismo patrón que AnaquelPreview
-// 🔧 Sprint 18 — DT-IA-01: Canvas y OrbitControls como imports estáticos.
-//    frameloop="always". Sin Suspense en Canvas. Fix render 3D en blanco.
+// PuertaBanoScene.jsx — Sprint 8
+// 🐛 Fix Sprint 15 — DoubleSide = 2, elimina import de "three"
+//                    useMemo en renderContenidoHoja, paneles, guías y base
+//
+// PROBLEMA:
+//   import { DoubleSide } from "three" → Rollup detecta import estático de "three"
+//   → vendor-three se jalaba al chunk de PuertaBanoPreview aunque fuera lazy.
+//   Además, renderContenidoHoja() se llamaba como función inline sin memoizar
+//   → todas las geometrías se recreaban en cada render del padre.
+//
+// FIX:
+//   DoubleSide = 2 (valor estable en three.js — nunca cambia entre versiones).
+//   useMemo en contenido de hoja, paneles, guías y base.
 
-import { useState, useMemo } from "react";
-import { Canvas } from "@react-three/fiber";
-import { OrbitControls } from "@react-three/drei";
-import PuertaBanoScene from "./PuertaBanoScene";
-import "./PuertaBano3D.css";
+import { useMemo } from "react";
 
-const HOJAS_OPTS    = [1, 2];
-const TIPO_OPTS     = ["Corrediza", "Pivotante"];
-const MATERIAL_OPTS = ["Vidrio", "Esmerilado", "Con Marco"];
+// three.js: DoubleSide = 2. Valor estable — no cambia entre versiones.
+const DoubleSide = 2;
 
-export default function PuertaBanoPreview({
-  ancho,
+const ESPESOR_MARCO = 0.05;
+const PROFUNDIDAD   = 0.008;
+
+export default function PuertaBanoScene({
+  hojas,
+  anchoHoja,
   alto,
-  colorMarco  = "#888888",
-  colorVidrio = "#e0f2ff",
+  tipo,
+  material,
+  colorMarco,
+  colorVidrio,
 }) {
-  const [hojas,    setHojas]    = useState(1);
-  const [tipo,     setTipo]     = useState("Corrediza");
-  const [material, setMaterial] = useState("Vidrio");
+  const altoN      = Math.max(0.1, Number.parseFloat(alto)      || 2.0);
+  const anchoHojaN = Math.max(0.1, Number.parseFloat(anchoHoja) || 0.7);
+  const anchoTotal = hojas * anchoHojaN;
 
-  const anchoN = parseFloat(ancho) || 0.9;
-  const altoN  = parseFloat(alto)  || 2.0;
+  // ── Materiales memoizados ─────────────────────────────────────────────────
+  const mMarco = useMemo(() => ({
+    color: colorMarco, roughness: 0.3, metalness: 0.8, side: DoubleSide,
+  }), [colorMarco]);
 
-  const anchoHoja = useMemo(() => anchoN / hojas, [anchoN, hojas]);
-  const areaTotal = useMemo(() => +(anchoN * altoN).toFixed(2), [anchoN, altoN]);
+  const mVidrio = useMemo(() => ({
+    color: colorVidrio, transparent: true, opacity: 0.3,
+    roughness: 0.05, metalness: 0, transmission: 0.95, thickness: 0.5,
+    side: DoubleSide,
+  }), [colorVidrio]);
 
-  const handleHojas    = (v) => HOJAS_OPTS.includes(v)    && setHojas(v);
-  const handleTipo     = (v) => TIPO_OPTS.includes(v)     && setTipo(v);
-  const handleMaterial = (v) => MATERIAL_OPTS.includes(v) && setMaterial(v);
+  // ── Contenido de hoja memoizado ───────────────────────────────────────────
+  const ContenidoHoja = useMemo(() => {
+    if (material === "Vidrio") return (
+      <mesh>
+        <boxGeometry args={[anchoHojaN - 0.01, altoN - 0.01, PROFUNDIDAD]} />
+        <meshPhysicalMaterial {...mVidrio} />
+      </mesh>
+    );
+
+    if (material === "Esmerilado") return (
+      <mesh>
+        <boxGeometry args={[anchoHojaN - 0.01, altoN - 0.01, PROFUNDIDAD]} />
+        <meshPhysicalMaterial
+          color="#f0f0f0"
+          transparent opacity={0.7}
+          roughness={0.9} metalness={0}
+          transmission={0.3} side={DoubleSide}
+        />
+      </mesh>
+    );
+
+    // Con Marco (aluminio + vidrio)
+    return (
+      <>
+        {/* Marco superior */}
+        <mesh position={[0, altoN/2 - ESPESOR_MARCO/2, 0]}>
+          <boxGeometry args={[anchoHojaN, ESPESOR_MARCO, 0.03]} />
+          <meshStandardMaterial {...mMarco} />
+        </mesh>
+        {/* Marco inferior */}
+        <mesh position={[0, -altoN/2 + ESPESOR_MARCO/2, 0]}>
+          <boxGeometry args={[anchoHojaN, ESPESOR_MARCO, 0.03]} />
+          <meshStandardMaterial {...mMarco} />
+        </mesh>
+        {/* Marco izquierdo */}
+        <mesh position={[-anchoHojaN/2 + ESPESOR_MARCO/2, 0, 0]}>
+          <boxGeometry args={[ESPESOR_MARCO, altoN, 0.03]} />
+          <meshStandardMaterial {...mMarco} />
+        </mesh>
+        {/* Marco derecho */}
+        <mesh position={[anchoHojaN/2 - ESPESOR_MARCO/2, 0, 0]}>
+          <boxGeometry args={[ESPESOR_MARCO, altoN, 0.03]} />
+          <meshStandardMaterial {...mMarco} />
+        </mesh>
+        {/* Vidrio central */}
+        <mesh>
+          <boxGeometry args={[
+            anchoHojaN - ESPESOR_MARCO * 2,
+            altoN - ESPESOR_MARCO * 2,
+            PROFUNDIDAD,
+          ]} />
+          <meshPhysicalMaterial {...mVidrio} />
+        </mesh>
+        {/* Manija pivotante */}
+        {tipo === "Pivotante" && (
+          <mesh position={[anchoHojaN/2 - 0.1, 0, 0.02]}>
+            <cylinderGeometry args={[0.01, 0.01, 0.15, 16]} />
+            <meshStandardMaterial color="#888888" roughness={0.2} metalness={0.9} />
+          </mesh>
+        )}
+      </>
+    );
+  }, [material, anchoHojaN, altoN, tipo, mMarco, mVidrio]);
+
+  // ── Hojas memoizadas ──────────────────────────────────────────────────────
+  const paneles = useMemo(() =>
+    Array.from({ length: hojas }, (_, i) => {
+      const xPos = (i - hojas/2 + 0.5) * anchoHojaN;
+      const rotY = tipo === "Pivotante" && i === 0 ? -0.4 : 0;
+      return (
+        <group key={i} position={[xPos, altoN/2, 0]}>
+          {tipo === "Pivotante"
+            ? <group rotation={[0, rotY, 0]}>{ContenidoHoja}</group>
+            : ContenidoHoja}
+        </group>
+      );
+    }),
+  [hojas, anchoHojaN, altoN, tipo, ContenidoHoja]);
+
+  // ── Guías corrediza ───────────────────────────────────────────────────────
+  const guias = useMemo(() => {
+    if (tipo !== "Corrediza") return null;
+    return (
+      <>
+        <mesh position={[0, altoN + 0.04, 0]}>
+          <boxGeometry args={[anchoTotal, 0.04, 0.04]} />
+          <meshStandardMaterial color="#888888" roughness={0.3} metalness={0.8} />
+        </mesh>
+        <mesh position={[0, -0.04, 0]}>
+          <boxGeometry args={[anchoTotal, 0.04, 0.04]} />
+          <meshStandardMaterial color="#888888" roughness={0.3} metalness={0.8} />
+        </mesh>
+      </>
+    );
+  }, [tipo, anchoTotal, altoN]);
+
+  // ── Base / plato de ducha ─────────────────────────────────────────────────
+  const base = useMemo(() => (
+    <mesh position={[0, -0.1, 0.3]} rotation={[-Math.PI/2, 0, 0]}>
+      <boxGeometry args={[anchoTotal + 0.2, 0.8, 0.05]} />
+      <meshStandardMaterial color="#ffffff" roughness={0.2} metalness={0.1} />
+    </mesh>
+  ), [anchoTotal]);
 
   return (
-    <div className="puerta-bano-preview">
-
-      <div className="puerta-bano-controles fila">
-        <div className="control-group">
-          <span className="control-label">Hojas</span>
-          {HOJAS_OPTS.map(n => (
-            <button key={n} className={hojas === n ? "active" : ""} onClick={() => handleHojas(n)}>
-              {n}
-            </button>
-          ))}
-        </div>
-        <div className="control-group">
-          <span className="control-label">Tipo</span>
-          {TIPO_OPTS.map(t => (
-            <button key={t} className={tipo === t ? "active" : ""} onClick={() => handleTipo(t)}>
-              {t}
-            </button>
-          ))}
-        </div>
-        <div className="control-group">
-          <span className="control-label">Material</span>
-          {MATERIAL_OPTS.map(m => (
-            <button key={m} className={material === m ? "active" : ""} onClick={() => handleMaterial(m)}>
-              {m}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <div className="puerta-bano-render">
-        <Canvas
-          frameloop="always"
-          gl={{
-            powerPreference: "high-performance",
-            antialias: true,
-            depth: true,
-            stencil: false,
-          }}
-          dpr={[1, 1.5]}
-          camera={{ position: [0, 1.4, 4.5], fov: 45, near: 0.05, far: 200 }}
-        >
-          <ambientLight intensity={0.6} />
-          <directionalLight position={[3, 5, 4]} intensity={0.9} />
-          <OrbitControls
-            makeDefault
-            enablePan={false}
-            minDistance={0.3}
-            maxDistance={10}
-            target={[0, altoN / 2, 0]}
-          />
-          <PuertaBanoScene
-            hojas={hojas}
-            anchoHoja={anchoHoja}
-            alto={altoN}
-            tipo={tipo}
-            material={material}
-            colorMarco={colorMarco}
-            colorVidrio={colorVidrio}
-          />
-        </Canvas>
-      </div>
-
-      <div className="puerta-bano-info">
-        <span><b>Hojas:</b> {hojas}</span>
-        <span><b>Ancho hoja:</b> {anchoHoja.toFixed(2)} m</span>
-        <span><b>Alto:</b> {altoN.toFixed(2)} m</span>
-        <span><b>Área:</b> {areaTotal.toFixed(2)} m²</span>
-      </div>
-
-    </div>
+    <group position={[0, -0.3, 0]}>
+      {base}
+      {guias}
+      {paneles}
+    </group>
   );
 }
