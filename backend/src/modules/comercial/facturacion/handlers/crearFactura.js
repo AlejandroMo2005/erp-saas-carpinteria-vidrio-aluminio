@@ -71,9 +71,9 @@ exports.crearFacturaManual = async (req, res) => {
       const it = items[i];
       if (!it.descripcion?.trim())
         return errorResponse(res, `Item ${i + 1}: la descripción es requerida`, 400);
-      if (!it.cantidad || parseFloat(it.cantidad) <= 0)
+      if (!it.cantidad || Number.parseFloat(it.cantidad) <= 0)
         return errorResponse(res, `Item ${i + 1}: la cantidad debe ser mayor a 0`, 400);
-      if (parseFloat(it.precio_unitario ?? 0) < 0)
+      if (Number.parseFloat(it.precio_unitario ?? 0) < 0)
         return errorResponse(res, `Item ${i + 1}: el precio no puede ser negativo`, 400);
     }
 
@@ -81,12 +81,12 @@ exports.crearFacturaManual = async (req, res) => {
     let subtotal_sin_iva = 0, subtotal_con_iva = 0, iva_total = 0;
 
     const itemsCalculados = items.map(item => {
-      const cantidad             = parseFloat(item.cantidad);
-      const precio_unitario      = parseFloat(item.precio_unitario ?? 0);
-      const descuento            = parseFloat(item.descuento       ?? 0);
-      const porcentaje_iva       = parseFloat(item.porcentaje_iva  ?? (tasaIva * 100));
-      const precio_total_sin_iva = parseFloat(Math.max(0, cantidad * precio_unitario - descuento).toFixed(2));
-      const valor_iva            = parseFloat((precio_total_sin_iva * (porcentaje_iva / 100)).toFixed(2));
+      const cantidad             = Number.parseFloat(item.cantidad);
+      const precio_unitario      = Number.parseFloat(item.precio_unitario ?? 0);
+      const descuento            = Number.parseFloat(item.descuento       ?? 0);
+      const porcentaje_iva       = Number.parseFloat(item.porcentaje_iva  ?? (tasaIva * 100));
+      const precio_total_sin_iva = Number.parseFloat(Math.max(0, cantidad * precio_unitario - descuento).toFixed(2));
+      const valor_iva            = Number.parseFloat((precio_total_sin_iva * (porcentaje_iva / 100)).toFixed(2));
 
       if (porcentaje_iva === 0) subtotal_sin_iva += precio_total_sin_iva;
       else                      subtotal_con_iva += precio_total_sin_iva;
@@ -101,7 +101,7 @@ exports.crearFacturaManual = async (req, res) => {
       };
     });
 
-    const total     = parseFloat((subtotal_sin_iva + subtotal_con_iva + iva_total).toFixed(2));
+    const total     = Number.parseFloat((subtotal_sin_iva + subtotal_con_iva + iva_total).toFixed(2));
     const secuencia = await comprobanteService.obtenerSiguienteSecuencia('FACTURA', '001', '001', empresaId);
 
     const facturaId = await Facturacion.crearFacturaConDetalle({
@@ -116,9 +116,9 @@ exports.crearFacturaManual = async (req, res) => {
       cliente_telefono:            cliente_telefono?.trim()         ?? null,
       cliente_email:               cliente_email?.trim()            ?? null,
       fecha_emision: new Date().toISOString().split('T')[0],
-      subtotal_sin_iva: parseFloat(subtotal_sin_iva.toFixed(2)),
-      subtotal_con_iva: parseFloat(subtotal_con_iva.toFixed(2)),
-      iva:              parseFloat(iva_total.toFixed(2)),
+      subtotal_sin_iva: Number.parseFloat(subtotal_sin_iva.toFixed(2)),
+      subtotal_con_iva: Number.parseFloat(subtotal_con_iva.toFixed(2)),
+      iva:              Number.parseFloat(iva_total.toFixed(2)),
       descuento: 0, propina: 0, total,
       estado: 'EMITIDA', estado_sri: 'SIN_ENVIAR',
       observaciones: observaciones?.trim() ?? null,
