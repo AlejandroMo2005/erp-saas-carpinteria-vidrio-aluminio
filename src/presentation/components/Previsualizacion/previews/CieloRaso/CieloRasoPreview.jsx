@@ -24,8 +24,8 @@ export default function CieloRasoPreview({
   const [acabado,      setAcabado]      = useState("Liso");
   const [modoLamparas, setModoLamparas] = useState("Centro");
 
-  const anchoN = parseFloat(ancho) || 3;
-  const altoN  = parseFloat(alto)  || 4;
+  const anchoN = Number.parseFloat(ancho) || 3;
+  const altoN  = Number.parseFloat(alto)  || 4;
 
   const numPlanchas = useMemo(() => {
     if (tipo === "PVC") return Math.ceil(anchoN / 0.25);
