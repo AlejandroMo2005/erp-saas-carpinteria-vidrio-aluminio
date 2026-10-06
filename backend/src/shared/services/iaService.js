@@ -336,7 +336,10 @@ function construirPrompt({ trabajo, color, material }) {
 
 function construirPromptLibre({ promptLibre, color }) {
   let base = promptLibre
-    .replace(/,?\s\*(acabado profesional|fotorrealista|fotografía arquitectónica|alta definición|professional finish|realistic architectural|sharp focus|high definition|8k)[^,]\*/gi, '')
+    .replace(
+      /(?:,\s*)?\*(?:acabado profesional|fotorrealista|fotografía arquitectónica|alta definición|professional finish|realistic architectural|sharp focus|high definition|8k)\s*\*/gi,
+      ''
+    )
     .trim()
     .replace(/,\s\*$/, '');
 
