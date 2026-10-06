@@ -25,7 +25,8 @@ export default function Pedidos({ _darkMode, _highContrast }) {
         setLoading(false);
       }
     };
-    cargar();
+
+    void cargar();
   }, []);
 
   if (loading) return <div className="ped-loading">Cargando pedidos…</div>;
