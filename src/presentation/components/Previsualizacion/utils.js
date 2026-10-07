@@ -13,7 +13,7 @@ export function normalizarColor(valor) {
   const v = valor.trim();
   if (/^#[0-9A-Fa-f]{3,6}$/.test(v)) return v;
   const rgbaMatch = v.match(
-    /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*([\d.]+))?\s*\)$/i
+    /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})(?:\s*,\s*([\d.]+))?\s*\)$/i
   );
   if (rgbaMatch) {
     const [, r, g, b, a] = rgbaMatch;
@@ -40,7 +40,7 @@ export function separarColorYAlpha(valor) {
   const v = valor.trim();
   if (/^#[0-9A-Fa-f]{3,6}$/.test(v)) return { hex: v, alpha: 1 };
   const rgbaMatch = v.match(
-    /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*(?:,\s*([\d.]+))?\s*\)$/i
+    /^rgba?\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})(?:\s*,\s*([\d.]+))?\s*\)$/i
   );
   if (rgbaMatch) {
     const [, r, g, b, a] = rgbaMatch;
@@ -64,8 +64,8 @@ export function separarColorYAlpha(valor) {
  * Devuelve null si inválida, MEDIDA_MAX si supera el límite, o el valor clampado.
  */
 export function validarMedida(valor) {
-  const n = parseFloat(valor);
-  if (isNaN(n) || n < MEDIDA_MIN) return null;
+  const n = Number.parseFloat(valor);
+  if (Number.isNaN(n) || n < MEDIDA_MIN) return null;
   if (n > MEDIDA_MAX) return MEDIDA_MAX;
-  return parseFloat(n.toFixed(DECIMALES));
+  return Number.parseFloat(n.toFixed(DECIMALES));
 }
