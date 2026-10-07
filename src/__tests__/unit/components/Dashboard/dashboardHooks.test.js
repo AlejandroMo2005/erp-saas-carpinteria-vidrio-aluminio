@@ -163,7 +163,12 @@ describe('Dashboard hooks', () => {
     });
 
     it('genera datos para el gráfico', () => {
-      vi.spyOn(Math, 'random').mockReturnValue(0.5);
+      vi.spyOn(globalThis.crypto, 'getRandomValues').mockImplementation(
+        array => {
+          array[0] = 2 ** 31;
+          return array;
+        },
+      );
 
       const material = {
         variantes: [
@@ -195,7 +200,12 @@ describe('Dashboard hooks', () => {
     });
 
     it('normaliza stock inválido y evita valores negativos', () => {
-      vi.spyOn(Math, 'random').mockReturnValue(0);
+      vi.spyOn(globalThis.crypto, 'getRandomValues').mockImplementation(
+        array => {
+          array[0] = 0;
+          return array;
+        },
+      );
 
       const result = generarDatosGrafico({
         variantes: [
