@@ -4,7 +4,7 @@ export default function useToasts() {
   const [toasts, setToasts] = useState([]);
 
   const add = useCallback((msg, tipo = 'error') => {
-    const id = Date.now() + Math.random();
+    const id = globalThis.crypto.randomUUID();
     setToasts(prev => [...prev, { id, msg, tipo }]);
     setTimeout(() => setToasts(prev => prev.filter(t => t.id !== id)), 5000);
   }, []);
