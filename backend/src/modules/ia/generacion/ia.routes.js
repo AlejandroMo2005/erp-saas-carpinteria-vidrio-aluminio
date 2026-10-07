@@ -37,10 +37,10 @@ try {
   optionalAuth = (req, res, next) => next();
 }
 
-// ── Multer: memoria, solo imágenes, máx 10 MB ─────────────────────────────
+// ── Multer: memoria, solo imágenes, máx 5 MB ──────────────────────────────
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits:  { fileSize: 10 * 1024 * 1024 },
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (req, file, cb) => {
     if (!file.mimetype.startsWith('image/')) return cb(new Error('Solo se permiten archivos de imagen'), false);
     cb(null, true);
