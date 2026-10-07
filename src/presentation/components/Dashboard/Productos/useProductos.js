@@ -8,7 +8,9 @@ export function generarDatosGrafico(material) {
     const punto = { periodo };
     material.variantes.forEach(v => {
       const baseStock = Number(v.stock) || 0;
-      const variacion = (Math.random() - 0.5) * 20;
+      const randomArray = new Uint32Array(1);
+      globalThis.crypto.getRandomValues(randomArray);
+      const variacion = (randomArray[0] / (2 ** 32) - 0.5) * 20;
       punto[v.color_nombre] = Math.max(0, baseStock + variacion * (idx + 1) / 6);
     });
     return punto;
