@@ -83,14 +83,14 @@ export function usePrevisualizacion() {
   const handleAncho = useCallback((e) => {
     const val = e.target.value;
     setAnchoStr(val);
-    if (!isNaN(parseFloat(val)) && parseFloat(val) > MEDIDA_MAX)
+    if (!Number.isNaN(Number.parseFloat(val)) && Number.parseFloat(val) > MEDIDA_MAX)
       warning(`El ancho máximo es ${MEDIDA_MAX} m.`);
   }, [warning]);
 
   const handleAlto = useCallback((e) => {
     const val = e.target.value;
     setAltoStr(val);
-    if (!isNaN(parseFloat(val)) && parseFloat(val) > MEDIDA_MAX)
+    if (!Number.isNaN(Number.parseFloat(val)) && Number.parseFloat(val) > MEDIDA_MAX)
       warning(`El alto máximo es ${MEDIDA_MAX} m.`);
   }, [warning]);
 
