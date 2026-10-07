@@ -49,7 +49,7 @@ export default function usePedidosCliente({ clienteId }) {
       if (raw.length > 0) {
         const precios = distribuirTotal(raw, totalPedido);
         setItems(raw.map((item, i) => ({
-          _id:             Date.now() + Math.random(),
+          _id:             globalThis.crypto.randomUUID(),
           descripcion:     buildDescripcion(item),
           cantidad:        Number.parseFloat(item.cantidad) || 1,
           precio_unitario: precios[i],
