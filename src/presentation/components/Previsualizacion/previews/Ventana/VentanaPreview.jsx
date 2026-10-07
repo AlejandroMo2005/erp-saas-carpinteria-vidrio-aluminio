@@ -1,5 +1,4 @@
 // VentanaPreview.jsx — Sprint 8
-// 🔧 Sprint 15 — Canvas y OrbitControls con lazy() — mismo patrón que AnaquelPreview
 // 🔧 Sprint 18 DT-IA-01 — imports estáticos, frameloop="always", sin Suspense en Canvas.
 // 🐛 Fix Sprint 18:
 //    - frameloop="always": con "demand" el canvas queda en blanco hasta interacción.
