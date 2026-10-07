@@ -5,7 +5,7 @@ import { useState, useCallback } from 'react';
 // 🎨 Sprint 16 v1   — Badge clickeable reemplaza botón "Cambiar estado"
 // 🎨 Sprint 16 v2   — Filtros para todos los roles + períodos para ADMIN
 // 🎨 Sprint 16 v3   — Eliminado estado PROCESADO (no usado en el negocio)
-// ♻️  Sprint 18     — Refactorización modular: hook + subcomponentes + CSS por responsabilidad
+// ♻️  Sprint 18     — Refactorización modular: hook + subcomponentes + CSS por responsabilidad...
 
 import './Pedidos.css';
 import { useQueryClient } from '@tanstack/react-query';
