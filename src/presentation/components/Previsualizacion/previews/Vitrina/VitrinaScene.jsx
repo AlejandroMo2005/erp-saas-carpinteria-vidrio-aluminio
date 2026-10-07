@@ -19,8 +19,8 @@ export default function VitrinaScene({
   colorMarco  = "#888888",
   colorVidrio = "#e0f2ff",
 }) {
-  const altoN      = Math.max(0.2, parseFloat(alto)     || 1.8);
-  const anchoHojaN = Math.max(0.1, parseFloat(anchoHoja) || 0.6);
+  const altoN      = Math.max(0.2, Number.parseFloat(alto)     || 1.8);
+  const anchoHojaN = Math.max(0.1, Number.parseFloat(anchoHoja) || 0.6);
   const anchoTotal = hojas * anchoHojaN;
 
   const mMarco = useMemo(() => ({
