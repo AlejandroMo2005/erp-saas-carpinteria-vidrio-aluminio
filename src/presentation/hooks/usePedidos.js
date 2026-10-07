@@ -56,7 +56,7 @@ export function useCrearPedido() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: pedidosKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: pedidosKeys.lists() });
     },
   });
 }
@@ -86,7 +86,7 @@ export function useActualizarEstadoPedido() {
         prev ? { ...prev, estado: data.estado_nuevo } : prev
       );
       // Invalida todas las listas para que reflejen el cambio
-      queryClient.invalidateQueries({ queryKey: pedidosKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: pedidosKeys.lists() });
     },
   });
 }
@@ -100,7 +100,7 @@ export function useActualizarPedido() {
     },
     onSuccess: (data, { id }) => {
       queryClient.setQueryData(pedidosKeys.detail(id), data);
-      queryClient.invalidateQueries({ queryKey: pedidosKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: pedidosKeys.lists() });
     },
   });
 }
@@ -114,7 +114,7 @@ export function useEliminarPedido() {
     },
     onSuccess: (id) => {
       queryClient.removeQueries({ queryKey: pedidosKeys.detail(id) });
-      queryClient.invalidateQueries({ queryKey: pedidosKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: pedidosKeys.lists() });
     },
   });
 }
