@@ -18,12 +18,19 @@ function asegurarDirectorio(trabajoId) {
   return dir;
 }
 
+function sanitizarLog(valor) {
+  return String(valor ?? '').replace(/[\r\n]/g, '');
+}
+
 async function describirConClaudeVision(imageBuffer, mimeType) {
   const apiKey = process.env.ANTHROPIC_API_KEY;
-  if (!apiKey) { console.warn('[Ref] Sin ANTHROPIC_API_KEY — descripción automática no disponible'); return null; }
+  if (!apiKey) {
+    console.warn('[Ref] Sin ANTHROPIC_API_KEY — descripción automática no disponible');
+    return null;
+  }
 
-  const imageBase64   = imageBuffer.toString('base64');
-  const requestBody   = JSON.stringify({
+  const imageBase64 = imageBuffer.toString('base64');
+  const requestBody = JSON.stringify({
     model: 'claude-sonnet-4-5-20251001', max_tokens: 300,
     messages: [{
       role: 'user', content: [
@@ -44,13 +51,30 @@ async function describirConClaudeVision(imageBuffer, mimeType) {
         try {
           const data = JSON.parse(Buffer.concat(chunks).toString());
           const desc = data?.content?.[0]?.text?.trim();
-          if (desc && desc.length > 10) { console.log(`[Ref] Claude Vision → "${desc.slice(0, 60)}…"`); resolve(desc); }
-          else { console.warn('[Ref] Claude Vision devolvió descriptores vacíos'); resolve(null); }
-        } catch (err) { console.warn('[Ref] Error parseando respuesta Claude:', err.message); resolve(null); }
+          if (desc && desc.length > 10) {
+            console.log(`[Ref] Claude Vision → "${sanitizarLog(desc.slice(0, 60))}…"`);
+            resolve(desc);
+          } else {
+            console.warn('[Ref] Claude Vision devolvió descriptores vacíos');
+            resolve(null);
+          }
+        } catch (err) {
+          console.warn('[Ref] Error parseando respuesta Claude:', sanitizarLog(err.message));
+          resolve(null);
+        }
       });
     });
-    req.setTimeout(20_000, () => { req.destroy(); resolve(null); });
-    req.on('error', (err) => { console.warn('[Ref] Error red Claude:', err.message); resolve(null); });
+
+    req.setTimeout(20_000, () => {
+      req.destroy();
+      resolve(null);
+    });
+
+    req.on('error', (err) => {
+      console.warn('[Ref] Error red Claude:', sanitizarLog(err.message));
+      resolve(null);
+    });
+
     req.write(requestBody);
     req.end();
   });
@@ -80,11 +104,11 @@ async function subirReferencia(req, res) {
     const ext      = path.extname(archivo.originalname).toLowerCase() || '.jpg';
     const filename = `ref_${Date.now()}${ext}`;
     fs.writeFileSync(path.join(dir, filename), archivo.buffer);
-    console.log(`[Ref] Imagen guardada: ${path.join(dir, filename)}`);
+    console.log(`[Ref] Imagen guardada: ${sanitizarLog(path.join(dir, filename))}`);
 
     let descriptores = req.body?.descriptores?.trim() || null;
     if (!descriptores) {
-      console.log(`[Ref] Analizando imagen con Claude Vision…`);
+      console.log('[Ref] Analizando imagen con Claude Vision…');
       descriptores = await describirConClaudeVision(archivo.buffer, archivo.mimetype);
     }
     if (!descriptores) {
@@ -101,7 +125,7 @@ async function subirReferencia(req, res) {
     console.log(`[Ref] Referencia #${result.insertId} creada para trabajo ${trabajoId}`);
     return res.status(201).json({ ok: true, id: result.insertId, trabajo_id: trabajoId, filename, descriptores, peso });
   } catch (err) {
-    console.error('[Ref] subirReferencia error:', err.message);
+    console.error('[Ref] subirReferencia error:', sanitizarLog(err.message));
     return res.status(500).json({ error: 'Error al guardar la referencia' });
   }
 }
@@ -127,7 +151,7 @@ async function listarReferencias(req, res) {
       referencias: refs.map(r => ({ ...r, url: `/referencias/${trabajoId}/${r.filename}` })),
     });
   } catch (err) {
-    console.error('[Ref] listarReferencias error:', err.message);
+    console.error('[Ref] listarReferencias error:', sanitizarLog(err.message));
     return res.status(500).json({ error: 'Error al obtener referencias' });
   }
 }
@@ -172,7 +196,7 @@ async function actualizarReferencia(req, res) {
 
     return res.json({ ok: true });
   } catch (err) {
-    console.error('[Ref] actualizarReferencia error:', err.message);
+    console.error('[Ref] actualizarReferencia error:', sanitizarLog(err.message));
     return res.status(500).json({ error: 'Error al actualizar' });
   }
 }
@@ -205,11 +229,13 @@ async function eliminarReferencia(req, res) {
     try {
       const filePath = path.join(DIR_BASE, String(trabajo_id), filename);
       if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
-    } catch (e) { console.warn('[Ref] No se pudo eliminar el archivo:', e.message); }
+    } catch (e) {
+      console.warn('[Ref] No se pudo eliminar el archivo:', sanitizarLog(e.message));
+    }
 
     return res.json({ ok: true });
   } catch (err) {
-    console.error('[Ref] eliminarReferencia error:', err.message);
+    console.error('[Ref] eliminarReferencia error:', sanitizarLog(err.message));
     return res.status(500).json({ error: 'Error al eliminar' });
   }
 }
