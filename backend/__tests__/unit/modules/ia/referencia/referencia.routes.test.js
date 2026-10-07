@@ -125,7 +125,7 @@ describe('referencia.routes', () => {
     });
 
     expect(options.limits).toEqual({
-      fileSize: 8 * 1024 * 1024,
+      fileSize: 5 * 1024 * 1024,
     });
 
     const callback = vi.fn();
