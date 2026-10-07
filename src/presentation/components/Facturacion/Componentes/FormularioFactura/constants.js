@@ -1,7 +1,7 @@
 export const IVA_DEFAULT = 0.15;
 
 export const ITEM_VACIO = () => ({
-  _id:             Date.now() + Math.random(),
+  _id:             globalThis.crypto.randomUUID(),
   descripcion:     '',
   cantidad:        1,
   precio_unitario: 0,
