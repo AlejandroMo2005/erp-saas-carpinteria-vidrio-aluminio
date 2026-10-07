@@ -32,7 +32,7 @@ exports.forgotPassword = async (req, res) => {
           message: 'Si el correo existe, recibirás un código de recuperación',
         });
       } else {
-        const code = Math.floor(100000 + Math.random() * 900000).toString();
+        const code = crypto.randomInt(100000, 1000000).toString();
         const token = crypto.randomBytes(32).toString('hex');
         const expiresAt = new Date(
           Date.now() + (Number.parseInt(process.env.RESET_CODE_EXPIRATION) || 5) * 60000
