@@ -5,7 +5,7 @@ export const CANT_MAX   = 9999;
 export const TEXTO_MAX  = 200;
 
 export const ITEM_VACIO = () => ({
-  id:             Date.now() + Math.random(),
+  id:             globalThis.crypto.randomUUID(),
   trabajo_id:     '',
   nombre_trabajo: '',
   ancho:          1,
