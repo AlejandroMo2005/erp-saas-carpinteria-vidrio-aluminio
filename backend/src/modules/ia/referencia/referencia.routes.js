@@ -1,4 +1,5 @@
 // src/modules/ia/referencia/referencia.routes.js
+
 // Sprint 17 — DT-IA: imágenes de referencia por tipo de trabajo
 // 📦 Sprint 20 — Migrado a src/modules/ia/referencia/
 
@@ -11,7 +12,7 @@ const { subirReferencia, listarReferencias, actualizarReferencia, eliminarRefere
 
 const upload = multer({
   storage: multer.memoryStorage(),
-  limits:  { fileSize: 8 * 1024 * 1024 },
+  limits: { fileSize: 5 * 1024 * 1024 },
   fileFilter: (_req, file, cb) => {
     if (!file.mimetype.startsWith('image/')) return cb(new Error('Solo imágenes'), false);
     cb(null, true);
@@ -27,9 +28,9 @@ try {
   requireAuth = (_req, _res, next) => next();
 }
 
-router.get('/trabajos/:trabajo_id',  requireAuth, listarReferencias);
+router.get('/trabajos/:trabajo_id', requireAuth, listarReferencias);
 router.post('/trabajos/:trabajo_id', requireAuth, upload.single('imagen'), subirReferencia);
-router.patch('/:id',                 requireAuth, actualizarReferencia);
-router.delete('/:id',                requireAuth, eliminarReferencia);
+router.patch('/:id', requireAuth, actualizarReferencia);
+router.delete('/:id', requireAuth, eliminarReferencia);
 
 module.exports = router;
