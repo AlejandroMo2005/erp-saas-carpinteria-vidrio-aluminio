@@ -64,7 +64,7 @@ export function useVisualizadorIA(trabajoIdInicial = '', colorIdInicial = '') {
     timerRef.current = setInterval(() => {
       setProgreso(prev => {
         if (prev >= 82) { clearInterval(timerRef.current); return 82; }
-        return prev + Math.random() * 4 + 1;
+        return prev + 2;
       });
     }, 900);
 
