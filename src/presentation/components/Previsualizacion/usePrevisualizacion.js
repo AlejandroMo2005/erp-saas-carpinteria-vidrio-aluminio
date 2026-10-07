@@ -126,7 +126,7 @@ export function usePrevisualizacion() {
     trabajoSeleccionado, marcoActivo, vidrioActivo,
     anchoStr, altoStr, anchoValido, altoValido,
     iaAbierto, iaResultado,
-    /* colores canvas */
+    /* colores canvas. */
     colorMarcoHex, colorVidrioHex, opacidadMarco, opacidadVidrio,
     /* flags */
     PreviewComponent, puedeRenderizar, puedeUsarIA, mensajeEstado,
