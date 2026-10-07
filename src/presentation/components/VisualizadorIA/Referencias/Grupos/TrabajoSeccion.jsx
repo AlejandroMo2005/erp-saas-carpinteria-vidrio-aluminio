@@ -1,4 +1,5 @@
 'use strict';
+
 import {
   useState, useCallback, lazy, Suspense,
 } from 'react';
@@ -32,7 +33,7 @@ export default function TrabajoSeccion({ trabajo, isAdmin }) {
   const toggle = () => {
     const next = !expanded;
     setExpanded(next);
-    if (next) cargarRefs();
+    if (next) void cargarRefs();
   };
 
   const handleSubirSuccess = (nueva) => {
