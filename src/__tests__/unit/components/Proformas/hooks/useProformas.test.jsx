@@ -1122,6 +1122,7 @@ describe('useProformas', () => {
         result.current.enviarWhatsApp();
       });
 
+      expect(globalThis.open).toHaveBeenCalled();
     });
   });
 
@@ -1559,14 +1560,14 @@ describe('useProformas', () => {
       const id = result.current.items[0].id;
 
       act(() => {
-        result.current.setCliente(' <Juan> Pérez ');
+        result.current.setCliente(' \<Juan> Pérez ');
         result.current.setTelefono('0999999999');
         result.current.setFechaAgendamiento('2026-10-15');
         result.current.handleUpdate(id, 'trabajo_id', '1');
         result.current.handleUpdate(id, 'ancho', '100000');
         result.current.handleUpdate(id, 'alto', '100000');
         result.current.handleUpdate(id, 'cantidad', '10000');
-        result.current.handleUpdate(id, 'detalle', '<script>alert(1)</script>');
+        result.current.handleUpdate(id, 'detalle', '\<script>alert(1)\</script>');
       });
 
       await act(async () => {
