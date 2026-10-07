@@ -66,7 +66,7 @@ const parseExpiresIn = (expiresIn) => {
   if (typeof expiresIn === 'number') return expiresIn * 1000;
   const match = String(expiresIn).match(/^(\d+)(m|s|h)?$/);
   if (!match) return 15 * 60 * 1000;
-  const value = parseInt(match[1]);
+  const value = Number.parseInt(match[1]);
   const unit  = match[2] || 'm';
   return unit === 'h' ? value * 3600000
        : unit === 's' ? value * 1000
