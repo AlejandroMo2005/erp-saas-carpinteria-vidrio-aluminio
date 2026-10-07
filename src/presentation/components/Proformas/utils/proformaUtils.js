@@ -9,7 +9,7 @@ export function sanitizar(str) {
 export function normalizarTelefono(tel) {
   let digits = tel.replace(/\D/g, '');
   if (digits.startsWith('09') && digits.length === 10) digits = '593' + digits.slice(1);
-  else if (digits.length === 9 && digits.startsWith('9'))  digits = '593' + digits;
+  else if (digits.length === 9 && digits.startsWith('9')) digits = '593' + digits;
   return digits;
 }
 
@@ -22,8 +22,12 @@ export function mensajeError(err) {
     server.toLowerCase().includes('stock') ||
     status === 422
   ) {
-    const matchColor     = server.match(/\(([^)]+)\)/);
-    const colorMencionado = matchColor ? matchColor[1] : null;
+    const inicioColor = server.indexOf('(');
+    const finColor = inicioColor === -1 ? -1 : server.indexOf(')', inicioColor + 1);
+    const colorMencionado = inicioColor !== -1 && finColor !== -1
+      ? server.slice(inicioColor + 1, finColor)
+      : null;
+
     return colorMencionado
       ? `Material insuficiente para el color "${colorMencionado}". Intenta con otro color o indícalo en el campo Detalle para coordinar con nosotros.`
       : 'Material insuficiente para este color. Intenta con otro color o indícalo en el campo Detalle y nos pondremos en contacto.';
