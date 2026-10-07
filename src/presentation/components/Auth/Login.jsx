@@ -3,7 +3,7 @@ import { useState, useId } from 'react';
 // ⭐ Sprint 10 — Con fallback directo por si AuthContext no está actualizado aún
 // 🔒 Sprint 12 — sessionExpired banner + pasar expiresIn al login()
 // ♿ Sprint 14 — Fix accesibilidad: aria-invalid, aria-describedby, aria-live
-// 🎨 Sprint 18 — Inline styles del banner movidos a .alert-warning / .alert-dismiss
+// 🎨 Sprint 18 — Inline styles del banner movidos a .alert-warning / .alert-dismiss...
 
 import { useAuth }           from '../../context/useAuth';
 import { Link, useNavigate } from 'react-router-dom';
