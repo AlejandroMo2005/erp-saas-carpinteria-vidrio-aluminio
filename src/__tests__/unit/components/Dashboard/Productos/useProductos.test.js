@@ -13,7 +13,10 @@ vi.mock('@/presentation/api/api', () => ({
 
 describe('generarDatosGrafico', () => {
   beforeEach(() => {
-    vi.spyOn(Math, 'random').mockReturnValue(0.5);
+    vi.spyOn(globalThis.crypto, 'getRandomValues').mockImplementation(array => {
+      array[0] = 2 ** 31;
+      return array;
+    });
   });
 
   afterEach(() => {
@@ -58,7 +61,10 @@ describe('generarDatosGrafico', () => {
   });
 
   it('nunca genera stock negativo', () => {
-    vi.spyOn(Math, 'random').mockReturnValue(0);
+    vi.spyOn(globalThis.crypto, 'getRandomValues').mockImplementation(array => {
+      array[0] = 0;
+      return array;
+    });
 
     const resultado = generarDatosGrafico({
       variantes: [
