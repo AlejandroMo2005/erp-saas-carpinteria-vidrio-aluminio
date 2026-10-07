@@ -19,7 +19,11 @@ const { inpaintSchema, visualizarSchema } = require('../../../shared/validators/
 
 // ── Log de diagnóstico ────────────────────────────────────────────────────
 router.use((req, res, next) => {
-  console.log(`[IA] ${req.method} ${req.path} — content-type: ${req.headers['content-type'] ?? 'none'}`);
+  const metodo = String(req.method).replace(/[\r\n]/g, '');
+  const ruta = String(req.path).replace(/[\r\n]/g, '');
+  const contentType = String(req.headers['content-type'] ?? 'none').replace(/[\r\n]/g, '');
+
+  console.log(`[IA] ${metodo} ${ruta} — content-type: ${contentType}`);
   next();
 });
 
