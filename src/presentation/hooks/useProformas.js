@@ -46,7 +46,7 @@ export function useCrearProforma() {
     },
     onSuccess: () => {
       // Invalida todas las listas de proformas (con y sin filtros)
-      queryClient.invalidateQueries({ queryKey: proformasKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: proformasKeys.lists() });
     },
   });
 }
@@ -60,7 +60,7 @@ export function useActualizarProforma() {
     },
     onSuccess: (data, { id }) => {
       queryClient.setQueryData(proformasKeys.detail(id), data);
-      queryClient.invalidateQueries({ queryKey: proformasKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: proformasKeys.lists() });
     },
   });
 }
@@ -76,10 +76,10 @@ export function useConvertirProformaAPedido() {
     },
     onSuccess: () => {
       // Invalida listas de proformas (la proforma cambia de estado)
-      queryClient.invalidateQueries({ queryKey: proformasKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: proformasKeys.lists() });
       // Invalida listas de pedidos (se creó uno nuevo)
       // Usa pedidosKeys importado — consistente con usePedidos.js
-      queryClient.invalidateQueries({ queryKey: pedidosKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: pedidosKeys.lists() });
     },
   });
 }
@@ -93,7 +93,7 @@ export function useEliminarProforma() {
     },
     onSuccess: (id) => {
       queryClient.removeQueries({ queryKey: proformasKeys.detail(id) });
-      queryClient.invalidateQueries({ queryKey: proformasKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: proformasKeys.lists() });
     },
   });
 }
