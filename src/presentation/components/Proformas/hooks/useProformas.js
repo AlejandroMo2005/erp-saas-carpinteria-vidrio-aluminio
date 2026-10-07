@@ -188,7 +188,7 @@ export function useProformas({ onAgendar, toastOk, toastError, toastWarning, toa
     try {
       const res = await api.post('/proformas/agendar', { ...payload, total: totalFinal });
       if (!res.data?.success) throw new Error(res.data?.message || 'No se pudo agendar el pedido');
-      queryClient.invalidateQueries({ queryKey: pedidosKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: pedidosKeys.lists() });
       onAgendar?.();
       toastOk(esCliente
         ? '¡Tu solicitud fue enviada! Nos pondremos en contacto para confirmar.'
