@@ -290,7 +290,7 @@ describe('ia.routes', () => {
     expect(next).toHaveBeenCalledTimes(1);
   });
 
-  it('configura multer con memoria, límite de 10 MB y filtro de imágenes', () => {
+  it('configura multer con memoria, límite de 5 MB y filtro de imágenes', () => {
     loadRoutes();
 
     expect(multerMock).toHaveBeenCalledTimes(1);
@@ -303,7 +303,7 @@ describe('ia.routes', () => {
     });
 
     expect(options.limits).toEqual({
-      fileSize: 10 * 1024 * 1024,
+      fileSize: 5 * 1024 * 1024,
     });
 
     const callback = vi.fn();
