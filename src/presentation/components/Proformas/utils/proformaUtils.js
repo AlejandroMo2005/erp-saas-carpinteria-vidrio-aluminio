@@ -79,7 +79,7 @@ export function esColorClaro(color) {
   if (!color) return false;
   const rgbaMatch = color.match(/rgba?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)/i);
   if (rgbaMatch) {
-    const alpha = rgbaMatch[4] !== undefined ? parseFloat(rgbaMatch[4]) : 1;
+    const alpha = rgbaMatch[4] !== undefined ? Number.parseFloat(rgbaMatch[4]) : 1;
     if (alpha < 0.45) return true;
     const [r, g, b] = [+rgbaMatch[1], +rgbaMatch[2], +rgbaMatch[3]];
     return (0.2126 * r + 0.7152 * g + 0.0722 * b) > 180;
@@ -87,8 +87,8 @@ export function esColorClaro(color) {
   const hex = color.replace('#', '');
   if (!/^[0-9a-fA-F]{3,6}$/.test(hex)) return false;
   const full = hex.length === 3 ? hex.split('').map((c) => c + c).join('') : hex;
-  const r = parseInt(full.slice(0, 2), 16);
-  const g = parseInt(full.slice(2, 4), 16);
-  const b = parseInt(full.slice(4, 6), 16);
+  const r = Number.parseInt(full.slice(0, 2), 16);
+  const g = Number.parseInt(full.slice(2, 4), 16);
+  const b = Number.parseInt(full.slice(4, 6), 16);
   return (0.2126 * r + 0.7152 * g + 0.0722 * b) > 180;
 }
