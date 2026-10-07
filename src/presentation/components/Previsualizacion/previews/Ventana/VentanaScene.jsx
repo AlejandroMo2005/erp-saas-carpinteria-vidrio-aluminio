@@ -7,7 +7,7 @@
 //   AHORA: DoubleSide = 2 (constante numérica de three.js — nunca cambia).
 //          Este módulo ya no tiene ningún import de "three", @react-three/fiber
 //          ni @react-three/drei. Las primitivas JSX (<boxGeometry>, etc.) son
-//          manejadas por @react-three/fiber sin necesitar import directo.
+//          manejadas por @react-three/fiber sin necesitar import directo...
 import { useMemo } from "react";
 
 // three.js: DoubleSide = 2. Valor estable — no cambia entre versiones.
