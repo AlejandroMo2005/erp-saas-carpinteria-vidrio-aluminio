@@ -77,7 +77,7 @@ export function generarMensajeWA(cliente, items, resumen) {
 // Determina si un color de fondo es claro (para decidir el borde del circle)
 export function esColorClaro(color) {
   if (!color) return false;
-  const rgbaMatch = color.match(/rgba?\s*\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+))?\s*\)/i);
+  const rgbaMatch = color.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([\d.]+))?\s*\)$/i);
   if (rgbaMatch) {
     const alpha = rgbaMatch[4] !== undefined ? Number.parseFloat(rgbaMatch[4]) : 1;
     if (alpha < 0.45) return true;
