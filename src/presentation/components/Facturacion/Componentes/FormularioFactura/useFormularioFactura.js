@@ -35,7 +35,7 @@ export default function useFormularioFactura({ pedidoId, onFacturaCreada }) {
         if (raw.length === 0) return;
         const precios = distribuirTotal(raw, Number.parseFloat(pedido.total) || 0);
         setItems(raw.map((d, i) => ({
-          _id:             Date.now() + Math.random(),
+          _id:             globalThis.crypto.randomUUID(),
           descripcion:     buildDescripcion(d),
           cantidad:        Number.parseFloat(d.cantidad) || 1,
           precio_unitario: precios[i],
