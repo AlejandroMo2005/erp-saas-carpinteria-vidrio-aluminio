@@ -22,11 +22,11 @@ export default function VitrinaPreview({
   colorVidrio = "#e0f2ff",
 }) {
   const [hojas,       setHojas]       = useState(2);
-  const [tipo,        setTipo]        = useState("Corrediza");
+  const [tipo,        setTipo        ] = useState("Corrediza");
   const [conEstantes, setConEstantes] = useState(true);
 
-  const anchoN = parseFloat(ancho) || 1.2;
-  const altoN  = parseFloat(alto)  || 1.8;
+  const anchoN = Number.parseFloat(ancho) || 1.2;
+  const altoN  = Number.parseFloat(alto)  || 1.8;
 
   const anchoHoja = useMemo(() => anchoN / hojas,               [anchoN, hojas]);
   const areaTotal = useMemo(() => +(anchoN * altoN).toFixed(2), [anchoN, altoN]);
