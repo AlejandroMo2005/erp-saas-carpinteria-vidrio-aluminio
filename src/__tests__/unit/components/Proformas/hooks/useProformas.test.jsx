@@ -1092,38 +1092,56 @@ describe('useProformas', () => {
       );
     });
 
-    it('envía la proforma mediante WhatsApp con texto generado', () => {
-      const { result } = renderUseProformas();
+   it('envía la proforma mediante WhatsApp con texto generado', async () => {
+  mocks.apiPost.mockResolvedValueOnce({
+    data: {
+      data: {
+        items: [{ subtotal: 20 }],
+        subtotal: 20,
+        iva: 3,
+        total: 23,
+        iva_valor: 0.15,
+        whatsapp_text: 'Texto de WhatsApp',
+      },
+    },
+  });
 
-      act(() => {
-        result.current.setCliente('Juan Pérez');
-        result.current.setTelefono('0999999999');
-      });
+  const { result } = renderUseProformas();
 
-      act(() => {
-        result.current.handleUpdate(
-          result.current.items[0].id,
-          'trabajo_id',
-          '1'
-        );
-        result.current.handleUpdate(
-          result.current.items[0].id,
-          'ancho',
-          '2'
-        );
-        result.current.handleUpdate(
-          result.current.items[0].id,
-          'alto',
-          '3'
-        );
-      });
+  act(() => {
+    result.current.setCliente('Juan Pérez');
+    result.current.setTelefono('0999999999');
+    result.current.handleUpdate(
+      result.current.items[0].id,
+      'trabajo_id',
+      '1'
+    );
+    result.current.handleUpdate(
+      result.current.items[0].id,
+      'ancho',
+      '2'
+    );
+    result.current.handleUpdate(
+      result.current.items[0].id,
+      'alto',
+      '3'
+    );
+  });
 
-      act(() => {
-        result.current.enviarWhatsApp();
-      });
+  await act(async () => {
+    await result.current.calcularProforma();
+  });
 
-      expect(globalThis.open).toHaveBeenCalled();
-    });
+  act(() => {
+    result.current.enviarWhatsApp();
+  });
+
+  expect(globalThis.open).toHaveBeenCalledWith(
+    expect.stringContaining('https://wa.me/593999999999'),
+    '_blank',
+    'noopener,noreferrer'
+  );
+});
   });
 
   describe('agendamiento', () => {
