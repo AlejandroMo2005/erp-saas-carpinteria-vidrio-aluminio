@@ -24,8 +24,8 @@ export default function PuertaCocinaPreview({
   const [conVidrio, setConVidrio] = useState(false);
   const [apertura,  setApertura]  = useState(0.5);
 
-  const anchoN = parseFloat(ancho) || 0.6;
-  const altoN  = parseFloat(alto)  || 0.7;
+  const anchoN = Number.parseFloat(ancho) || 0.6;
+  const altoN  = Number.parseFloat(alto)  || 0.7;
 
   const anchoHoja = useMemo(() => anchoN / hojas,               [anchoN, hojas]);
   const areaTotal = useMemo(() => +(anchoN * altoN).toFixed(2), [anchoN, altoN]);
