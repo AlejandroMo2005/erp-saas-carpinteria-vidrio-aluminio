@@ -25,8 +25,8 @@ export default function VidrioTempladoSistema({
   opacidadMarco  = 1,
   opacidadVidrio = 0.3,
 }) {
-  const anchoN = Math.max(0.5, parseFloat(ancho) || 3);
-  const altoN  = Math.max(0.5, parseFloat(alto)  || 2.4);
+  const anchoN = Math.max(0.5, Number.parseFloat(ancho) || 3);
+  const altoN  = Math.max(0.5, Number.parseFloat(alto)  || 2.4);
 
   const numPaneles        = Math.ceil(anchoN / ANCHO_PANEL_ESTANDAR);
   const anchoPanelReal    = anchoN / numPaneles;
