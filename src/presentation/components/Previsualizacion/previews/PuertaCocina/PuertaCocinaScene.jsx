@@ -20,8 +20,8 @@ export default function PuertaCocinaScene({
   colorVidrio = "#e0f2ff",
   apertura    = 0.5,
 }) {
-  const altoN      = Math.max(0.1, parseFloat(alto)     || 0.7);
-  const anchoHojaN = Math.max(0.1, parseFloat(anchoHoja) || 0.3);
+  const altoN      = Math.max(0.1, Number.parseFloat(alto)     || 0.7);
+  const anchoHojaN = Math.max(0.1, Number.parseFloat(anchoHoja) || 0.3);
   const anchoTotal = hojas * anchoHojaN;
 
   const mMarco = useMemo(() => ({
