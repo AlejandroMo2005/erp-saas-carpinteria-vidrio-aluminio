@@ -89,7 +89,7 @@ export default function Pedidos() {
       queryClient.setQueryData(queryKey, (old = []) =>
         old.map((p) => (p.id === id ? { ...p, estado: estadoAnterior } : p))
       );
-      queryClient.invalidateQueries({ queryKey: pedidosKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: pedidosKeys.lists() });
       const status = err?.response?.status;
       if (status === 409) toastError(`El pedido #${id} fue modificado por otro usuario.`);
       else if (status === 403) toastError('Sin permisos para cambiar el estado.');
