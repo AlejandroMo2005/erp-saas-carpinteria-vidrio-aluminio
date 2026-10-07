@@ -13,19 +13,19 @@ export function useReferencias() {
     if (!isAdmin && !isVendedor) { setLoading(false); return; }
     let cancelled = false;
 
-    (async () => {
+    void (async () => {
       try {
         const { data } = await api.get('/trabajos?activo=1');
         const lista = Array.isArray(data) ? data : (data.trabajos ?? []);
 
         const agrupado = lista.reduce((acc, t) => {
-        const categoria = t.nombre.split(' - ')[0].trim();
-        const variante  = t.variante?.trim() || '';
-        if (!acc[categoria])           acc[categoria] = {};
-        if (!acc[categoria][variante]) acc[categoria][variante] = [];
-        acc[categoria][variante].push(t);
-        return acc;
-      }, {});
+          const categoria = t.nombre.split(' - ')[0].trim();
+          const variante  = t.variante?.trim() || '';
+          if (!acc[categoria])           acc[categoria] = {};
+          if (!acc[categoria][variante]) acc[categoria][variante] = [];
+          acc[categoria][variante].push(t);
+          return acc;
+        }, {});
 
         // Si un tipo ya tiene variantes definidas, descartar la entrada sin variante
         // (el registro original id=1..10 queda oculto — solo sirve como plantilla)
@@ -40,7 +40,7 @@ export function useReferencias() {
           }
         }
 
-if (!cancelled) setGrupos(grupos);
+        if (!cancelled) setGrupos(grupos);
 
         const limpio = {};
         for (const [tipo, variantes] of Object.entries(agrupado)) {
