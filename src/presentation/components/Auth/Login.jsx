@@ -92,7 +92,9 @@ export default function Login({ sessionExpired = false, onDismissExpired = () =>
 
         <form
           className="login-form"
-          onSubmit={handleSubmit}
+          onSubmit={(e) => {
+            void handleSubmit(e);
+          }}
           aria-labelledby="login-title"
           noValidate
         >
