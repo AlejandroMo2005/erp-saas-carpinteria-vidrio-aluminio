@@ -7,8 +7,6 @@ import { useState, useRef, useEffect, useCallback, memo } from 'react';
 import './IAPreview.css';
 import api from '../../../api/api';
 
-
-
 // ═══════════════════════════════════════════════════════════════════════════
 // MaskPainter
 // ═══════════════════════════════════════════════════════════════════════════
@@ -218,7 +216,7 @@ export default function IAPreview({
     timerRef.current = setInterval(() => {
       setProgreso(prev => {
         if (prev >= 82) { clearInterval(timerRef.current); return 82; }
-        return prev + Math.random() * 4 + 1;
+        return prev + 2;
       });
     }, 900);
 
