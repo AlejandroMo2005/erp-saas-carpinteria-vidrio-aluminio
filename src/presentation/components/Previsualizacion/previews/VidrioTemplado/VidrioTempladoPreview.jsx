@@ -25,8 +25,8 @@ export default function VidrioTempladoPreview({
   const [estado,    setEstado]    = useState("cerrada");
   const [direccion, setDireccion] = useState("derecha");
 
-  const anchoN = parseFloat(ancho) || 3.0;
-  const altoN  = parseFloat(alto)  || 2.4;
+  const anchoN = Number.parseFloat(ancho) || 3.0;
+  const altoN  = Number.parseFloat(alto)  || 2.4;
 
   const handleTipo      = (v) => { if (TIPO_OPTS.includes(v))      { setTipo(v); setEstado("cerrada"); } };
   const handleDireccion = (v) => DIRECCION_OPTS.includes(v) && setDireccion(v);
