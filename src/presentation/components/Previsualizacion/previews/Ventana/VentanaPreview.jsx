@@ -26,8 +26,8 @@ export default function VentanaPreview({
   const [tipo,     setTipo]     = useState("Corrediza");
   const [material, setMaterial] = useState("Mixta");
 
-  const anchoN = parseFloat(ancho) || 1.5;
-  const altoN  = parseFloat(alto)  || 1.2;
+  const anchoN = Number.parseFloat(ancho) || 1.5;
+  const altoN  = Number.parseFloat(alto)  || 1.2;
 
   const anchoHoja = useMemo(() => anchoN / hojas,               [anchoN, hojas]);
   const areaTotal = useMemo(() => +(anchoN * altoN).toFixed(2), [anchoN, altoN]);
