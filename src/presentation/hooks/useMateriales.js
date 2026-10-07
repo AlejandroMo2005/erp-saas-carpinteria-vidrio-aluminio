@@ -52,8 +52,8 @@ export function useCrearMaterial() {
     onSuccess: () => {
       // Invalida todas las listas y también con-colores
       // (el nuevo material puede aparecer en ambas vistas)
-      queryClient.invalidateQueries({ queryKey: materialesKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: materialesKeys.conColores() });
+      void queryClient.invalidateQueries({ queryKey: materialesKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: materialesKeys.conColores() });
     },
   });
 }
@@ -68,7 +68,7 @@ export function useActualizarMaterial() {
     onSuccess: (data, { id }) => {
       queryClient.setQueryData(materialesKeys.detail(id), data);
       // Usar lists() — invalida cualquier combinación de filtros activos
-      queryClient.invalidateQueries({ queryKey: materialesKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: materialesKeys.lists() });
     },
   });
 }
@@ -84,7 +84,7 @@ export function useActualizarStock() {
     },
     onSuccess: (data, { id }) => {
       queryClient.setQueryData(materialesKeys.detail(id), data);
-      queryClient.invalidateQueries({ queryKey: materialesKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: materialesKeys.lists() });
     },
   });
 }
@@ -98,8 +98,8 @@ export function useEliminarMaterial() {
     },
     onSuccess: (id) => {
       queryClient.removeQueries({ queryKey: materialesKeys.detail(id) });
-      queryClient.invalidateQueries({ queryKey: materialesKeys.lists() });
-      queryClient.invalidateQueries({ queryKey: materialesKeys.conColores() });
+      void queryClient.invalidateQueries({ queryKey: materialesKeys.lists() });
+      void queryClient.invalidateQueries({ queryKey: materialesKeys.conColores() });
     },
   });
 }
@@ -132,7 +132,7 @@ export function useActualizarVariante() {
     onError: () => {
       // Rollback visual: invalida el cache para que el próximo render
       // obtenga datos frescos del servidor con el stock/precio original.
-      queryClient.invalidateQueries({ queryKey: materialesKeys.conColores() });
+      void queryClient.invalidateQueries({ queryKey: materialesKeys.conColores() });
     },
     // onSuccess: no invalida — el componente ya hizo setQueryData optimista.
     // Si se necesita verificar contra el servidor, agregar:
