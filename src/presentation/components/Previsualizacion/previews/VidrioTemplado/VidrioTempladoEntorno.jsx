@@ -17,8 +17,8 @@ const COLOR_PARED      = "#e8e8e8";
 const COLOR_FONDO      = "#f0f0f0";
 
 export default function VidrioTempladoEntorno({ ancho, alto }) {
-  const anchoN = Math.max(0.5, parseFloat(ancho) || 3);
-  const altoN  = Math.max(0.5, parseFloat(alto)  || 2.4);
+  const anchoN = Math.max(0.5, Number.parseFloat(ancho) || 3);
+  const altoN  = Math.max(0.5, Number.parseFloat(alto)  || 2.4);
 
   const piso = useMemo(() => (
     <mesh rotation={[-Math.PI / 2, 0, 0]} position={[0, 0, -PROFUNDIDAD_SALA / 2]} receiveShadow>
