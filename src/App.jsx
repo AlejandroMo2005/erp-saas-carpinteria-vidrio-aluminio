@@ -98,7 +98,7 @@ function Dashboard() {
   const navegarA = (vista) => {
     // Sprint 17 DT-IA — navega a ruta real independiente
     if (vista === 'visualizador-ia') {
-      navigate('/visualizador-ia')
+      void navigate('/visualizador-ia')
       return
     }
     const rol        = user?.rol || 'CLIENTE'
