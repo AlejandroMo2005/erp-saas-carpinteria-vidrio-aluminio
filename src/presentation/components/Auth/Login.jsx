@@ -44,7 +44,7 @@ export default function Login({ sessionExpired = false, onDismissExpired = () =>
         localStorage.setItem('user', JSON.stringify(user));
         api.defaults.headers.common['Authorization'] = `Bearer ${accessToken}`;
         await login({ user, accessToken, refreshToken, expiresIn });
-        navigate('/');
+        void navigate('/');
       }
     } catch (err) {
       setError(err.response?.data?.message || 'Credenciales incorrectas');
