@@ -1,4 +1,4 @@
-import { useToasts } from '../../../../hooks/useToasts';
+import { useToasts } from '../../../hooks/useToasts';
 
 export function usePreviewToasts() {
   return useToasts({
