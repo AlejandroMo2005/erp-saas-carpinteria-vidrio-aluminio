@@ -16,30 +16,34 @@ import ErrorBoundary from './presentation/components/common/ErrorBoundary'
 import Navbar from './presentation/components/Layout/Navbar'
 import Login  from './presentation/components/Auth/Login'
 
-const Perfil             = lazy(() => import('./presentation/components/Perfil/Perfil'))
-const Register           = lazy(() => import('./presentation/components/Auth/Register'))
-const ForgotPassword     = lazy(() => import('./presentation/components/Auth/ForgotPassword'))
-const ResetPassword      = lazy(() => import('./presentation/components/Auth/ResetPassword'))
-const AccessibilityPanel = lazy(() =>
-  import('./presentation/components/common/AccessibilityPanel').then(
-    (m) => ({ default: m.AccessibilityPanel }),
-    (error) => {
+const cargarLazy = (importador) =>
+  lazy(() =>
+    importador().catch((error) => {
       throw error
-    }
+    })
+  )
+
+const Perfil             = cargarLazy(() => import('./presentation/components/Perfil/Perfil'))
+const Register           = cargarLazy(() => import('./presentation/components/Auth/Register'))
+const ForgotPassword     = cargarLazy(() => import('./presentation/components/Auth/ForgotPassword'))
+const ResetPassword      = cargarLazy(() => import('./presentation/components/Auth/ResetPassword'))
+const AccessibilityPanel = cargarLazy(() =>
+  import('./presentation/components/common/AccessibilityPanel').then(
+    (m) => ({ default: m.AccessibilityPanel })
   )
 )
-const Previsualizacion = lazy(() => import('./presentation/components/Previsualizacion'))
-const Proformas        = lazy(() => import('./presentation/components/Proformas'))
-const Pedidos          = lazy(() => import('./presentation/components/Pedidos'))
-const Materiales       = lazy(() => import('./presentation/components/Materiales'))
-const DashboardVentas  = lazy(() => import('./presentation/components/Dashboard'))
-const Facturacion      = lazy(() => import('./presentation/components/Facturacion/Facturacion'))
+const Previsualizacion = cargarLazy(() => import('./presentation/components/Previsualizacion'))
+const Proformas        = cargarLazy(() => import('./presentation/components/Proformas'))
+const Pedidos          = cargarLazy(() => import('./presentation/components/Pedidos'))
+const Materiales       = cargarLazy(() => import('./presentation/components/Materiales'))
+const DashboardVentas  = cargarLazy(() => import('./presentation/components/Dashboard'))
+const Facturacion      = cargarLazy(() => import('./presentation/components/Facturacion/Facturacion'))
 
 // Sprint 17 DT-IA — sin Three.js ni R3F
-const VisualizadorIA = lazy(() => import('./presentation/components/VisualizadorIA/VisualizadorIA'))
+const VisualizadorIA = cargarLazy(() => import('./presentation/components/VisualizadorIA/VisualizadorIA'))
 
 // Sprint 17 DT-REF-UI — lazy: solo carga cuando ADMIN o VENDEDOR abre el módulo
-const ReferenciasIA = lazy(() => import('./presentation/components/VisualizadorIA/Referencias/Referencias'))
+const ReferenciasIA = cargarLazy(() => import('./presentation/components/VisualizadorIA/Referencias/Referencias'))
 
 const LoadingFallback = () => (
   <div style={{ display:'flex', justifyContent:'center', alignItems:'center', minHeight:'60vh', width:'100%' }}>
