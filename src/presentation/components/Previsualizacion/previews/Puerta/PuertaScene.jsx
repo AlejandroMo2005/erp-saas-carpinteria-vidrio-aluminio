@@ -7,9 +7,8 @@
 //          Este módulo ya no tiene imports directos de "three".
 
 import { useMemo } from "react";
+import useSceneMaterials from "../useSceneMaterials";
 
-// three.js: DoubleSide = 2. Valor estable — no cambia entre versiones.
-const DoubleSide = 2;
 
 const ESPESOR_MARCO = 0.08;
 const PROFUNDIDAD   = 0.05;
@@ -26,19 +25,7 @@ export default function PuertaScene({
   const altoN      = Math.max(0.2, Number.parseFloat(alto)     || 2.1);
   const anchoHojaN = Math.max(0.1, Number.parseFloat(anchoHoja) || 0.75);
 
-  const mMarco = useMemo(() => ({
-    color: colorMarco, roughness: 0.3, metalness: 0.8, side: DoubleSide,
-  }), [colorMarco]);
-
-  const mVidrio = useMemo(() => ({
-    color: colorVidrio, transparent: true, opacity: 0.4,
-    roughness: 0.1, metalness: 0, transmission: 0.9, thickness: 0.5,
-    side: DoubleSide,
-  }), [colorVidrio]);
-
-  const mAluminio = useMemo(() => ({
-    color: colorMarco, roughness: 0.3, metalness: 0.8, side: DoubleSide,
-  }), [colorMarco]);
+  const { mMarco, mVidrio } = useSceneMaterials(colorMarco, colorVidrio);
 
   // ── Contenido de hoja ────────────────────────────────────────────────────
   const ContenidoHoja = useMemo(() => {
@@ -52,7 +39,7 @@ export default function PuertaScene({
     if (material === "Aluminio") return (
       <mesh>
         <boxGeometry args={[anchoHojaN - 0.02, altoN - 0.02, PROFUNDIDAD]} />
-        <meshStandardMaterial {...mAluminio} />
+        <meshStandardMaterial {...mMarco} />
       </mesh>
     );
 
@@ -96,7 +83,7 @@ export default function PuertaScene({
         )}
       </>
     );
-  }, [material, anchoHojaN, altoN, tipo, mMarco, mVidrio, mAluminio]);
+  }, [material, anchoHojaN, altoN, tipo, mMarco, mVidrio]);
 
   // ── Hojas ────────────────────────────────────────────────────────────────
   const paneles = useMemo(() =>

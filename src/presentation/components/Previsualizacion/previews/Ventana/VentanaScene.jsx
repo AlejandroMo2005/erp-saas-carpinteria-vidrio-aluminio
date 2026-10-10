@@ -9,9 +9,8 @@
 //          ni @react-three/drei. Las primitivas JSX (<boxGeometry>, etc.) son
 //          manejadas por @react-three/fiber sin necesitar import directo...
 import { useMemo } from "react";
+import useSceneMaterials, { DoubleSide } from "../useSceneMaterials";
 
-// three.js: DoubleSide = 2. Valor estable — no cambia entre versiones.
-const DoubleSide = 2;
 
 const ESPESOR_MARCO = 0.08;
 const PROFUNDIDAD   = 0.05;
@@ -30,15 +29,7 @@ export default function VentanaScene({
   const anchoHojaN = Math.max(0.1, Number.parseFloat(anchoHoja) || 0.75);
   const anchoTotal = hojas * anchoHojaN;
 
-  const mMarco = useMemo(() => ({
-    color: colorMarco, roughness: 0.3, metalness: 0.8, side: DoubleSide,
-  }), [colorMarco]);
-
-  const mVidrio = useMemo(() => ({
-    color: colorVidrio, transparent: true, opacity: 0.4,
-    roughness: 0.1, metalness: 0, transmission: 0.9, thickness: 0.5,
-    side: DoubleSide,
-  }), [colorVidrio]);
+  const { mMarco, mVidrio } = useSceneMaterials(colorMarco, colorVidrio);
 
   // ── Contenido de hoja ────────────────────────────────────────────────────
   const ContenidoHoja = useMemo(() => {
