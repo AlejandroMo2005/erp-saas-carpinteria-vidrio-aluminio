@@ -1,7 +1,7 @@
-﻿import { useMemo } from "react";
+import { useMemo } from "react";
 import useSceneMaterials from "../useSceneMaterials";
 import ContenidoHoja from "../ContenidoHoja";
-
+import PanelesYRieles from "../PanelesYRieles";
 
 export default function PuertaScene({
   hojas = 2,
@@ -14,6 +14,7 @@ export default function PuertaScene({
 }) {
   const altoN = Math.max(0.2, Number.parseFloat(alto) || 2.1);
   const anchoHojaN = Math.max(0.1, Number.parseFloat(anchoHoja) || 0.75);
+  const anchoTotal = hojas * anchoHojaN;
 
   const { mMarco, mVidrio } = useSceneMaterials(colorMarco, colorVidrio);
 
@@ -33,57 +34,17 @@ export default function PuertaScene({
     [material, anchoHojaN, altoN, tipo, mMarco, mVidrio],
   );
 
-  const paneles = useMemo(
-    () =>
-      Array.from({ length: hojas }, (_, i) => {
-        const xPos = (i - hojas / 2 + 0.5) * anchoHojaN;
-        const rotY = tipo === "Abatible" && i % 2 === 0 ? -0.3 : 0;
-
-        return (
-          <group key={i} position={[xPos, altoN / 2, 0]}>
-            {tipo === "Abatible" ? (
-              <group rotation={[0, rotY, 0]}>{contenidoHoja}</group>
-            ) : (
-              contenidoHoja
-            )}
-          </group>
-        );
-      }),
-    [hojas, anchoHojaN, altoN, tipo, contenidoHoja],
-  );
-
-  const rieles = useMemo(() => {
-    if (tipo !== "Corrediza") return null;
-
-    const anchoTotal = hojas * anchoHojaN;
-
-    return (
-      <>
-        <mesh position={[0, altoN + 0.05, 0]}>
-          <boxGeometry args={[anchoTotal, 0.05, 0.08]} />
-          <meshStandardMaterial
-            color="#666666"
-            roughness={0.4}
-            metalness={0.7}
-          />
-        </mesh>
-
-        <mesh position={[0, -0.05, 0]}>
-          <boxGeometry args={[anchoTotal, 0.05, 0.08]} />
-          <meshStandardMaterial
-            color="#666666"
-            roughness={0.4}
-            metalness={0.7}
-          />
-        </mesh>
-      </>
-    );
-  }, [tipo, hojas, anchoHojaN, altoN]);
-
   return (
     <group position={[0, 0, 0]}>
-      {rieles}
-      {paneles}
+      <PanelesYRieles
+        hojas={hojas}
+        anchoHojaN={anchoHojaN}
+        altoN={altoN}
+        tipo={tipo}
+        contenidoHoja={contenidoHoja}
+        anguloAbatible={-0.3}
+        anchoTotal={anchoTotal}
+      />
     </group>
   );
 }
