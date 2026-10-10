@@ -200,7 +200,7 @@ describe('utils/logger', () => {
     expect(fsMock.existsSync).toHaveBeenCalled();
 
     expect(fsMock.mkdirSync).toHaveBeenCalledWith(
-      expect.stringContaining('/logs'),
+      expect.stringMatching(/[\\/]logs$/),
       { recursive: true }
     );
 

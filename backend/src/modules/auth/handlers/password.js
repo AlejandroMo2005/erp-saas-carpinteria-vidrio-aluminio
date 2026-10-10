@@ -17,6 +17,10 @@ const { timingSafeEqual } = require('../../../shared/middleware/security');
 const { registrarAuditoria } = require('../../../shared/middleware/auditLog');
 const { COOKIE_CLEAR_OPTIONS, getIp, addToBlacklist } = require('../auth.service');
 
+function isResetCodeValid(rows, code) {
+  return rows.length > 0 && timingSafeEqual(rows[0].code, code.toString());
+}
+
 exports.forgotPassword = async (req, res) => {
   try {
     const { email } = req.body;
@@ -105,7 +109,7 @@ exports.verifyResetCode = async (req, res) => {
       );
 
       const codeMatch =
-        rows.length > 0 && timingSafeEqual(rows[0].code, code.toString());
+        isResetCodeValid(rows, code);
 
       if (!rows.length || !codeMatch) {
         return res.status(400).json({
@@ -155,7 +159,7 @@ exports.resetPassword = async (req, res) => {
       );
 
       const codeMatch =
-        rows.length > 0 && timingSafeEqual(rows[0].code, code.toString());
+        isResetCodeValid(rows, code);
 
       if (!rows.length || !codeMatch) {
         return res.status(400).json({
