@@ -1,46 +1,71 @@
 // src/modules/comercial/facturacion/facturacion.repository.js
 // 📦 Sprint 20 — Movido de models/Facturacion.js
-//                Renombrado a facturacion.repository.js
-// 🏢 Sprint 19 COMPLETADO aquí:
-//    - obtenerFacturas:           empresa_id añadido al WHERE
-//    - contarFacturas:            empresa_id añadido al WHERE
-//    - obtenerFacturaPorId:       empresa_id añadido al WHERE + parámetro
-//    - actualizarFactura:         empresa_id añadido al WHERE + parámetro
-//    - anularFactura:             empresa_id añadido al WHERE + parámetro
-//    - obtenerResumenFacturacion: empresa_id añadido al WHERE + parámetro
-//    - obtenerResumenMesAnterior: empresa_id añadido al WHERE + parámetro
-//    - obtenerFacturacionMensual: empresa_id añadido al WHERE + parámetro
-//    - obtenerFacturasPorEstado:  empresa_id añadido al WHERE + parámetro
-//    - obtenerTopClientes:        empresa_id añadido al WHERE + parámetro
-
 'use strict';
 
 const db = require('../../../config/database.js');
+
+// Construye los filtros compartidos por las consultas de facturas.
+const construirFiltrosFactura = (filtros = {}, prefijo = '') => {
+  const {
+    fechaDesde,
+    fechaHasta,
+    estado,
+    estadoSRI,
+    clienteNombre,
+    numeroFactura,
+    pedidoId,
+    empresaId,
+  } = filtros;
+
+  const where = ['1=1'];
+  const params = [];
+  const columna = (campo) => `${prefijo}${campo}`;
+
+  if (empresaId) {
+    where.push(`${columna('empresa_id')} = ?`);
+    params.push(empresaId);
+  }
+  if (pedidoId) {
+    where.push(`${columna('pedido_id')} = ?`);
+    params.push(pedidoId);
+  }
+  if (fechaDesde) {
+    where.push(`${columna('fecha_emision')} >= ?`);
+    params.push(fechaDesde);
+  }
+  if (fechaHasta) {
+    where.push(`${columna('fecha_emision')} <= ?`);
+    params.push(fechaHasta);
+  }
+  if (estado) {
+    where.push(`${columna('estado')} = ?`);
+    params.push(estado);
+  }
+  if (estadoSRI) {
+    where.push(`${columna('estado_sri')} = ?`);
+    params.push(estadoSRI);
+  }
+  if (clienteNombre) {
+    where.push(`${columna('cliente_nombre')} LIKE ?`);
+    params.push(`%${clienteNombre}%`);
+  }
+  if (numeroFactura) {
+    where.push(`${columna('numero_factura')} LIKE ?`);
+    params.push(`%${numeroFactura}%`);
+  }
+
+  return { where, params };
+};
 
 // ═══════════════════════════════════════════════════════════════════════════
 // FACTURAS — LECTURA
 // ═══════════════════════════════════════════════════════════════════════════
 
 const obtenerFacturas = async (filtros = {}, paginacion = {}) => {
-  const {
-    fechaDesde, fechaHasta, estado, estadoSRI,
-    clienteNombre, numeroFactura, pedidoId,
-    empresaId,                                // ← Sprint 19
-  } = filtros;
-
   const { limite = 50, offset = 0 } = paginacion;
-  const where  = ['1=1'];
-  const params = [];
 
   // Sprint 19: filtro de empresa SIEMPRE presente si se proporciona
-  if (empresaId)     { where.push('f.empresa_id = ?');            params.push(empresaId); }
-  if (pedidoId)      { where.push('f.pedido_id = ?');             params.push(pedidoId); }
-  if (fechaDesde)    { where.push('f.fecha_emision >= ?');        params.push(fechaDesde); }
-  if (fechaHasta)    { where.push('f.fecha_emision <= ?');        params.push(fechaHasta); }
-  if (estado)        { where.push('f.estado = ?');                params.push(estado); }
-  if (estadoSRI)     { where.push('f.estado_sri = ?');            params.push(estadoSRI); }
-  if (clienteNombre) { where.push('f.cliente_nombre LIKE ?');     params.push(`%${clienteNombre}%`); }
-  if (numeroFactura) { where.push('f.numero_factura LIKE ?');     params.push(`%${numeroFactura}%`); }
+  const { where, params } = construirFiltrosFactura(filtros, 'f.');
 
   const sql = `
     SELECT
@@ -82,23 +107,7 @@ const obtenerFacturas = async (filtros = {}, paginacion = {}) => {
 };
 
 const contarFacturas = async (filtros = {}) => {
-  const {
-    fechaDesde, fechaHasta, estado, estadoSRI,
-    clienteNombre, numeroFactura, pedidoId,
-    empresaId,                                // ← Sprint 19
-  } = filtros;
-
-  const where  = ['1=1'];
-  const params = [];
-
-  if (empresaId)     { where.push('empresa_id = ?');          params.push(empresaId); }
-  if (pedidoId)      { where.push('pedido_id = ?');           params.push(pedidoId); }
-  if (fechaDesde)    { where.push('fecha_emision >= ?');      params.push(fechaDesde); }
-  if (fechaHasta)    { where.push('fecha_emision <= ?');      params.push(fechaHasta); }
-  if (estado)        { where.push('estado = ?');              params.push(estado); }
-  if (estadoSRI)     { where.push('estado_sri = ?');          params.push(estadoSRI); }
-  if (clienteNombre) { where.push('cliente_nombre LIKE ?');   params.push(`%${clienteNombre}%`); }
-  if (numeroFactura) { where.push('numero_factura LIKE ?');   params.push(`%${numeroFactura}%`); }
+  const { where, params } = construirFiltrosFactura(filtros);
 
   return db.query(
     `SELECT COUNT(*) AS total FROM facturas WHERE ${where.join(' AND ')}`,
