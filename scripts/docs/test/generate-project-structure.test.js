@@ -1,4 +1,4 @@
-const fs = require('node:fs');
+﻿const fs = require('node:fs');
 const os = require('node:os');
 const path = require('node:path');
 
@@ -81,8 +81,6 @@ describe('generateProjectStructure', () => {
     expect(content).toContain(
       'components',
     );
-
-
   });
 
   it('maneja un proyecto sin archivos adicionales', () => {
@@ -97,9 +95,9 @@ describe('generateProjectStructure', () => {
       'utf8',
     );
 
-      expect(content).toContain(
-        '# Estructura automática del proyecto',
-      );
+    expect(content).toContain(
+      '# Estructura automática del proyecto',
+    );
   });
 
   it('incluye la marca de generación automática', () => {
@@ -115,5 +113,23 @@ describe('generateProjectStructure', () => {
     expect(content).toContain(
       'generado automáticamente',
     );
+  });
+
+  it('excluye directorios de registros de ejecución', () => {
+    fs.mkdirSync(
+      path.join(temporaryRoot, 'backend', 'logs'),
+      { recursive: true },
+    );
+
+    const filePath = generateProjectStructure(
+      temporaryRoot,
+    );
+
+    const content = fs.readFileSync(
+      filePath,
+      'utf8',
+    );
+
+    expect(content).not.toContain('backend/logs/');
   });
 });

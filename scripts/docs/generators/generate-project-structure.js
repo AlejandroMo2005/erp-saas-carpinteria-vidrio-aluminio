@@ -14,6 +14,7 @@ const EXCLUDED_DIRECTORIES = new Set([
   'dist',
   'build',
   'docs',
+  'logs',
 ]);
 
 function collectDirectories(

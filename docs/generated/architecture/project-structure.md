@@ -35,7 +35,6 @@
 - `backend/__tests__/unit/shared/utils/`
 - `backend/__tests__/unit/utils/`
 - `backend/__tests__/unit/validators/`
-- `backend/logs/`
 - `backend/src/`
 - `backend/src/config/`
 - `backend/src/modules/`
@@ -206,6 +205,6 @@
 
 La estructura se obtiene mediante análisis del sistema de archivos del repositorio.
 
-- Directorios detectados: 199
+- Directorios detectados: 198
 
 > Este archivo es generado automáticamente. No editar manualmente.
