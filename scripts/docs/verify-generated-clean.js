@@ -34,11 +34,18 @@ function getGitChangedFiles(rootDir) {
       },
     );
 
+
     return output
       .split('\n')
       .filter((line) => line.trim())
-      .map((line) => line.slice(3).trim())
-      .filter((file) => !DYNAMIC_GENERATED_FILES.has(file))
+      .map((line) => line.slice(3).trim().replaceAll('\\', '/'))
+      .filter(
+        (file) =>
+          ![...DYNAMIC_GENERATED_FILES].some(
+            (dynamicFile) =>
+              dynamicFile.replaceAll('\\', '/') === file,
+          ),
+      )
       .sort();
   } catch (error) {
     throw new Error(

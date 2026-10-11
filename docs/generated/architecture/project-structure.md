@@ -35,6 +35,7 @@
 - `backend/__tests__/unit/shared/utils/`
 - `backend/__tests__/unit/utils/`
 - `backend/__tests__/unit/validators/`
+- `backend/logs/`
 - `backend/src/`
 - `backend/src/config/`
 - `backend/src/modules/`
@@ -147,6 +148,7 @@
 - `src/presentation/components/Materiales/constants/`
 - `src/presentation/components/Materiales/hooks/`
 - `src/presentation/components/Materiales/utils/`
+- `src/presentation/components/NotificacionesCompartidas/`
 - `src/presentation/components/Pedidos/`
 - `src/presentation/components/Pedidos/BadgeEstado/`
 - `src/presentation/components/Pedidos/FiltrosBar/`
@@ -204,6 +206,6 @@
 
 La estructura se obtiene mediante análisis del sistema de archivos del repositorio.
 
-- Directorios detectados: 197
+- Directorios detectados: 199
 
 > Este archivo es generado automáticamente. No editar manualmente.
