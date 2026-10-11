@@ -259,7 +259,7 @@ jobs:
         run: |
           docker compose -f docker-compose.e2e.yml ps
           docker compose -f docker-compose.e2e.yml exec -T mysql-e2e \
-            mysqladmin ping -h 127.0.0.1 -uroot -pe2e-root
+            mysqladmin ping -h localhoost -uroot -pe2e-root
           docker compose -f docker-compose.e2e.yml exec -T redis-e2e \
             redis-cli ping
 
