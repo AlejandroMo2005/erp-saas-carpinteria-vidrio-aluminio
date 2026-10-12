@@ -36,6 +36,12 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
+      - name: Inspect frontend test environment
+        run: |
+          node -p "'Node: ' + process.version"
+          npm ls vitest @vitest/coverage-v8 vite @vitejs/plugin-react
+          node -e "console.log('Coverage provider:', require('@vitest/coverage-v8/package.json').version)"
+
       - name: Run ESLint
         run: npm run lint
 
