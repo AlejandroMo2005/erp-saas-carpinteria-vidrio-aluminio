@@ -11,6 +11,7 @@ const EXCLUDED_DIRECTORIES = new Set([
   '.git',
   'node_modules',
   'coverage',
+  'coverage-ci',
   'dist',
   'build',
   'docs',
