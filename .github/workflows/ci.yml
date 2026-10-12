@@ -42,6 +42,9 @@ jobs:
           npm ls vitest @vitest/coverage-v8 vite @vitejs/plugin-react
           node -e "console.log('Coverage provider:', require('@vitest/coverage-v8/package.json').version)"
 
+      - name: Inspect coverage transformation dependencies
+        run: |
+          npm ls @babel/core @babel/parser @jridgewell/trace-mapping instanbul-lib-coverage magic-string esbuild
       - name: Run ESLint
         run: npm run lint
 
