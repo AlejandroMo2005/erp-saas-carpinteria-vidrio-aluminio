@@ -31,7 +31,7 @@
 | `preview` | `vite preview` |
 | `start` | `vite` |
 | `test` | `vitest` |
-| `test:coverage` | `vitest --coverage` |
+| `test:coverage` | `vitest run --coverage` |
 | `test:run` | `vitest run` |
 | `test:ui` | `vitest --ui` |
 

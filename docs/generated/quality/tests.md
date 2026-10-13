@@ -6,10 +6,10 @@ Fuente: `coverage/coverage-final.json`
 
 | Métrica | Resultado |
 | --- | --- |
-| Statements | 99.43% |
+| Statements | 99.42% |
 | Branches | 99.06% |
 | Functions | 96.44% |
-| Lines | 99.43% |
+| Lines | 99.42% |
 
 
 ## Fuente
