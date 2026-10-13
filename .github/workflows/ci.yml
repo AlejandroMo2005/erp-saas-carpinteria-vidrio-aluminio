@@ -36,17 +36,38 @@ jobs:
       - name: Install frontend dependencies
         run: npm ci
 
+      - name: Inspect frontend runtime and platform
+        run: |
+          node -p "JSON.stringify({
+            node: process.version,
+            platform: process.platform,
+            arch: process.arch,
+            v8: process.versions.v8,
+            npm: process.env.npm_config_user_agent
+          }, null, 2)"
+
       - name: Inspect frontend test environment
         run: |
-          node -p "'Node: ' + process.version"
           npm ls vitest @vitest/coverage-v8 vite @vitejs/plugin-react
           node -e "console.log('Coverage provider:', require('@vitest/coverage-v8/package.json').version)"
 
       - name: Inspect coverage transformation dependencies
         run: |
-          npm ls @babel/core @babel/parser @jridgewell/trace-mapping istanbul-lib-coverage magic-string esbuild
+          npm ls @babel/core @babel/parser @jridgewell/trace-mapping istanbul-lib-coverage magic-string esbuild ast-v8-to-istanbul @ampproject/remapping
+
+      - name: Inspect source line endings
+        run: |
+          git config --get core.autocrlf || true
+          git check-attr text eol -- src/presentation/components/Dashboard/Productos/IdentificadorUtils.js
+          git ls-files --eol -- \
+            src/presentation/api/api.js \
+            src/presentation/components/Dashboard/Productos/IdentificadorUtils.js \
+            src/presentation/components/Dashboard/constants.js \
+            src/presentation/components/Dashboard/Productos/useDetalleFactura.js
+
       - name: Run ESLint
         run: npm run lint
+
       - name: Compare source file hashes
         run: |
           sha256sum src/presentation/api/api.js
@@ -54,6 +75,52 @@ jobs:
 
       - name: Run tests with coverage
         run: npm run test:coverage
+
+      - name: Inspect generated coverage totals
+        if: always()
+        run: |
+          node --input-type=commonjs <<'NODE'
+          const fs = require('node:fs');
+
+          const path = 'coverage/coverage-final.json';
+
+          if (!fs.existsSync(path)) {
+            console.log('No se generó coverage/coverage-final.json');
+            process.exit(0);
+          }
+
+          const coverage = JSON.parse(fs.readFileSync(path, 'utf8'));
+
+          const totals = {
+            statements: { total: 0, covered: 0 },
+            branches: { total: 0, covered: 0 },
+            functions: { total: 0, covered: 0 },
+            lines: { total: 0, covered: 0 },
+            files: Object.keys(coverage).length,
+          };
+
+          for (const file of Object.values(coverage)) {
+            for (const [type, mapName] of [
+              ['statements', 's'],
+              ['branches', 'b'],
+              ['functions', 'f'],
+            ]) {
+              const counters = Object.values(file[mapName] || {}).flat();
+              totals[type].total += counters.length;
+              totals[type].covered += counters.filter(
+                (count) => count > 0,
+              ).length;
+            }
+
+            const lineCounters = Object.values(file.l || {});
+            totals.lines.total += lineCounters.length;
+            totals.lines.covered += lineCounters.filter(
+              (count) => count > 0,
+            ).length;
+          }
+
+          console.log(JSON.stringify(totals, null, 2));
+          NODE
 
       - name: Build production application
         run: npm run build
