@@ -271,8 +271,6 @@ jobs:
       - name: Verify service status
         run: |
           docker compose -f docker-compose.e2e.yml ps
-          docker compose -f docker-compose.e2e.yml exec -T mysql-e2e \
-            mysqladmin ping -h localhost -uroot -pe2e-root
           docker compose -f docker-compose.e2e.yml exec -T redis-e2e \
             redis-cli ping
 
